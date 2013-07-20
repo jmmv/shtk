@@ -92,7 +92,7 @@ checkout__different_name_body() {
 
 atf_test_case checkout__already_exists
 checkout__already_exists_body() {
-    mkdir usr/src
+    mkdir -p usr/src
     if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "" $(pwd)/usr/src ) >out 2>err
     then
         atf_fail "Checkout succeeded, but should not"

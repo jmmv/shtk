@@ -1,0 +1,151 @@
+# Copyright 2013 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PHONY_TARGETS =
+
+doc_DATA = AUTHORS COPYING NEWS README
+noinst_DATA = INSTALL README
+EXTRA_DIST = $(doc_DATA) INSTALL README
+
+dist_pkgdata_DATA  = base.subr
+dist_pkgdata_DATA += bootstrap.subr
+dist_pkgdata_DATA += cli.subr
+dist_pkgdata_DATA += config.subr
+dist_pkgdata_DATA += cvs.subr
+dist_pkgdata_DATA += list.subr
+dist_pkgdata_DATA += process.subr
+
+BUILD_FILE = \
+	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
+	    -e 's,__SHTK_SHELL__,$(SHTK_SHELL),g' \
+	    -e 's,__SHTK_VERSION__,$(PACKAGE_VERSION),g' \
+	    <"$(srcdir)/$${source}" >"$${target}.tmp"; \
+	mv "$${target}.tmp" "$${target}"
+BUILD_SCRIPT = \
+	$(BUILD_FILE); \
+	chmod +x "$${target}"
+
+bin_SCRIPTS = shtk
+CLEANFILES = shtk
+EXTRA_DIST += shtk.sh
+shtk: $(srcdir)/shtk.sh
+	source=shtk.sh target=shtk; $(BUILD_SCRIPT)
+
+man_MANS = shtk.1
+CLEANFILES += shtk.1
+EXTRA_DIST += shtk.1.in
+shtk.1: $(srcdir)/shtk.1.in
+	source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+
+if WITH_ATF
+dist_pkgtests_DATA = Kyuafile
+
+BUILD_TEST = \
+	SHTK_MODULESDIR=$(abs_srcdir) $(builddir)/shtk build \
+            -s '$(ATF_SH)' -m '' -o "$${name}" "$(srcdir)/$${name}.sh"
+
+pkgtests_SCRIPTS = base_test
+CLEANFILES += base_test
+EXTRA_DIST += base_test.sh
+base_test: $(srcdir)/base_test.sh shtk
+	name=base_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += cli_test
+CLEANFILES += cli_test
+EXTRA_DIST += cli_test.sh
+cli_test: $(srcdir)/cli_test.sh shtk
+	name=cli_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += config_test
+CLEANFILES += config_test
+EXTRA_DIST += config_test.sh
+config_test: $(srcdir)/config_test.sh shtk
+	name=config_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += cvs_test
+CLEANFILES += cvs_test
+EXTRA_DIST += cvs_test.sh
+cvs_test: $(srcdir)/cvs_test.sh shtk
+	name=cvs_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += list_test
+CLEANFILES += list_test
+EXTRA_DIST += list_test.sh
+list_test: $(srcdir)/list_test.sh shtk
+	name=list_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += process_test
+CLEANFILES += process_test
+EXTRA_DIST += process_test.sh
+process_test: $(srcdir)/process_test.sh shtk
+	name=process_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += shtk_test
+CLEANFILES += shtk_test
+EXTRA_DIST += shtk_test.sh
+shtk_test: $(srcdir)/shtk_test.sh shtk
+	name=shtk_test; $(BUILD_TEST)
+
+if HAVE_KYUA
+CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}
+CHECK_ENVIRONMENT += SHTK_MODULESDIR=$(abs_top_srcdir)
+INSTALLCHECK_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH}
+
+check-local: check-kyua
+PHONY_TARGETS += check-kyua
+check-kyua:
+	$(CHECK_ENVIRONMENT) $(TESTS_ENVIRONMENT) \
+	    $(KYUA) --config=none test \
+            --kyuafile='$(top_srcdir)/Kyuafile' --build-root='$(top_builddir)'
+
+installcheck-local: installcheck-kyua
+PHONY_TARGETS += installcheck-kyua
+installcheck-kyua:
+	cd $(pkgtestsdir) && $(INSTALLCHECK_ENVIRONMENT) $(TESTS_ENVIRONMENT) \
+	    $(KYUA) --config=none test
+else  # HAVE_KYUA
+PHONY_TARGETS += missing-kyua
+missing-kyua:
+	@echo "WARNING: kyua not found; no tests run"
+
+check-local: missing-kyua
+installcheck-local: missing-kyua
+endif  # HAVE_KYUA
+else  # WITH_ATF
+dist-hook: forbid-dist
+PHONY_TARGETS += forbid-dist
+forbid-dist:
+	@echo "Sorry; cannot make dist without atf."
+	@false
+endif  # WITH_ATF
+
+PHONY_TARGETS += clean-all
+clean-all:
+	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
+
+.PHONY: $(PHONY_TARGETS)

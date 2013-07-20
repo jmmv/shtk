@@ -1,4 +1,4 @@
-#! @SHTK_SHELL@
+#! __SHTK_SHELL__
 # Copyright 2012 Google Inc.
 # All rights reserved.
 #
@@ -38,15 +38,15 @@ set -e
 
 
 # Location of the shtk modules.
-: ${SHTK_MODULESDIR:="@SHTK_MODULESDIR@"}
+: ${SHTK_MODULESDIR:="__SHTK_MODULESDIR__"}
 
 
 # Default shell to use when generating scripts.
-: ${SHTK_SHELL:="@SHTK_SHELL@"}
+: ${SHTK_SHELL:="__SHTK_SHELL__"}
 
 
 # Version of the package.
-SHTK_VERSION="@SHTK_VERSION@"
+SHTK_VERSION="__SHTK_VERSION__"
 
 
 # Base name of the running script.
@@ -122,8 +122,8 @@ shtk_build() {
     # Note that we use the built-in value of SHTK_MODULESDIR unconditionally
     # instead of what the environment says to avoid possible side-effects that
     # would be easy to debug.
-    sed -e "s,__SHTK_MODULESDIR__,@SHTK_MODULESDIR@,g" \
-        -e "s,__SHTK_SH__,${shell},g" \
+    sed -e "s,%%SHTK_MODULESDIR%%,__SHTK_MODULESDIR__,g" \
+        -e "s,%%SHTK_SH%%,${shell},g" \
         "${SHTK_MODULESDIR}/bootstrap.subr" \
         | grep -v '^#[^!].*' | grep -v '^#$' >"${output}.tmp"
     if [ "${input}" = - ]; then

@@ -1,0 +1,12 @@
+*_test
+Makefile
+Makefile.in
+aclocal.m4
+admin/install-sh
+admin/missing
+autom4te.cache
+config.log
+config.status
+configure
+shtk
+shtk.1

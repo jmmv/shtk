@@ -109,7 +109,7 @@ Otherwise this flag must be specified.
 Path to the shell interpreter to write in the shebang line of the file.
 .Pp
 Default:
-.Pa @SHTK_SHELL@ .
+.Pa __SHTK_SHELL__ .
 .El
 .Ss The version command
 The version command prints the name of the package and its version to the
@@ -124,7 +124,7 @@ Overrides the built-in location of the default shell interpreter.
 .El
 .Sh FILES
 .Bl -tag -width XXXX
-.It Pa @SHTK_MODULESDIR@/
+.It Pa __SHTK_MODULESDIR__/
 Location of the
 .Nm
 modules.
@@ -138,11 +138,11 @@ Such docstrings document the purpose of the function, the parameters it
 takes, its return value (if any) and any side-effects.
 .Pp
 Please look at the files in
-.Pa @SHTK_MODULESDIR@
+.Pa __SHTK_MODULESDIR__
 for additional details.
 .Sh AUTHORS
 The
 .Nm
 package was developed by
 .An Julio Merino
-.Aq jmmv@NetBSD.org .
+.Aq jmmv@google.com .

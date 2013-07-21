@@ -54,6 +54,9 @@ init_cvsroot() {
 
 
 atf_test_case fetch
+fetch_head() {
+    atf_set "require.progs" "cvs"
+}
 fetch_body() {
     init_cvsroot "${MOCK_CVSROOT}" src
 
@@ -72,6 +75,9 @@ fetch_body() {
 
 
 atf_test_case checkout__same_name
+checkout__same_name_head() {
+    atf_set "require.progs" "cvs"
+}
 checkout__same_name_body() {
     init_cvsroot "${MOCK_CVSROOT}" first second
     shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/first
@@ -83,6 +89,9 @@ checkout__same_name_body() {
 
 
 atf_test_case checkout__different_name
+checkout__different_name_head() {
+    atf_set "require.progs" "cvs"
+}
 checkout__different_name_body() {
     init_cvsroot "${MOCK_CVSROOT}" first second
     shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/second
@@ -91,6 +100,9 @@ checkout__different_name_body() {
 
 
 atf_test_case checkout__already_exists
+checkout__already_exists_head() {
+    atf_set "require.progs" "cvs"
+}
 checkout__already_exists_body() {
     mkdir -p usr/src
     if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "" $(pwd)/usr/src ) >out 2>err
@@ -105,6 +117,7 @@ checkout__already_exists_body() {
 
 atf_test_case checkout__permission_denied
 checkout__permission_denied_head() {
+    atf_set "require.progs" "cvs"
     atf_set "require.user" "unprivileged"
 }
 checkout__permission_denied_body() {
@@ -122,6 +135,9 @@ checkout__permission_denied_body() {
 
 
 atf_test_case checkout__cvs_fails
+checkout__cvs_fails_head() {
+    atf_set "require.progs" "cvs"
+}
 checkout__cvs_fails_body() {
     init_cvsroot "${MOCK_CVSROOT}" src
     if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "foo" $(pwd)/usr/src ) >out 2>err
@@ -135,6 +151,9 @@ checkout__cvs_fails_body() {
 
 
 atf_test_case update__ok
+update__ok_head() {
+    atf_set "require.progs" "cvs"
+}
 update__ok_body() {
     init_cvsroot "${MOCK_CVSROOT}" first second
 
@@ -156,6 +175,9 @@ update__ok_body() {
 
 
 atf_test_case update__resume_checkout
+update__resume_checkout_head() {
+    atf_set "require.progs" "cvs"
+}
 update__resume_checkout_body() {
     init_cvsroot "${MOCK_CVSROOT}" first
 
@@ -173,6 +195,9 @@ update__resume_checkout_body() {
 
 
 atf_test_case update__does_not_exist
+update__does_not_exist_head() {
+    atf_set "require.progs" "cvs"
+}
 update__does_not_exist_body() {
     if ( shtk_cvs_update "${MOCK_CVSROOT}" "" src ) >out 2>err; then
         atf_fail "Update succeeded, but should not"
@@ -184,6 +209,9 @@ update__does_not_exist_body() {
 
 
 atf_test_case update__cvs_fails
+update__cvs_fails_head() {
+    atf_set "require.progs" "cvs"
+}
 update__cvs_fails_body() {
     init_cvsroot "${MOCK_CVSROOT}" src
     cvs -d "${MOCK_CVSROOT}" checkout src

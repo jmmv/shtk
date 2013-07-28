@@ -3,9 +3,11 @@ Changes in version 1.3
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* Sources migrated to a Google Code project from the previous copy in
+* Sources migrated to a GitHub project from the previous copy in
   the pkgsrc repository.  shtk is now a first-class package and includes
-  a traditional build system based on automake and autoconf.
+  a traditional build system based on automake and autoconf and also
+  provides a pkg-config file and autoconf macros to ease the integration
+  with other packages.
 
 
 Changes in version 1.2

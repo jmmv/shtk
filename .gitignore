@@ -10,3 +10,4 @@ config.status
 configure
 shtk
 shtk.1
+shtk.pc

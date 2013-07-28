@@ -43,6 +43,7 @@ dist_pkgdata_DATA += process.subr
 BUILD_FILE = \
 	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
 	    -e 's,__SHTK_SHELL__,$(SHTK_SHELL),g' \
+	    -e 's,__SHTK_TOOL__,$(exec_prefix)/bin/shtk,g' \
 	    -e 's,__SHTK_VERSION__,$(PACKAGE_VERSION),g' \
 	    <"$(srcdir)/$${source}" >"$${target}.tmp"; \
 	mv "$${target}.tmp" "$${target}"
@@ -61,6 +62,15 @@ CLEANFILES += shtk.1
 EXTRA_DIST += shtk.1.in
 shtk.1: $(srcdir)/shtk.1.in
 	source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+
+aclocal_DATA = shtk.m4
+EXTRA_DIST += shtk.m4
+
+pkgconfig_DATA = shtk.pc
+CLEANFILES += shtk.pc
+EXTRA_DIST += shtk.pc.in
+shtk.pc: $(srcdir)/shtk.pc.in Makefile
+	source=shtk.pc.in target=shtk.pc; $(BUILD_FILE)
 
 if WITH_ATF
 dist_pkgtests_DATA = Kyuafile

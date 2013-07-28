@@ -26,56 +26,24 @@ dnl THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 dnl (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 dnl OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-AC_INIT([Shell Toolkit], [1.3],
-        [shtk-discuss@googlegroups.com], [shtk], [])
-AC_PREREQ([2.65])
-
-
-AC_COPYRIGHT([Copyright 2013 Google Inc.])
-AC_CONFIG_AUX_DIR([admin])
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SRCDIR([shtk.sh])
-
-
-AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
-
-
-AC_ARG_VAR([SHTK_SHELL], [Location of the POSIX shell interpreter to use])
-if test "${SHTK_SHELL}" = ""; then
-    AC_PATH_PROGS(SHTK_SHELL, [bash sh])
-else
-    case ${SHTK_SHELL} in
-    /*)
-        ;;
-    *)
-        AC_MSG_ERROR([SHTK_SHELL must hold an absolute path])
-        ;;
-    esac
-fi
-if test "${SHTK_SHELL}" = ""; then
-    AC_MSG_ERROR([No POSIX shell interpreter found; maybe set SHTK_SHELL?])
-fi
-
-
-m4_ifndef([PKG_CHECK_MODULES],
-    [m4_fatal([Cannot find pkg.m4; see the INSTALL document for help])])
-
-m4_ifndef([ATF_CHECK_SH],
-    [m4_fatal([Cannot find atf-sh.m4; see the INSTALL document for help])])
-ATF_CHECK_SH([>= 0.17])
-m4_ifndef([ATF_ARG_WITH],
-    [m4_fatal([Cannot find atf-common.m4; see the INSTALL document for help])])
-ATF_ARG_WITH
-
-
-AC_PATH_PROG([KYUA], [kyua])
-AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
-
-
-AC_SUBST(aclocaldir, \${datadir}/aclocal)
-AC_SUBST(pkgconfigdir, \${libdir}/pkgconfig)
-AC_SUBST(pkgtestsdir, \${testsdir}/shtk)
-AC_SUBST(testsdir, \${exec_prefix}/tests)
-
-
-AC_OUTPUT
+dnl SHTK_CHECK([version-spec])
+dnl
+dnl Checks if shtk is present and substitutes SHTK_TOOL with the full path to
+dnl the shtk(1) utility needed to "build" scripts that use shtk.
+dnl
+dnl \param version-spec If provided, indicates the version requirement for the
+dnl     shtk pkgconfig package.  This argument must be a version comparison
+dnl     specification accepted by pkgconfig; e.g. '>= 1.3'.
+AC_DEFUN([SHTK_CHECK], [
+    spec="shtk[]m4_default_nblank([ $1], [])"
+    AC_MSG_CHECKING([for ${spec}])
+    PKG_CHECK_EXISTS([${spec}], [found=yes], [found=no])
+    if test "${found}" = yes; then
+        SHTK_TOOL="$("${PKG_CONFIG}" --variable=shtk_tool shtk)"
+        AC_SUBST([SHTK_TOOL], ["${SHTK_TOOL}"])
+        AC_MSG_RESULT([${SHTK_TOOL}])
+    else
+        AC_MSG_RESULT([no])
+        AC_MSG_ERROR([Could not find shtk])
+    fi
+])

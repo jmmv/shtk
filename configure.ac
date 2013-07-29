@@ -26,8 +26,8 @@ dnl THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 dnl (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 dnl OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-AC_INIT([Shell Toolkit], [1.3],
-        [shtk-discuss@googlegroups.com], [shtk], [])
+AC_INIT([Shell Toolkit], [1.4],
+        [https://github.com/jmmv/shtk/issues/], [shtk], [])
 AC_PREREQ([2.65])
 
 

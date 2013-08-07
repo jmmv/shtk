@@ -76,8 +76,9 @@ if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
 
 BUILD_TEST = \
-	SHTK_MODULESDIR=$(abs_srcdir) $(builddir)/shtk build \
-            -s '$(ATF_SH)' -m '' -o "$${name}" "$(srcdir)/$${name}.sh"
+	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH= \
+	    $(builddir)/shtk build -s '$(ATF_SH)' -m '' -o "$${name}" \
+	    "$(srcdir)/$${name}.sh"
 
 pkgtests_SCRIPTS = base_test
 CLEANFILES += base_test
@@ -124,7 +125,9 @@ shtk_test: $(srcdir)/shtk_test.sh shtk
 if HAVE_KYUA
 CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}
 CHECK_ENVIRONMENT += SHTK_MODULESDIR=$(abs_top_srcdir)
-INSTALLCHECK_ENVIRONMENT = PATH=$(prefix)/bin:$${PATH}
+CHECK_ENVIRONMENT += SHTK_MODULESPATH=
+INSTALLCHECK_ENVIRONMENT  = PATH=$(prefix)/bin:$${PATH}
+INSTALLCHECK_ENVIRONMENT += SHTK_MODULESPATH=
 
 check-local: check-kyua
 PHONY_TARGETS += check-kyua

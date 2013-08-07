@@ -52,12 +52,34 @@ shtk_import() {
         [ "${loaded_module}" != "${module}" ] || return 0
     done
 
-    local file="${SHTK_MODULESDIR}/${module}.subr"
-    if [ -f "${file}" ]; then
-        . "${file}"
-        _Shtk_LoadedModules="${Shtk_LoadedModules} ${module}"
-    else
-        echo "${0##*/}: E: Cannot load module ${module}; tried ${file}" 1>&2
+    local path="${SHTK_MODULESPATH}:${SHTK_MODULESDIR}"
+    local attempts=
+    local oldifs="${IFS}"
+    IFS=:
+    for dir in ${path}; do
+        [ -n "${dir}" ] || continue
+
+        local file="${dir}/${module}.subr"
+        if [ -f "${file}" ]; then
+            IFS="${oldifs}"
+            . "${file}"
+            _Shtk_LoadedModules="${Shtk_LoadedModules} ${module}"
+            IFS=:
+
+            attempts=
+            break
+        else
+            if [ -z "${attempts}" ]; then
+                attempts="${file}"
+            else
+                attempts="${attempts} ${file}"
+            fi
+        fi
+    done
+    IFS="${oldifs}"
+
+    if [ -n "${attempts}" ]; then
+        echo "${0##*/}: E: Cannot load module ${module}; tried ${attempts}" 1>&2
         exit 1
     fi
 }

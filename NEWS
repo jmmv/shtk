@@ -3,6 +3,10 @@ Changes in version 1.4
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Added support for a user-defined SHTK_MODULESPATH variable.  This
+  colon-separated, user-tunable variable lists the directories that
+  contain modules.
+
 * Added a modulesdir variable to shtk.pc so that third-party packages
   can install shtk-compliant modules into the shared directory.  This
   variable is also exposed by the SHTK_CHECK macro of shtk.m4 as

@@ -29,25 +29,32 @@
 # No imports: we can assume the bootstrap code to be present.
 
 
-# Creates a "mock" module for shtk_import.
+# Creates a mock module for shtk_import.
 #
-# \post SHTK_MODULESDIR is adjusted to point to our test directory.
+# The mock module is created in the given location and increments the given
+# counter variable (starting at 1).  This counter can be used to determine if
+# the inclusion of modules is not idempotent, or if a module has been loaded
+# from multiple directories.
 create_mock_module() {
-    mkdir -p modules
-    cat >modules/mock.subr <<EOF
-if [ -z "\${mock_value}" ]; then
-    mock_value=1
+    local module="${1}"; shift
+    local variable="${1}"; shift
+
+    mkdir -p "$(dirname ${module})"
+    cat >"${module}" <<EOF
+if [ -z "\${${variable}}" ]; then
+    ${variable}=1
 else
-    mock_value="\$((\${mock_value} + 1))"
+    mock_value="\$((\${${variable}} + 1))"
 fi
 EOF
-    SHTK_MODULESDIR="$(pwd)/modules"
 }
 
 
 atf_test_case import__ok
 import__ok_body() {
-    create_mock_module
+    create_mock_module modules/mock.subr mock_value
+    SHTK_MODULESDIR="$(pwd)/modules"
+
     [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
     shtk_import mock
     atf_check_equal 1 "${mock_value}"
@@ -56,12 +63,62 @@ import__ok_body() {
 
 atf_test_case import__idempotent
 import__idempotent_body() {
-    create_mock_module
+    create_mock_module modules/mock.subr mock_value
+    SHTK_MODULESDIR="$(pwd)/modules"
+
     [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
     shtk_import mock
     atf_check_equal 1 "${mock_value}"
     shtk_import mock
     atf_check_equal 1 "${mock_value}"
+}
+
+
+atf_test_case import__from_path__load_once
+import__from_path__load_once_body() {
+    create_mock_module modules/mock.subr mock_value
+    create_mock_module site/mock.subr mock_value
+    SHTK_MODULESPATH="$(pwd)/site"
+    SHTK_MODULESDIR="$(pwd)/modules"
+
+    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    shtk_import mock
+    atf_check_equal 1 "${mock_value}"
+}
+
+
+atf_test_case import__from_path__prefer_path
+import__from_path__prefer_path_body() {
+    create_mock_module modules/mock.subr base_value
+    create_mock_module site/mock.subr site_value
+    SHTK_MODULESPATH="$(pwd)/site"
+    SHTK_MODULESDIR="$(pwd)/modules"
+
+    [ -z "${site_value}" ] || atf_fail "site_value already defined"
+    [ -z "${base_value}" ] || atf_fail "base_value already defined"
+    shtk_import mock
+    [ -n "${site_value}" ] || atf_fail "Site-specific module not loaded"
+    [ -z "${base_value}" ] || atf_fail "Base module loaded"
+}
+
+
+atf_test_case import__from_path__various_directories
+import__from_path__various_directories_body() {
+    create_mock_module modules/mock.subr mock_value
+    create_mock_module site1/foo.subr foo_value
+    create_mock_module site2/bar.subr bar_value
+    SHTK_MODULESPATH="$(pwd)/site1:$(pwd)/site2"
+    SHTK_MODULESDIR="$(pwd)/modules"
+
+    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    [ -z "${foo_value}" ] || atf_fail "foo_value already defined"
+    [ -z "${bar_value}" ] || atf_fail "bar_value already defined"
+    shtk_import mock
+    shtk_import foo
+    shtk_import bar
+    atf_check_equal 1 "${mock_value}"
+    atf_check_equal 1 "${foo_value}"
+    atf_check_equal 1 "${bar_value}"
 }
 
 
@@ -82,5 +139,8 @@ EOF
 atf_init_test_cases() {
     atf_add_test_case import__ok
     atf_add_test_case import__idempotent
+    atf_add_test_case import__from_path__load_once
+    atf_add_test_case import__from_path__prefer_path
+    atf_add_test_case import__from_path__various_directories
     atf_add_test_case import__not_found
 }

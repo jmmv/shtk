@@ -1,3 +1,4 @@
+shtk_modulesdir=__SHTK_MODULESDIR__
 shtk_tool=__SHTK_TOOL__
 
 Name: shtk

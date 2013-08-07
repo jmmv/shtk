@@ -29,7 +29,8 @@ dnl OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl SHTK_CHECK([version-spec])
 dnl
 dnl Checks if shtk is present and substitutes SHTK_TOOL with the full path to
-dnl the shtk(1) utility needed to "build" scripts that use shtk.
+dnl the shtk(1) utility needed to "build" scripts that use shtk, and
+dnl SHTK_MODULESDIR with the location of the modules.
 dnl
 dnl \param version-spec If provided, indicates the version requirement for the
 dnl     shtk pkgconfig package.  This argument must be a version comparison
@@ -39,6 +40,8 @@ AC_DEFUN([SHTK_CHECK], [
     AC_MSG_CHECKING([for ${spec}])
     PKG_CHECK_EXISTS([${spec}], [found=yes], [found=no])
     if test "${found}" = yes; then
+        SHTK_MODULESDIR="$("${PKG_CONFIG}" --variable=shtk_modulesdir shtk)"
+        AC_SUBST([SHTK_MODULESDIR], ["${SHTK_MODULESDIR}"])
         SHTK_TOOL="$("${PKG_CONFIG}" --variable=shtk_tool shtk)"
         AC_SUBST([SHTK_TOOL], ["${SHTK_TOOL}"])
         AC_MSG_RESULT([${SHTK_TOOL}])

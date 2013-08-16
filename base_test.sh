@@ -44,7 +44,7 @@ create_mock_module() {
 if [ -z "\${${variable}}" ]; then
     ${variable}=1
 else
-    mock_value="\$((\${${variable}} + 1))"
+    ${variable}="\$((\${${variable}} + 1))"
 fi
 EOF
 }
@@ -63,14 +63,20 @@ import__ok_body() {
 
 atf_test_case import__idempotent
 import__idempotent_body() {
-    create_mock_module modules/mock.subr mock_value
+    create_mock_module modules/mock1.subr mock1_value
+    create_mock_module modules/mock2.subr mock2_value
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
-    shtk_import mock
-    atf_check_equal 1 "${mock_value}"
-    shtk_import mock
-    atf_check_equal 1 "${mock_value}"
+    [ -z "${mock1_value}" ] || atf_fail "mock1_value already defined"
+    [ -z "${mock2_value}" ] || atf_fail "mock2_value already defined"
+    shtk_import mock1
+    shtk_import mock2
+    atf_check_equal 1 "${mock1_value}"
+    atf_check_equal 1 "${mock2_value}"
+    shtk_import mock1
+    shtk_import mock2
+    atf_check_equal 1 "${mock1_value}"
+    atf_check_equal 1 "${mock2_value}"
 }
 
 

@@ -63,7 +63,7 @@ shtk_import() {
         if [ -f "${file}" ]; then
             IFS="${oldifs}"
             . "${file}"
-            _Shtk_LoadedModules="${Shtk_LoadedModules} ${module}"
+            _Shtk_LoadedModules="${_Shtk_LoadedModules} ${module}"
             IFS=:
 
             attempts=

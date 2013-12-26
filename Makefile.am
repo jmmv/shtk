@@ -33,6 +33,7 @@ noinst_DATA = INSTALL README
 EXTRA_DIST = $(doc_DATA) INSTALL README
 
 dist_pkgdata_DATA  = base.subr
+dist_pkgdata_DATA += bool.subr
 dist_pkgdata_DATA += bootstrap.subr
 dist_pkgdata_DATA += cli.subr
 dist_pkgdata_DATA += config.subr
@@ -85,6 +86,12 @@ CLEANFILES += base_test
 EXTRA_DIST += base_test.sh
 base_test: $(srcdir)/base_test.sh shtk
 	name=base_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += bool_test
+CLEANFILES += bool_test
+EXTRA_DIST += bool_test.sh
+bool_test: $(srcdir)/bool_test.sh shtk
+	name=bool_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cli_test
 CLEANFILES += cli_test

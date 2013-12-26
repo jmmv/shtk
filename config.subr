@@ -29,6 +29,7 @@
 # \file config.subr
 # Configuration file processing and queries.
 
+shtk_import bool
 shtk_import cli
 
 
@@ -122,17 +123,9 @@ shtk_config_get_bool() {
     local var="${1}"; shift
 
     if shtk_config_has "${var}"; then
-        case "$(shtk_config_get "${var}")" in
-            [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee])
-                return 0
-                ;;
-            [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee])
-                return 1
-                ;;
-            *)
-                shtk_cli_error "Invalid boolean value in variable ${var}"
-                ;;
-        esac
+        shtk_bool_check "$(shtk_config_get "${var}")" \
+            "Invalid boolean value in variable ${var}" || return 1
+        return 0
     else
         return 1
     fi

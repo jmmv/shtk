@@ -12,6 +12,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   variable is also exposed by the SHTK_CHECK macro of shtk.m4 as
   SHTK_MODULESDIR.
 
+* Added a new bool module with a shtk_bool_check function to convert a
+  string to a boolean.
+
 * Fixed the config module in Mac OS X 10.9 to respect default values
   of configuration variables.
 

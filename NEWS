@@ -15,6 +15,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Added a new bool module with a shtk_bool_check function to convert a
   string to a boolean.
 
+* Added a new cleanup module to simplify the installation and automatic
+  execution of termination handlers.
+
 * Fixed the config module in Mac OS X 10.9 to respect default values
   of configuration variables.
 

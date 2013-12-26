@@ -1,0 +1,89 @@
+# Copyright 2013 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# \file cleanup.subr
+# Utilities to install exit handlers for cleanup routines.
+
+shtk_import bool
+shtk_import list
+
+
+# List of registered cleanup handlers (function names).
+_Shtk_Cleanup_Handlers=
+
+
+# List of exit traps that execute the cleanup handlers.
+_Shtk_Cleanup_Traps="EXIT HUP INT TERM"
+
+
+# Whether the exit traps have been installed or not.
+_Shtk_Cleanup_Installed=false
+
+
+# Executes all installed cleanup handlers.
+_shtk_cleanup_run_handlers() {
+    local signo="${1}"; shift
+    local exitcode="${1}"; shift
+
+    for handler in ${_Shtk_Cleanup_Handlers}; do
+        eval "${handler}" || true
+    done
+
+    trap - ${_Shtk_Cleanup_Traps}  # Prevent double execution.
+    if [ "${signo}" = EXIT ]; then
+        exit "${exitcode}"
+    else
+        kill "-${signo}" ${$}
+    fi
+}
+
+
+# Sets up exit traips to run the cleanup handlers.
+_shtk_cleanup_install_traps() {
+    if shtk_bool_check "${_Shtk_Cleanup_Installed}"; then
+        return 0
+    fi
+    for code in ${_Shtk_Cleanup_Traps}; do
+        trap "_shtk_cleanup_run_handlers '${code}' \$?" "${code}"
+    done
+    _Shtk_Cleanup_Installed=true
+}
+
+
+# Installs cleanup handlers to be called on script termination.
+#
+# Handlers are executed in order of installation.
+#
+# \param ... Name of the functions to install.
+shtk_cleanup_register() {
+    for funcname in "${@}"; do
+        shtk_list_contains "${funcname}" ${_Shtk_Cleanup_Handlers} \
+            || _Shtk_Cleanup_Handlers="${_Shtk_Cleanup_Handlers} ${funcname}"
+    done
+    _shtk_cleanup_install_traps
+}

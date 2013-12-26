@@ -35,6 +35,7 @@ EXTRA_DIST = $(doc_DATA) INSTALL README
 dist_pkgdata_DATA  = base.subr
 dist_pkgdata_DATA += bool.subr
 dist_pkgdata_DATA += bootstrap.subr
+dist_pkgdata_DATA += cleanup.subr
 dist_pkgdata_DATA += cli.subr
 dist_pkgdata_DATA += config.subr
 dist_pkgdata_DATA += cvs.subr
@@ -92,6 +93,12 @@ CLEANFILES += bool_test
 EXTRA_DIST += bool_test.sh
 bool_test: $(srcdir)/bool_test.sh shtk
 	name=bool_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += cleanup_test
+CLEANFILES += cleanup_test
+EXTRA_DIST += cleanup_test.sh
+cleanup_test: $(srcdir)/cleanup_test.sh shtk
+	name=cleanup_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cli_test
 CLEANFILES += cli_test

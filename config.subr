@@ -204,11 +204,12 @@ shtk_config_load() {
     [ -e "${config_file}" ] || shtk_cli_error "Configuration file" \
         "${config_file} does not exist"
 
-    # User-facing variables.
+    # Ensure all configuration variables are unset from the point of view of the
+    # user.  Any defaults that the caller has set are not clobbered by this.
     local var
     for var in ${_Shtk_ConfigVars}; do
-        unset "${var}" || true
         eval local "${var}"
+        unset "${var}" || true
     done
 
     local real_config_file

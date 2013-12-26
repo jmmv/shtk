@@ -261,6 +261,18 @@ EOF
 }
 
 
+atf_test_case load__respect_existing
+load__respect_existing_body() {
+    shtk_config_init VAR1 V2
+
+    shtk_config_set VAR1 "value 1"
+    shtk_config_set V2 "value-2"
+    shtk_config_load /dev/null || atf_fail "Failed to load empty configuration"
+    shtk_config_has VAR1 || atf_fail "VAR1 was undefined on load"
+    shtk_config_has V2 || atf_fail "V2 was undefined on load"
+}
+
+
 atf_test_case load__allow_undefine
 load__allow_undefine_body() {
     shtk_config_init UNDEFINE
@@ -466,6 +478,7 @@ atf_init_test_cases() {
     atf_add_test_case unset__unknown_variable
 
     atf_add_test_case load__filter_variables
+    atf_add_test_case load__respect_existing
     atf_add_test_case load__allow_undefine
     atf_add_test_case load__current_directory
     atf_add_test_case load__missing_file

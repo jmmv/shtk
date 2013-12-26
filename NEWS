@@ -12,6 +12,9 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
   variable is also exposed by the SHTK_CHECK macro of shtk.m4 as
   SHTK_MODULESDIR.
 
+* Fixed the config module in Mac OS X 10.9 to respect default values
+  of configuration variables.
+
 
 Changes in version 1.3
 ======================

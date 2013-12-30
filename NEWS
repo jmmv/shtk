@@ -1,7 +1,7 @@
 Changes in version 1.4
 ======================
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Released on 2013-12-30.
 
 * Added support for a user-defined SHTK_MODULESPATH variable.  This
   colon-separated, user-tunable variable lists the directories that

@@ -81,7 +81,86 @@ EOF
 }
 
 
+atf_test_case run__timeout__ok
+run__timeout__ok_body() {
+    cat >helper.sh <<EOF
+#! /bin/sh
+echo "This exits quickly:" "\${@}"
+exit 0
+EOF
+    chmod +x helper.sh
+
+    shtk_process_run -t 10 ./helper.sh one two three >out 2>err \
+        || atf_fail "Got an unexpected error code"
+
+    cat >expout <<EOF
+This exits quickly: one two three
+EOF
+    atf_check -o file:expout cat out
+
+    cat >experr <<EOF
+process_test: I: Running './helper.sh one two three' in $(pwd)
+process_test: I: Command finished successfully
+EOF
+    atf_check -o file:experr cat err
+}
+
+
+atf_test_case run__timeout__fail
+run__timeout__fail_body() {
+    cat >helper.sh <<EOF
+#! /bin/sh
+echo "This exits with an error:" "\${@}"
+exit 42
+EOF
+    chmod +x helper.sh
+
+    code=0
+    shtk_process_run -t 10 ./helper.sh one two three >out 2>err || code="${?}"
+    [ ${code} -eq 42 ] \
+        || atf_fail "Did not get the expected error code; got ${code}"
+
+    cat >expout <<EOF
+This exits with an error: one two three
+EOF
+    atf_check -o file:expout cat out
+
+    cat >experr <<EOF
+process_test: I: Running './helper.sh one two three' in $(pwd)
+process_test: W: Command failed with code 42
+EOF
+    atf_check -o file:experr cat err
+}
+
+
+atf_test_case run__timeout__expired
+run__timeout__expired_body() {
+    cat >helper.sh <<EOF
+#! /bin/sh
+echo "This does not exit on time:" "\${@}"
+exec >/dev/null  # Force flush.
+sleep 100
+exit 0
+EOF
+    chmod +x helper.sh
+
+    code=0
+    shtk_process_run -t 1 ./helper.sh one two three >out 2>err || code="${?}"
+    [ ${code} -ne 0 ] || atf_fail "Got an unexpected error code"
+
+    cat >expout <<EOF
+This does not exit on time: one two three
+EOF
+    atf_check -o file:expout cat out
+    atf_check -o match:"Timer expired" cat err
+}
+
+
 atf_init_test_cases() {
     atf_add_test_case run__ok
     atf_add_test_case run__fail
+
+    atf_add_test_case run__timeout__ok
+    atf_add_test_case run__timeout__fail
+    atf_add_test_case run__timeout__expired
 }

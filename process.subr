@@ -29,19 +29,99 @@
 # \file process.subr
 # Process manipulation functions.
 
+shtk_import cleanup
 shtk_import cli
 
 
 # Executes a command with logging.
 #
+# \param -ttimeout Seconds after which to kill the subprocess.
 # \param ... The command to execute.
 #
-# \return The exit code of the executed command.
+# \return The exit code of the executed command.  If a timeout was specified and
+# the command times out, an arbitrary exit code greater than 0 is returned.
 shtk_process_run() {
+    local timeout=
+
+    local OPTIND
+    while getopts ':t:' arg "${@}"; do
+        case "${arg}" in
+            t)  # Timeout.
+                timeout="${OPTARG}"
+                ;;
+
+            \?)
+                shtk_cli_error "Invalid option -${OPTARG} to shtk_process_run"
+                ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+    OPTIND=1  # Should not be necessary due to the 'local' above.
+
     shtk_cli_info "Running '${@}' in $(pwd)"
-    local ret=0
-    "${@}" || ret="${?}"
-    if [ ${ret} -eq 0 ]; then
+
+    local ret=
+    if [ -z "${timeout}" ]; then
+        ret=0
+        "${@}" || ret="${?}"
+    else
+        # Spawning a process with a timeout is tricky because we have to spawn
+        # two subprocesses: one to run the actual process and one to act as a
+        # watchdog.  Because both of these processes are blocking, we cannot
+        # perform their duties on the current process.  These two processes kill
+        # themselves mutually on completion regardless of the order in which
+        # they finish and, because their interdependency, we need to pass
+        # details between them with a file.  Once they are both dead, we have to
+        # guess what actually happened.
+        #
+        # The cookie file below works like this: first, the PID of the
+        # subprocess running the desired command is written to it.  The watchdog
+        # process uses the content of this file to kill the subprocess if
+        # needed.  Once the subprocess has finished, its exit status is written
+        # to the cookie.  If the subprocess has been killed, then the magic word
+        # TIMEOUT is written to the cookie.
+
+        local cookie="$(mktemp -t shtk)"
+        eval "shtk_process_run_remove_cookie() { rm -f '${cookie}'; }"
+        shtk_cleanup_register shtk_process_run_remove_cookie
+
+        (
+            sleep "${timeout}"
+            while [ -z "$(cat "${cookie}")" ]; do
+                # Race protection: the process has not yet started.
+                sleep 1
+            done
+            local pid="$(cat "${cookie}")"
+            shtk_cli_warning "Timer expired; killing ${pid}"
+            kill -9 "${pid}"
+            echo "TIMEOUT" >"${cookie}"
+        ) &
+        local watchdog="${!}"
+
+        (
+            local ret=0
+            "${@}" || ret="${?}"
+            kill -9 "${watchdog}"
+            while [ -z "$(cat "${cookie}")" ]; do
+                # Race protection: the parent has not yet written the cookie.
+                sleep 1
+            done
+            echo "${ret}" >"${cookie}"
+        ) &
+        local subprocess="${!}"
+        echo "${subprocess}" >"${cookie}"
+
+        wait
+
+        ret="$(cat "${cookie}")"
+        rm -f "${cookie}"
+    fi
+    [ -n "${ret}" ] || shtk_cli_error "ret not initialized; something failed"
+
+    if [ "${ret}" = "TIMEOUT" ]; then
+        shtk_cli_warning "Command timed out after ${timeout} seconds"
+        ret=127
+    elif [ "${ret}" -eq 0 ]; then
         shtk_cli_info "Command finished successfully"
     else
         shtk_cli_warning "Command failed with code ${ret}"

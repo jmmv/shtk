@@ -3,7 +3,9 @@ Changes in version 1.5
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* No changes recorded.
+* Added timeout support to shtk_process_run.  The new '-t' option to
+  this function takes the number of seconds before forcibly killing the
+  subprocess.
 
 
 Changes in version 1.4

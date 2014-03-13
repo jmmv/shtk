@@ -42,6 +42,12 @@ dist_pkgdata_DATA += cvs.subr
 dist_pkgdata_DATA += list.subr
 dist_pkgdata_DATA += process.subr
 
+pkgdata_DATA = version.subr
+CLEANFILES = version.subr
+EXTRA_DIST += version.subr.in
+version.subr: $(srcdir)/version.subr.in
+	source=version.subr.in target=version.subr; $(BUILD_FILE)
+
 BUILD_FILE = \
 	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
 	    -e 's,__SHTK_SHELL__,$(SHTK_SHELL),g' \
@@ -54,7 +60,7 @@ BUILD_SCRIPT = \
 	chmod +x "$${target}"
 
 bin_SCRIPTS = shtk
-CLEANFILES = shtk
+CLEANFILES += shtk
 EXTRA_DIST += shtk.sh
 shtk: $(srcdir)/shtk.sh
 	source=shtk.sh target=shtk; $(BUILD_SCRIPT)
@@ -135,6 +141,12 @@ CLEANFILES += shtk_test
 EXTRA_DIST += shtk_test.sh
 shtk_test: $(srcdir)/shtk_test.sh shtk
 	name=shtk_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += version_test
+CLEANFILES += version_test
+EXTRA_DIST += version_test.sh
+version_test: $(srcdir)/version_test.sh shtk
+	name=version_test; $(BUILD_TEST)
 
 if HAVE_KYUA
 CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}

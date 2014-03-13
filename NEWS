@@ -3,6 +3,11 @@ Changes in version 1.5
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Added a version module with helper functions to check if shtk is a
+  given version or matches some constraints.  Useful to dynamically
+  determine which functions to call in a script, if their need is
+  optional.
+
 * Added timeout support to shtk_process_run.  The new '-t' option to
   this function takes the number of seconds before forcibly killing the
   subprocess.

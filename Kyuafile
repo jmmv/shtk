@@ -11,3 +11,4 @@ atf_test_program{name="cvs_test"}
 atf_test_program{name="list_test"}
 atf_test_program{name="process_test"}
 atf_test_program{name="shtk_test"}
+atf_test_program{name="version_test"}

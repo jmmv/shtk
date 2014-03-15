@@ -84,7 +84,7 @@ if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
 
 BUILD_TEST = \
-	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH= \
+	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH=$(abs_builddir) \
 	    $(builddir)/shtk build -s '$(ATF_SH)' -m '' -o "$${name}" \
 	    "$(srcdir)/$${name}.sh"
 
@@ -151,7 +151,7 @@ version_test: $(srcdir)/version_test.sh shtk
 if HAVE_KYUA
 CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}
 CHECK_ENVIRONMENT += SHTK_MODULESDIR=$(abs_top_srcdir)
-CHECK_ENVIRONMENT += SHTK_MODULESPATH=
+CHECK_ENVIRONMENT += SHTK_MODULESPATH=$(abs_top_builddir)
 INSTALLCHECK_ENVIRONMENT  = PATH=$(prefix)/bin:$${PATH}
 INSTALLCHECK_ENVIRONMENT += SHTK_MODULESPATH=
 

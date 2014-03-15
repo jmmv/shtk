@@ -53,6 +53,7 @@ EOF
 atf_test_case import__ok
 import__ok_body() {
     create_mock_module modules/mock.subr mock_value
+    SHTK_MODULESPATH=
     SHTK_MODULESDIR="$(pwd)/modules"
 
     [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
@@ -65,6 +66,7 @@ atf_test_case import__idempotent
 import__idempotent_body() {
     create_mock_module modules/mock1.subr mock1_value
     create_mock_module modules/mock2.subr mock2_value
+    SHTK_MODULESPATH=
     SHTK_MODULESDIR="$(pwd)/modules"
 
     [ -z "${mock1_value}" ] || atf_fail "mock1_value already defined"
@@ -130,7 +132,8 @@ import__from_path__various_directories_body() {
 
 atf_test_case import__not_found
 import__not_found_body() {
-    SHTK_MODULESDIR=$(pwd)
+    SHTK_MODULESPATH=; export SHTK_MODULESPATH
+    SHTK_MODULESDIR=$(pwd); export SHTK_MODULESDIR
     if ( shtk_import abcde ) >out 2>err; then
         atf_fail "import of a non-existent module succeeded"
     else

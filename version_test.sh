@@ -36,6 +36,7 @@ at_least__yes_body() {
     shtk_version_at_least 3.8 || atf_fail "Same version check failed"
     shtk_version_at_least 3.7 || atf_fail "Minor version check failed"
     shtk_version_at_least 2.0 || atf_fail "Major version check failed"
+    shtk_version_at_least 2.9 || atf_fail "Minor version check failed"
 }
 
 
@@ -59,6 +60,7 @@ at_most__yes_body() {
     shtk_version_at_most 3.8 || atf_fail "Same version check failed"
     shtk_version_at_most 3.9 || atf_fail "Minor version check failed"
     shtk_version_at_most 4.0 || atf_fail "Major version check failed"
+    shtk_version_at_most 4.7 || atf_fail "Minor version check failed"
 }
 
 

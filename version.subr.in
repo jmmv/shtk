@@ -30,11 +30,70 @@
 # Functions to check the version of shtk being used.
 
 
+# The version of the installed shtk modules.
+SHTK_VERSION="__SHTK_VERSION__"
+
+
 # Checks if shtk is a minimum version.
 #
 # \param version Desired minimum version.
 #
 # \return 0 if true, 1 otherwise.
 shtk_version_at_least() {
-    return 1
+    local version="${1}"; shift
+
+    local major_installed="$(echo "${SHTK_VERSION}" | cut -d . -f 1)"
+    local major_requested="$(echo "${version}" | cut -d . -f 1)"
+    if [ "${major_installed}" -lt "${major_requested}" ]; then
+        return 1
+    elif [ "${major_installed}" -gt "${major_requested}" ]; then
+        return 0
+    else
+        local minor_installed="$(echo "${SHTK_VERSION}" | cut -d . -f 2)"
+        local minor_requested="$(echo "${version}" | cut -d . -f 2)"
+        if [ "${minor_installed}" -ge "${minor_requested}" ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
+
+# Checks if shtk is a maximum version.
+#
+# \param version Desired maximum version.
+#
+# \return 0 if true, 1 otherwise.
+shtk_version_at_most() {
+    local version="${1}"; shift
+
+    local major_installed="$(echo "${SHTK_VERSION}" | cut -d . -f 1)"
+    local major_requested="$(echo "${version}" | cut -d . -f 1)"
+    if [ "${major_installed}" -lt "${major_requested}" ]; then
+        return 0
+    elif [ "${major_installed}" -gt "${major_requested}" ]; then
+        return 1
+    else
+        local minor_installed="$(echo "${SHTK_VERSION}" | cut -d . -f 2)"
+        local minor_requested="$(echo "${version}" | cut -d . -f 2)"
+        if [ "${minor_installed}" -le "${minor_requested}" ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
+
+# Checks if shtk is a specific version.
+#
+# \param version Desired specific version.
+#
+# \return 0 if true, 1 otherwise.
+shtk_version_is() {
+    local version="${1}"; shift
+
+    [ "${version}" = "${SHTK_VERSION}" ] || return 1
+    return 0
 }

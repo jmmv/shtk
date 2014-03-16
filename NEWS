@@ -1,7 +1,7 @@
 Changes in version 1.5
 ======================
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Released on 2014-03-16.
 
 * Added a version module with helper functions to check if shtk is a
   given version or matches some constraints.  Useful to dynamically

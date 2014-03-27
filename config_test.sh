@@ -329,6 +329,80 @@ load__invalid_file_body() {
 }
 
 
+atf_test_case include__absolute
+include__absolute_body() {
+    shtk_config_init A B
+
+    mkdir -p dir1/dir2/dir3
+    cat >dir1/dir2/dir3/test3.conf <<EOF
+A=from-file-3
+B=from-file-3
+shtk_config_include ../test2.conf
+EOF
+    cat >dir1/dir2/test2.conf <<EOF
+A=from-file-2
+B=from-file-2
+shtk_config_include $(pwd)/dir1/test1.A.conf
+shtk_config_include ../test1.B.conf
+EOF
+    cat >dir1/test1.A.conf <<EOF
+A=from-file-1.A
+B=from-file-1.A
+shtk_config_include test0.conf
+EOF
+    cat >dir1/test0.conf <<EOF
+A=from-file-0
+B=from-file-0
+EOF
+    cat >dir1/test1.B.conf <<EOF
+B=from-file-1.B
+EOF
+
+    shtk_config_load dir1/dir2/dir3/test3.conf \
+        || atf_fail "Failed to load test configuration"
+
+    atf_check_equal from-file-0 "${shtk_config_var_A}"
+    atf_check_equal from-file-1.B "${shtk_config_var_B}"
+}
+
+
+atf_test_case include__relative
+include__relative_body() {
+    shtk_config_init A B
+
+    mkdir -p dir1/dir2/dir3
+    cat >dir1/dir2/dir3/test3.conf <<EOF
+A=from-file-3
+B=from-file-3
+shtk_config_include ../test2.conf
+EOF
+    cat >dir1/dir2/test2.conf <<EOF
+A=from-file-2
+B=from-file-2
+shtk_config_include ../test1.A.conf
+shtk_config_include ../test1.B.conf
+EOF
+    cat >dir1/test1.A.conf <<EOF
+A=from-file-1.A
+B=from-file-1.A
+shtk_config_include test0.conf
+EOF
+    cat >dir1/test0.conf <<EOF
+A=from-file-0
+B=from-file-0
+EOF
+    cat >dir1/test1.B.conf <<EOF
+B=from-file-1.B
+EOF
+
+    shtk_config_load dir1/dir2/dir3/test3.conf \
+        || atf_fail "Failed to load test configuration"
+
+    atf_check_equal from-file-0 "${shtk_config_var_A}"
+    atf_check_equal from-file-1.B "${shtk_config_var_B}"
+}
+
+
 atf_test_case override__ok_before_load
 override__ok_before_load_body() {
     shtk_config_init VAR1 VAR2
@@ -483,6 +557,9 @@ atf_init_test_cases() {
     atf_add_test_case load__current_directory
     atf_add_test_case load__missing_file
     atf_add_test_case load__invalid_file
+
+    atf_add_test_case include__absolute
+    atf_add_test_case include__relative
 
     atf_add_test_case override__ok_before_load
     atf_add_test_case override__not_ok_after_load

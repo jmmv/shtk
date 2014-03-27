@@ -50,6 +50,14 @@ _Shtk_ConfigVars=
 _Shtk_ConfigOverrides=
 
 
+# Directory in which the currently-parsed configuration file lives.
+#
+# This is used by shtk_config_include to determine the path to included files
+# when they are specified as relative paths.  The value of this variable
+# potentially changes with each call to shtk_config_include.
+_Shtk_ConfigDirectory=
+
+
 # Initializes the configuration module.
 #
 # \param ... List of configuration variables to recognize in configuration files
@@ -210,9 +218,12 @@ shtk_config_load() {
         */*) real_config_file="${config_file}" ;;
         *) real_config_file="./${config_file}" ;;
     esac
+    local config_file_dirname="$(dirname "${real_config_file}")"
+    _Shtk_ConfigDirectory="${config_file_dirname}"
     ( . "${real_config_file}" ) || shtk_cli_error "Failed to load" \
         "configuration file ${config_file}"
     . "${real_config_file}"
+    _Shtk_ConfigDirectory=
 
     for var in ${_Shtk_ConfigVars}; do
         local value
@@ -227,6 +238,31 @@ shtk_config_load() {
     done
 
     shtk_config_apply_overrides
+}
+
+
+# Includes a file within a configuration file, respecting relative paths.
+#
+# This function is supposed to be used _only_ by within configuration files, not
+# in the caller program.
+#
+# \param file Relative path to the file to include.
+shtk_config_include() {
+    local file="${1}"; shift
+
+    local file_dirname="$(dirname "${file}")"
+    local old_configdirectory="${_Shtk_ConfigDirectory}"
+    case "${file_dirname}" in
+        /*)
+            _Shtk_ConfigDirectory="${file_dirname}"
+            . "${file}"
+            ;;
+        *)
+            _Shtk_ConfigDirectory="${_Shtk_ConfigDirectory}/${file_dirname}"
+            . "${old_configdirectory}/${file}"
+            ;;
+    esac
+    _Shtk_ConfigDirectory="${old_configdirectory}"
 }
 
 

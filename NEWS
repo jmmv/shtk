@@ -3,7 +3,8 @@ Changes in version 1.6
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
-* No changes recorded.
+* Added the shtk_config_include function so that configuration files
+  can source other files using relative (or absolute) paths.
 
 
 Changes in version 1.5

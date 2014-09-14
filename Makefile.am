@@ -46,7 +46,7 @@ pkgdata_DATA = version.subr
 CLEANFILES = version.subr
 EXTRA_DIST += version.subr.in
 version.subr: $(srcdir)/version.subr.in
-	source=version.subr.in target=version.subr; $(BUILD_FILE)
+	$(AM_V_GEN)source=version.subr.in target=version.subr; $(BUILD_FILE)
 
 BUILD_FILE = \
 	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
@@ -63,13 +63,13 @@ bin_SCRIPTS = shtk
 CLEANFILES += shtk
 EXTRA_DIST += shtk.sh
 shtk: $(srcdir)/shtk.sh
-	source=shtk.sh target=shtk; $(BUILD_SCRIPT)
+	$(AM_V_GEN)source=shtk.sh target=shtk; $(BUILD_SCRIPT)
 
 man_MANS = shtk.1
 CLEANFILES += shtk.1
 EXTRA_DIST += shtk.1.in
 shtk.1: $(srcdir)/shtk.1.in
-	source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+	$(AM_V_GEN)source=shtk.1.in target=shtk.1; $(BUILD_FILE)
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4
@@ -78,7 +78,7 @@ pkgconfig_DATA = shtk.pc
 CLEANFILES += shtk.pc
 EXTRA_DIST += shtk.pc.in
 shtk.pc: $(srcdir)/shtk.pc.in Makefile
-	source=shtk.pc.in target=shtk.pc; $(BUILD_FILE)
+	$(AM_V_GEN)source=shtk.pc.in target=shtk.pc; $(BUILD_FILE)
 
 if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
@@ -92,61 +92,61 @@ pkgtests_SCRIPTS = base_test
 CLEANFILES += base_test
 EXTRA_DIST += base_test.sh
 base_test: $(srcdir)/base_test.sh shtk
-	name=base_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=base_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += bool_test
 CLEANFILES += bool_test
 EXTRA_DIST += bool_test.sh
 bool_test: $(srcdir)/bool_test.sh shtk
-	name=bool_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=bool_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cleanup_test
 CLEANFILES += cleanup_test
 EXTRA_DIST += cleanup_test.sh
 cleanup_test: $(srcdir)/cleanup_test.sh shtk
-	name=cleanup_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=cleanup_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cli_test
 CLEANFILES += cli_test
 EXTRA_DIST += cli_test.sh
 cli_test: $(srcdir)/cli_test.sh shtk
-	name=cli_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=cli_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += config_test
 CLEANFILES += config_test
 EXTRA_DIST += config_test.sh
 config_test: $(srcdir)/config_test.sh shtk
-	name=config_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=config_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cvs_test
 CLEANFILES += cvs_test
 EXTRA_DIST += cvs_test.sh
 cvs_test: $(srcdir)/cvs_test.sh shtk
-	name=cvs_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=cvs_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += list_test
 CLEANFILES += list_test
 EXTRA_DIST += list_test.sh
 list_test: $(srcdir)/list_test.sh shtk
-	name=list_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=list_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += process_test
 CLEANFILES += process_test
 EXTRA_DIST += process_test.sh
 process_test: $(srcdir)/process_test.sh shtk
-	name=process_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=process_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += shtk_test
 CLEANFILES += shtk_test
 EXTRA_DIST += shtk_test.sh
 shtk_test: $(srcdir)/shtk_test.sh shtk
-	name=shtk_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=shtk_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += version_test
 CLEANFILES += version_test
 EXTRA_DIST += version_test.sh
 version_test: $(srcdir)/version_test.sh shtk
-	name=version_test; $(BUILD_TEST)
+	$(AM_V_GEN)name=version_test; $(BUILD_TEST)
 
 if HAVE_KYUA
 CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}

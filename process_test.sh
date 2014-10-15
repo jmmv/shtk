@@ -133,6 +133,26 @@ EOF
 }
 
 
+atf_test_case run__timeout__fail_cookie
+run__timeout__fail_cookie_body() {
+    echo "Won't be run" >helper.sh
+
+    code=0
+    ( TMPDIR="$(pwd)/non-existent" shtk_process_run -t 10 \
+        ./helper.sh one two three >out 2>err ) || code="${?}"
+    [ ${code} -eq 1 ] \
+        || atf_fail "Did not get the expected error code; got ${code}"
+
+    atf_check cat out
+
+    cat >experr <<EOF
+process_test: I: Running './helper.sh one two three' in $(pwd)
+process_test: E: Failed to create temporary file using pattern $(pwd)/non-existent/shtk.XXXXXX
+EOF
+    atf_check -o file:experr cat err
+}
+
+
 atf_test_case run__timeout__expired
 run__timeout__expired_body() {
     cat >helper.sh <<EOF
@@ -162,5 +182,6 @@ atf_init_test_cases() {
 
     atf_add_test_case run__timeout__ok
     atf_add_test_case run__timeout__fail
+    atf_add_test_case run__timeout__fail_cookie
     atf_add_test_case run__timeout__expired
 }

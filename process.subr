@@ -81,7 +81,10 @@ shtk_process_run() {
         # to the cookie.  If the subprocess has been killed, then the magic word
         # TIMEOUT is written to the cookie.
 
-        local cookie="$(mktemp -t shtk)"
+        local pattern="${TMPDIR:-/tmp}/shtk.XXXXXX"
+        local cookie="$(mktemp "${pattern}" 2>/dev/null)"
+        [ -f "${cookie}" ] || shtk_cli_error "Failed to create temporary file" \
+            "using pattern ${pattern}"
         eval "shtk_process_run_remove_cookie() { rm -f '${cookie}'; }"
         shtk_cleanup_register shtk_process_run_remove_cookie
 

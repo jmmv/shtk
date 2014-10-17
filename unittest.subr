@@ -1,0 +1,132 @@
+# Copyright 2014 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# \file unittest.subr
+# Functions to implement test programs.
+
+shtk_import cli
+shtk_import list
+
+
+# Names of all the registered test cases.
+_Shtk_Unittest_TestCases=
+
+
+# Functions to bring into the global namespace within the tests.
+_Shtk_Unittest_Use="fail"
+
+
+# Fails the test currently being run.
+#
+# \param ... Error message to print before failing.
+shtk_unittest_fail() {
+    # TODO(jmmv): Consider using ${LINENO} if available.
+    shtk_cli_error "${@}"
+}
+
+
+# Default test program entry point to run all registered test cases.
+#
+# \return True if all test cases pass; false otherwise.
+shtk_unittest_main() {
+    [ -n "${_Shtk_Unittest_TestCases}" ] \
+        || shtk_cli_error "No test cases defined; did you call register?"
+
+    local passed=0
+    local failed=0
+    for name in ${_Shtk_Unittest_TestCases}; do
+        if shtk_unittest_run "${name}"; then
+            passed=$((${passed} + 1))
+        else
+            failed=$((${failed} + 1))
+        fi
+    done
+    local total=$((${passed} + ${failed}))
+    if [ ${failed} -eq 0 ]; then
+        shtk_cli_info "Ran ${total} tests; ALL PASSED"
+        return 0
+    else
+        shtk_cli_warning "Ran ${total} tests; ${failed} FAILED"
+        return 1
+    fi
+}
+
+
+# Defines a test case.
+#
+# \param name Name of the test case to register.
+shtk_unittest_register() {
+    local name="${1}"; shift
+
+    shtk_list_contains "${name}" ${_Shtk_Unittest_TestCases} \
+        && shtk_cli_error "Duplicate test case found: ${name}"
+
+    eval "${name}_test() { shtk_cli_error '${name}_test not defined'; }"
+
+    _Shtk_Unittest_TestCases="${_Shtk_Unittest_TestCases} ${name}"
+}
+
+
+# Executes a test case.
+#
+# \param name Name of the test case to execute.  Must have been previously
+#     registered by shtk_unittest_register.
+#
+# \return True if the test case passes; false otherwise.
+shtk_unittest_run() {
+    local name="${1}"; shift
+
+    shtk_list_contains "${name}" ${_Shtk_Unittest_TestCases} \
+        || shtk_cli_error "Attempting to run unregistered test case ${name}"
+
+    local failed=no
+    mkdir "${name}"
+    (
+        shtk_cli_info "Testing ${name}..."
+        local failed=no
+
+        for function_name in ${_Shtk_Unittest_Use}; do
+             eval "${function_name}() { " \
+                 "shtk_unittest_${function_name} \"\${@}\"; }"
+        done
+
+        cd "${name}"
+        "${name}_test" || failed=yes
+
+        [ "${failed}" = no ]
+    ) || failed=yes
+    rm -rf "${name}"
+
+    if [ "${failed}" = no ]; then
+        shtk_cli_info "Testing ${name}... PASSED"
+        return 0
+    else
+        shtk_cli_warning "Testing ${name}... FAILED"
+        return 1
+    fi
+}

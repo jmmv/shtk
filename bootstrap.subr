@@ -35,8 +35,6 @@
 # possible, should be able to detect problems during initialization and
 # cannot depend on other shtk code.
 
-set -e
-
 : ${SHTK_MODULESDIR:=%%SHTK_MODULESDIR%%}
 
 if [ ! -f "${SHTK_MODULESDIR}/base.subr" ]; then

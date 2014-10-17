@@ -34,8 +34,6 @@
 # implement this file.  Doing so, while possible, would complicate the
 # creation of the final shtk script for no real advantage.
 
-set -e
-
 
 # Location of the shtk modules.
 : ${SHTK_MODULESDIR:="__SHTK_MODULESDIR__"}

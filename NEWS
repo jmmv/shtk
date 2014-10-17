@@ -6,6 +6,11 @@ STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 * Added the shtk_config_include function so that configuration files
   can source other files using relative (or absolute) paths.
 
+* Removed 'set -e' calls from shtk and from any generated scripts.
+  It is the user who should be enabling this feature if he chooses to
+  because 'set -e' may have suprising and inconsistent behavior in
+  large scripts (and shtk can be defined as large).
+
 
 Changes in version 1.5
 ======================

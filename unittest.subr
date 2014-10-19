@@ -38,7 +38,7 @@ _Shtk_Unittest_TestCases=
 
 
 # Functions to bring into the global namespace within the tests.
-_Shtk_Unittest_Use="fail"
+_Shtk_Unittest_Use="fail skip"
 
 
 # Fails the test currently being run.
@@ -104,7 +104,7 @@ shtk_unittest_run() {
     shtk_list_contains "${name}" ${_Shtk_Unittest_TestCases} \
         || shtk_cli_error "Attempting to run unregistered test case ${name}"
 
-    local failed=no
+    local result=pass
     mkdir "${name}"
     (
         shtk_cli_info "Testing ${name}..."
@@ -119,14 +119,42 @@ shtk_unittest_run() {
         "${name}_test" || failed=yes
 
         [ "${failed}" = no ]
-    ) || failed=yes
+    )
+    if [ ${?} -eq 0 ]; then
+        if [ -f "${name}/result.skipped" ]; then
+            result=skip
+        else
+            result=pass
+        fi
+    else
+        result=fail
+    fi
     rm -rf "${name}"
 
-    if [ "${failed}" = no ]; then
-        shtk_cli_info "Testing ${name}... PASSED"
-        return 0
-    else
-        shtk_cli_warning "Testing ${name}... FAILED"
-        return 1
-    fi
+    case "${result}" in
+        fail)
+            shtk_cli_warning "Testing ${name}... FAILED"
+            return 1
+            ;;
+        pass)
+            shtk_cli_info "Testing ${name}... PASSED"
+            return 0
+            ;;
+        skip)
+            shtk_cli_warning "Testing ${name}... SKIPPED"
+            return 0
+            ;;
+    esac
+    shtk_cli_error "Failed to determine test result"
+}
+
+
+# Skips the test currently being run.
+#
+# \param ... Message to print before exiting.
+shtk_unittest_skip() {
+    # TODO(jmmv): Consider using ${LINENO} if available.
+    shtk_cli_warning "${@}"
+    touch result.skipped
+    exit 0
 }

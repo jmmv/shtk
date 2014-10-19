@@ -124,20 +124,25 @@ main__run_some_tests_that_pass_test() {
     shtk_unittest_register first
     first_test() { echo "first passes"; }
     shtk_unittest_register second
-    second_test() { echo "second passes"; }
+    second_test() { skip "second skips"; echo "Not reached"; }
+    shtk_unittest_register third
+    third_test() { echo "third passes"; }
 
     ( shtk_unittest_main >out 2>err ) \
         || fail "main returned failure but all tests were supposed to pass"
     assert_file_contents out <<EOF
 first passes
-second passes
+third passes
 EOF
     assert_file_contents err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
-unittest_test: I: Testing second... PASSED
-unittest_test: I: Ran 2 tests; ALL PASSED
+unittest_test: W: second skips
+unittest_test: W: Testing second... SKIPPED
+unittest_test: I: Testing third...
+unittest_test: I: Testing third... PASSED
+unittest_test: I: Ran 3 tests; ALL PASSED
 EOF
 }
 
@@ -298,14 +303,44 @@ EOF
 }
 
 
+shtk_unittest_register run__skip
+run__skip_test() {
+    shtk_unittest_register always_skips
+    always_skips_test() {
+        echo "This is the test code"
+        skip "Good bye"
+        echo "Not reached"
+    }
+
+    ( shtk_unittest_run always_skips >out 2>err ) \
+        || fail "run reported failure for skipped test case"
+
+    assert_file_contents out <<EOF
+This is the test code
+EOF
+    assert_file_contents err <<EOF
+unittest_test: I: Testing always_skips...
+unittest_test: W: Good bye
+unittest_test: W: Testing always_skips... SKIPPED
+EOF
+}
+
+
 shtk_unittest_register run__bring_into_namespace
 run__bring_into_namespace_test() {
     shtk_unittest_register call_stubs
     call_stubs_test() {
-        shtk_unittest_fail() { echo "stub for fail: ${*}"; }
+        local funcs="fail skip"
+
+        for func in ${funcs}; do
+            eval "shtk_unittest_${func}() { \
+                echo \"stub for ${func}: \${*}\"; }"
+        done
 
         echo "Calling stubs"
-        fail "Aborting test"
+        for func in ${funcs}; do
+            "${func}" "arguments to the stub"
+        done
         echo "All stubs done"
     }
 
@@ -314,7 +349,8 @@ run__bring_into_namespace_test() {
 
     assert_file_contents out <<EOF
 Calling stubs
-stub for fail: Aborting test
+stub for fail: arguments to the stub
+stub for skip: arguments to the stub
 All stubs done
 EOF
     assert_file_contents err <<EOF
@@ -330,4 +366,32 @@ run__unregistered_error_test() {
         && fail "run did not fail for an unregistered test case"
     assert_file_contents err \
         "unittest_test: E: Attempting to run unregistered test case not_there"
+}
+
+
+shtk_unittest_register skip__one_argument
+skip__one_argument_test() {
+    (
+        shtk_unittest_skip "This is a message" >out 2>err
+        echo "Not reached"
+    ) || fail "skip exited with an error"
+    rm result.skipped
+    assert_file_contents out ""
+    assert_file_contents err <<EOF
+unittest_test: W: This is a message
+EOF
+}
+
+
+shtk_unittest_register skip__argument_concatenation
+skip__argument_concatenation_test() {
+    (
+        shtk_unittest_skip "This is" "another message" >out 2>err
+        echo "Not reached"
+    ) || fail "skip exited with an error"
+    rm result.skipped
+    assert_file_contents out ""
+    assert_file_contents err <<EOF
+unittest_test: W: This is another message
+EOF
 }

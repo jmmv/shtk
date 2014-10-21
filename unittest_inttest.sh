@@ -92,7 +92,7 @@ one_test__always_passes() {
     shtk build -m shtk_unittest_main -o program - <<EOF
 shtk_import unittest
 
-shtk_unittest_register always_passes
+shtk_unittest_add_test always_passes
 always_passes_test() {
     echo "Hello"
 }
@@ -116,7 +116,7 @@ one_test__always_fails() {
     shtk build -m shtk_unittest_main -o program - <<EOF
 shtk_import unittest
 
-shtk_unittest_register always_fails
+shtk_unittest_add_test always_fails
 always_fails_test() {
     echo "Hello"
     fail "Oops! Explicitly failing"
@@ -143,13 +143,13 @@ some_tests__all_pass() {
     shtk build -m shtk_unittest_main -o program - <<EOF
 shtk_import unittest
 
-shtk_unittest_register first
+shtk_unittest_add_test first
 first_test() { echo "First"; }
 
-shtk_unittest_register second
+shtk_unittest_add_test second
 second_test() { echo "Second"; }
 
-shtk_unittest_register third
+shtk_unittest_add_test third
 third_test() { echo "Third"; }
 EOF
 
@@ -177,13 +177,13 @@ some_tests__some_fail() {
     shtk build -m shtk_unittest_main -o program - <<EOF
 shtk_import unittest
 
-shtk_unittest_register first
+shtk_unittest_add_test first
 first_test() { echo "First"; }
 
-shtk_unittest_register second
+shtk_unittest_add_test second
 second_test() { echo "Second"; fail "Bailing out"; echo "Second bis"; }
 
-shtk_unittest_register third
+shtk_unittest_add_test third
 third_test() { echo "Third"; }
 EOF
 
@@ -208,12 +208,73 @@ EOF
 }
 
 
+fixtures() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_fixture first
+first_fixture() {
+    setup() { echo "Shared setup"; }
+    teardown() { echo "Shared teardown"; }
+    shtk_unittest_add_test first
+    first_test() { echo "First in first fixture"; }
+    shtk_unittest_add_test second
+    second_test() { echo "Second in first fixture"; fail "Leave 1"; }
+}
+
+shtk_unittest_add_fixture second
+second_fixture() {
+    shtk_unittest_add_test first
+    first_test() { echo "First in second fixture"; fail "Leave 2"; }
+    shtk_unittest_add_test second
+    second_test() { echo "Second in second fixture"; }
+}
+
+shtk_unittest_add_test standalone
+standalone_test() {
+    echo "Runs outside of the fixtures"
+}
+EOF
+
+    cat >expout <<EOF
+Runs outside of the fixtures
+Shared setup
+First in first fixture
+Shared teardown
+Shared setup
+Second in first fixture
+Shared teardown
+First in second fixture
+Second in second fixture
+EOF
+
+    cat >experr <<EOF
+program: I: Testing standalone...
+program: I: Testing standalone... PASSED
+program: I: Testing first__first...
+program: I: Testing first__first... PASSED
+program: I: Testing first__second...
+program: E: Leave 1
+program: W: Testing first__second... FAILED
+program: I: Testing second__first...
+program: E: Leave 2
+program: W: Testing second__first... FAILED
+program: I: Testing second__second...
+program: I: Testing second__second... PASSED
+program: W: Ran 5 tests; 2 FAILED
+EOF
+
+    check 1 expout experr ./program || return 1
+}
+
+
 main() {
     for name in \
         one_test__always_passes \
         one_test__always_fails \
         some_tests__all_pass \
-        some_tests__some_fail
+        some_tests__some_fail \
+        fixtures
     do
         local failed=no
         echo "Running test ${name}"

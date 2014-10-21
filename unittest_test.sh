@@ -57,84 +57,147 @@ assert_file_contents() {
 }
 
 
-shtk_unittest_register fail__one_argument
-fail__one_argument_test() {
-    ( shtk_unittest_fail "This is a message" >out 2>err ) \
-        && fail "fail did not exit with an error"
-    assert_file_contents out ""
-    assert_file_contents err <<EOF
+shtk_unittest_add_fixture add_fixture
+add_fixture_fixture() {
+    shtk_unittest_add_test default_methods
+    default_methods_test() {
+        shtk_unittest_add_fixture first \
+            || fail "Failed to register fixture"
+
+        ( first_fixture >out 2>err ) \
+            && fail "fixture method not properly defined"
+        assert_file_contents err \
+            "unittest_test: E: first_fixture not defined"
+    }
+
+
+    shtk_unittest_add_test duplicate_error
+    duplicate_error_test() {
+        shtk_unittest_add_fixture first || fail "add_fixture failed"
+        shtk_unittest_add_fixture dup || fail "add_fixture failed"
+        shtk_unittest_add_fixture last || fail "add_fixture failed"
+
+        shtk_unittest_add_test first || fail "add_test failed"
+
+        ( shtk_unittest_add_fixture dup >out 2>err ) \
+            && fail "add_fixture did not fail for a duplicate test case"
+        assert_file_contents err \
+            "unittest_test: E: Duplicate test fixture found: dup"
+    }
+}
+
+
+shtk_unittest_add_fixture add_test
+add_test_fixture() {
+    shtk_unittest_add_test default_methods
+    default_methods_test() {
+        shtk_unittest_add_test first \
+            || fail "Failed to register test case"
+
+        ( first_test >out 2>err ) \
+            && fail "test method not properly defined"
+        assert_file_contents err \
+            "unittest_test: E: first_test not defined"
+    }
+
+
+    shtk_unittest_add_test duplicate_error
+    duplicate_error_test() {
+        shtk_unittest_add_test first || fail "add_test failed"
+        shtk_unittest_add_test dup || fail "add_test failed"
+        shtk_unittest_add_test last || fail "add_test failed"
+
+        ( shtk_unittest_add_test dup >out 2>err ) \
+            && fail "add_test did not fail for a duplicate test case"
+        assert_file_contents err \
+            "unittest_test: E: Duplicate test case found: dup"
+    }
+}
+
+
+shtk_unittest_add_fixture fail
+fail_fixture() {
+    shtk_unittest_add_test one_argument
+    one_argument_test() {
+        ( shtk_unittest_fail "This is a message" >out 2>err ) \
+            && fail "fail did not exit with an error"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
 unittest_test: E: This is a message
 EOF
-}
+    }
 
 
-shtk_unittest_register fail__argument_concatenation
-fail__argument_concatenation_test() {
-    ( shtk_unittest_fail "This is" "another message" >out 2>err ) \
-        && fail "fail did not exit with an error"
-    assert_file_contents out ""
-    assert_file_contents err <<EOF
+    shtk_unittest_add_test argument_concatenation
+    argument_concatenation_test() {
+        ( shtk_unittest_fail "This is" "another message" >out 2>err ) \
+            && fail "fail did not exit with an error"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
 unittest_test: E: This is another message
 EOF
+    }
 }
 
 
-shtk_unittest_register main__run_one_test_that_passes
-main__run_one_test_that_passes_test() {
-    _Shtk_Unittest_TestCases=
+shtk_unittest_add_fixture main
+main_fixture() {
+    setup() {
+        _Shtk_Unittest_TestCases=
+        _Shtk_Unittest_TestFixtures=
+    }
 
-    shtk_unittest_register first
-    first_test() { echo "first passes"; }
 
-    ( shtk_unittest_main >out 2>err ) \
-        || fail "main returned failure but all tests were supposed to pass"
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test run_one_test_that_passes
+    run_one_test_that_passes_test() {
+        shtk_unittest_add_test first
+        first_test() { echo "first passes"; }
+
+        ( shtk_unittest_main >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        assert_file_contents out <<EOF
 first passes
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Ran 1 tests; ALL PASSED
 EOF
-}
+    }
 
 
-shtk_unittest_register main__run_one_test_that_fails
-main__run_one_test_that_fails_test() {
-    _Shtk_Unittest_TestCases=
+    shtk_unittest_add_test run_one_test_that_fails
+    run_one_test_that_fails_test() {
+        shtk_unittest_add_test first
+        first_test() { fail "first fails"; }
 
-    shtk_unittest_register first
-    first_test() { fail "first fails"; }
-
-    ( shtk_unittest_main >out 2>err ) \
-        && fail "main returned success but all tests were supposed to fail"
-    assert_file_contents err <<EOF
+        ( shtk_unittest_main >out 2>err ) \
+            && fail "main returned success but all tests were supposed to fail"
+        assert_file_contents err <<EOF
 unittest_test: I: Testing first...
 unittest_test: E: first fails
 unittest_test: W: Testing first... FAILED
 unittest_test: W: Ran 1 tests; 1 FAILED
 EOF
-}
+    }
 
 
-shtk_unittest_register main__run_some_tests_that_pass
-main__run_some_tests_that_pass_test() {
-    _Shtk_Unittest_TestCases=
+    shtk_unittest_add_test run_some_tests_that_pass
+    run_some_tests_that_pass_test() {
+        shtk_unittest_add_test first
+        first_test() { echo "first passes"; }
+        shtk_unittest_add_test second
+        second_test() { skip "second skips"; echo "Not reached"; }
+        shtk_unittest_add_test third
+        third_test() { echo "third passes"; }
 
-    shtk_unittest_register first
-    first_test() { echo "first passes"; }
-    shtk_unittest_register second
-    second_test() { skip "second skips"; echo "Not reached"; }
-    shtk_unittest_register third
-    third_test() { echo "third passes"; }
-
-    ( shtk_unittest_main >out 2>err ) \
-        || fail "main returned failure but all tests were supposed to pass"
-    assert_file_contents out <<EOF
+        ( shtk_unittest_main >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        assert_file_contents out <<EOF
 first passes
 third passes
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -144,29 +207,27 @@ unittest_test: I: Testing third...
 unittest_test: I: Testing third... PASSED
 unittest_test: I: Ran 3 tests; ALL PASSED
 EOF
-}
+    }
 
 
-shtk_unittest_register main__run_some_tests_that_fail
-main__run_some_tests_that_fail_test() {
-    _Shtk_Unittest_TestCases=
+    shtk_unittest_add_test run_some_tests_that_fail
+    run_some_tests_that_fail_test() {
+        shtk_unittest_add_test first
+        first_test() { echo "first passes"; }
+        shtk_unittest_add_test second
+        second_test() { fail "second fails"; }
+        shtk_unittest_add_test third
+        third_test() { fail "third fails"; }
+        shtk_unittest_add_test fourth
+        fourth_test() { echo "fourth passes"; }
 
-    shtk_unittest_register first
-    first_test() { echo "first passes"; }
-    shtk_unittest_register second
-    second_test() { fail "second fails"; }
-    shtk_unittest_register third
-    third_test() { fail "third fails"; }
-    shtk_unittest_register fourth
-    fourth_test() { echo "fourth passes"; }
-
-    ( shtk_unittest_main >out 2>err ) \
-        && fail "main returned success but some tests were supposed to fail"
-    assert_file_contents out <<EOF
+        ( shtk_unittest_main >out 2>err ) \
+            && fail "main returned success but some tests were supposed to fail"
+        assert_file_contents out <<EOF
 first passes
 fourth passes
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -179,219 +240,502 @@ unittest_test: I: Testing fourth...
 unittest_test: I: Testing fourth... PASSED
 unittest_test: W: Ran 4 tests; 2 FAILED
 EOF
-}
-
-
-shtk_unittest_register main__no_tests_error
-main__no_tests_error_test() {
-    _Shtk_Unittest_TestCases=
-
-    ( shtk_unittest_main >out 2>err ) \
-        && fail "main did not error out on no tests"
-    assert_file_contents err \
-        "unittest_test: E: No test cases defined; did you call register?"
-}
-
-
-shtk_unittest_register register__default_methods
-register__default_methods_test() {
-    shtk_unittest_register default_methods \
-        || fail "Failed to register test case"
-
-    ( default_methods_test >out 2>err ) \
-        && fail "test method not properly defined"
-    assert_file_contents err \
-        "unittest_test: E: default_methods_test not defined"
-}
-
-
-shtk_unittest_register register__duplicate_error
-register__duplicate_error_test() {
-    shtk_unittest_register first || fail "register failed"
-    shtk_unittest_register dup || fail "register failed"
-    shtk_unittest_register last || fail "register failed"
-
-    ( shtk_unittest_register dup >out 2>err ) \
-        && fail "register did not fail for a duplicate test case"
-    assert_file_contents err \
-        "unittest_test: E: Duplicate test case found: dup"
-}
-
-
-shtk_unittest_register run__pass_due_to_fallthrough
-run__pass_due_to_fallthrough_test() {
-    shtk_unittest_register always_passes
-    always_passes_test() {
-        echo "This is the test code"
     }
 
-    ( shtk_unittest_run always_passes >out 2>err ) \
-        || fail "run reported failure for passing test case"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test run_tests_and_fixtures_passing
+    run_tests_and_fixtures_passing_test() {
+        shtk_unittest_add_test first
+        first_test() { echo "first passes"; }
+        shtk_unittest_add_test second
+        second_test() { echo "second passes"; }
+
+        shtk_unittest_add_fixture third
+        third_fixture() {
+            setup() { echo "Fixture setup"; }
+            teardown() { echo "Fixture teardown"; }
+
+            shtk_unittest_add_test first
+            first_test() { echo "first within third passes"; }
+            shtk_unittest_add_test other
+            other_test() { echo "other within third passes"; }
+        }
+
+        ( shtk_unittest_main >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        assert_file_contents out <<EOF
+first passes
+second passes
+Fixture setup
+first within third passes
+Fixture teardown
+Fixture setup
+other within third passes
+Fixture teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing first...
+unittest_test: I: Testing first... PASSED
+unittest_test: I: Testing second...
+unittest_test: I: Testing second... PASSED
+unittest_test: I: Testing third__first...
+unittest_test: I: Testing third__first... PASSED
+unittest_test: I: Testing third__other...
+unittest_test: I: Testing third__other... PASSED
+unittest_test: I: Ran 4 tests; ALL PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test run_tests_and_fixtures_failing
+    run_tests_and_fixtures_failing_test() {
+        shtk_unittest_add_test first
+        first_test() { echo "first passes"; }
+        shtk_unittest_add_test second
+        second_test() { fail "second fails"; echo "Not run"; }
+
+        shtk_unittest_add_fixture third
+        third_fixture() {
+            setup() { echo "Fixture setup"; }
+            teardown() { echo "Fixture teardown"; }
+
+            shtk_unittest_add_test first
+            first_test() { fail "first within third fails"; echo "Not run"; }
+            shtk_unittest_add_test other
+            other_test() { echo "other within third passes"; }
+        }
+
+        ( shtk_unittest_main >out 2>err ) \
+            && fail "main returned success but some tests were supposed to fail"
+        assert_file_contents out <<EOF
+first passes
+Fixture setup
+Fixture teardown
+Fixture setup
+other within third passes
+Fixture teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing first...
+unittest_test: I: Testing first... PASSED
+unittest_test: I: Testing second...
+unittest_test: E: second fails
+unittest_test: W: Testing second... FAILED
+unittest_test: I: Testing third__first...
+unittest_test: E: first within third fails
+unittest_test: W: Testing third__first... FAILED
+unittest_test: I: Testing third__other...
+unittest_test: I: Testing third__other... PASSED
+unittest_test: W: Ran 4 tests; 2 FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test different_directories
+    different_directories_test() {
+        shtk_unittest_add_test first
+        first_test() {
+            touch the-file
+        }
+        shtk_unittest_add_test second
+        second_test() {
+            if [ -f the-file ]; then
+                fail "Found file from previous test!"
+            fi
+        }
+
+        ( shtk_unittest_main >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing first...
+unittest_test: I: Testing first... PASSED
+unittest_test: I: Testing second...
+unittest_test: I: Testing second... PASSED
+unittest_test: I: Ran 2 tests; ALL PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test no_tests_error
+    no_tests_error_test() {
+        ( shtk_unittest_main >out 2>err ) \
+            && fail "main did not error out on no tests"
+        assert_file_contents err \
+            "unittest_test: E: No test cases defined; did you call" \
+            "shtk_unittest_add_fixture or shtk_unittest_add_test?"
+    }
+}
+
+
+shtk_unittest_add_fixture run_fixture_test
+run_fixture_test_fixture() {
+    # Because run_fixture_test and run_standalone_test share most of their code
+    # via _shtk_unittest_{enter,leave}_test, these tests only verify
+    # fixture-specific behavior.
+
+    shtk_unittest_add_test setup_and_teardown_run_on_successful_exit
+    setup_and_teardown_run_on_successful_exit_test() {
+        setup() { echo "This is the setup"; }
+        teardown() { echo "This is the teardown"; }
+
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            echo "This is the test code"
+        }
+
+        ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
+            || fail "run_fixture reported failure for passing test case"
+
+        assert_file_contents out <<EOF
+This is the setup
+This is the test code
+This is the teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__always_passes...
+unittest_test: I: Testing container__always_passes... PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test setup_and_teardown_run_on_failure
+    setup_and_teardown_run_on_failure_test() {
+        setup() { echo "This is the setup"; }
+        teardown() { echo "This is the teardown"; }
+
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            echo "This is the test code"
+            fail "Oh noes; exiting"
+            echo "Not reached"
+        }
+
+        ( _shtk_unittest_run_fixture_test container always_fails >out 2>err ) \
+            && fail "run_fixture reported failure for failing test case"
+
+        assert_file_contents out <<EOF
+This is the setup
+This is the test code
+This is the teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__always_fails...
+unittest_test: E: Oh noes; exiting
+unittest_test: W: Testing container__always_fails... FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test setup_failure_aborts_early
+    setup_failure_aborts_early_test() {
+        setup() { echo "This is the setup"; exit 1; }
+        teardown() { echo "This is the teardown"; }
+
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            echo "This is the test code"
+        }
+
+        ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
+            && fail "run_fixture reported failure for failing setup"
+
+        assert_file_contents out <<EOF
+This is the setup
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__always_passes...
+unittest_test: W: Testing container__always_passes... FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test teardown_failure_fails_test
+    teardown_failure_fails_test_test() {
+        setup() { echo "This is the setup"; }
+        teardown() { echo "This is the teardown"; exit 1; }
+
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            echo "This is the test code"
+        }
+
+        ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
+            && fail "run_fixture reported failure for failing teardown"
+
+        assert_file_contents out <<EOF
+This is the setup
+This is the test code
+This is the teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__always_passes...
+unittest_test: W: Testing container__always_passes... FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test process_lifecycle
+    process_lifecycle_test() {
+        GLOBAL=empty
+
+        setup() {
+            echo "setup enter: ${GLOBAL}"
+            [ "${GLOBAL}" = empty ] || fail "Got '${GLOBAL}'; expected 'empty'"
+            GLOBAL=setup
+            echo "setup exit: ${GLOBAL}"
+        }
+        teardown() {
+            echo "teardown: ${GLOBAL}"
+            [ "${GLOBAL}" = setup ] || fail "Got '${GLOBAL}'; expected 'setup'"
+        }
+
+        shtk_unittest_add_test change_env
+        change_env_test() {
+            echo "test enter: ${GLOBAL}"
+            [ "${GLOBAL}" = setup ] || fail "Got '${GLOBAL}'; expected 'setup'"
+            GLOBAL=body
+            echo "test exit: ${GLOBAL}"
+        }
+
+        ( _shtk_unittest_run_fixture_test container change_env >out 2>err ) \
+            || fail "run_fixture reported failure for passing test case"
+
+        assert_file_contents out <<EOF
+setup enter: empty
+setup exit: setup
+test enter: setup
+test exit: body
+teardown: setup
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__change_env...
+unittest_test: I: Testing container__change_env... PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test same_directory
+    same_directory_test() {
+        setup() {
+            touch created-by-setup
+        }
+        teardown() {
+            [ -f created-by-setup ] || fail "Cannot find file from setup"
+        }
+
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            [ -f created-by-setup ] || fail "Cannot find file from setup"
+        }
+
+        ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
+            || fail "run_fixture reported failure for passing test case"
+
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__always_passes...
+unittest_test: I: Testing container__always_passes... PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test unregistered_error
+    unregistered_error_test() {
+        ( _shtk_unittest_run_fixture_test container not_there >out 2>err ) \
+            && fail "run_fixture did not fail for an unregistered test case"
+        assert_file_contents err \
+        "unittest_test: E: Attempting to run unregistered test case"  \
+            "container__not_there"
+    }
+}
+
+
+shtk_unittest_add_fixture run_standalone_test
+run_standalone_test_fixture() {
+    # These tests are intended to verify the execution of individual test cases
+    # exhaustively.
+    #
+    # These tests indirectly verify _shtk_unittest_{enter,leave}_test.
+
+    shtk_unittest_add_test pass_due_to_fallthrough
+    pass_due_to_fallthrough_test() {
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            echo "This is the test code"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_passes >out 2>err ) \
+            || fail "run_test reported failure for passing test case"
+
+        assert_file_contents out <<EOF
 This is the test code
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing always_passes...
 unittest_test: I: Testing always_passes... PASSED
 EOF
-}
-
-
-shtk_unittest_register run__pass_due_to_exit
-run__pass_due_to_exit_test() {
-    shtk_unittest_register always_passes
-    always_passes_test() {
-        echo "This is the test code"
-        exit 0
     }
 
-    ( shtk_unittest_run always_passes >out 2>err ) \
-        || fail "run reported failure for passing test case"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test pass_due_to_exit
+    pass_due_to_exit_test() {
+        shtk_unittest_add_test always_passes
+        always_passes_test() {
+            echo "This is the test code"
+            exit 0
+        }
+
+        ( _shtk_unittest_run_standalone_test always_passes >out 2>err ) \
+            || fail "run_test reported failure for passing test case"
+
+        assert_file_contents out <<EOF
 This is the test code
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing always_passes...
 unittest_test: I: Testing always_passes... PASSED
 EOF
-}
-
-
-shtk_unittest_register run__fail_due_to_exit
-run__fail_due_to_exit_test() {
-    shtk_unittest_register always_fails
-    always_fails_test() {
-        echo "This is the test code"
-        exit 1
     }
 
-    ( shtk_unittest_run always_fails >out 2>err ) \
-        && fail "run reported success for failing test case"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test fail_due_to_exit
+    fail_due_to_exit_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            echo "This is the test code"
+            exit 1
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+
+        assert_file_contents out <<EOF
 This is the test code
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Testing always_fails... FAILED
 EOF
-}
-
-
-shtk_unittest_register run__fail_due_to_fail
-run__fail_due_to_fail_test() {
-    shtk_unittest_register always_fails
-    always_fails_test() {
-        echo "This is the test code"
-        shtk_unittest_fail "Aborting test"
-        echo "Not reached"
     }
 
-    ( shtk_unittest_run always_fails >out 2>err ) \
-        && fail "run reported success for failing test case"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test fail_due_to_fail
+    fail_due_to_fail_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            echo "This is the test code"
+            shtk_unittest_fail "Aborting test"
+            echo "Not reached"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+
+        assert_file_contents out <<EOF
 This is the test code
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: E: Aborting test
 unittest_test: W: Testing always_fails... FAILED
 EOF
-}
-
-
-shtk_unittest_register run__skip
-run__skip_test() {
-    shtk_unittest_register always_skips
-    always_skips_test() {
-        echo "This is the test code"
-        skip "Good bye"
-        echo "Not reached"
     }
 
-    ( shtk_unittest_run always_skips >out 2>err ) \
-        || fail "run reported failure for skipped test case"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test skip
+    skip_test() {
+        shtk_unittest_add_test always_skips
+        always_skips_test() {
+            echo "This is the test code"
+            skip "Good bye"
+            echo "Not reached"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_skips >out 2>err ) \
+            || fail "run_test reported failure for skipped test case"
+
+        assert_file_contents out <<EOF
 This is the test code
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing always_skips...
 unittest_test: W: Good bye
 unittest_test: W: Testing always_skips... SKIPPED
 EOF
-}
-
-
-shtk_unittest_register run__bring_into_namespace
-run__bring_into_namespace_test() {
-    shtk_unittest_register call_stubs
-    call_stubs_test() {
-        local funcs="fail skip"
-
-        for func in ${funcs}; do
-            eval "shtk_unittest_${func}() { \
-                echo \"stub for ${func}: \${*}\"; }"
-        done
-
-        echo "Calling stubs"
-        for func in ${funcs}; do
-            "${func}" "arguments to the stub"
-        done
-        echo "All stubs done"
     }
 
-    ( shtk_unittest_run call_stubs >out 2>err ) \
-        || fail "Failed to bring expected functions into the namespace"
 
-    assert_file_contents out <<EOF
+    shtk_unittest_add_test bring_into_namespace
+    bring_into_namespace_test() {
+        shtk_unittest_add_test call_stubs
+        call_stubs_test() {
+            local funcs="fail skip"
+
+            for func in ${funcs}; do
+                eval "shtk_unittest_${func}() { \
+                    echo \"stub for ${func}: \${*}\"; }"
+            done
+
+            echo "Calling stubs"
+            for func in ${funcs}; do
+                "${func}" "arguments to the stub"
+            done
+            echo "All stubs done"
+        }
+
+        ( _shtk_unittest_run_standalone_test call_stubs >out 2>err ) \
+            || fail "Failed to bring expected functions into the namespace"
+
+        assert_file_contents out <<EOF
 Calling stubs
 stub for fail: arguments to the stub
 stub for skip: arguments to the stub
 All stubs done
 EOF
-    assert_file_contents err <<EOF
+        assert_file_contents err <<EOF
 unittest_test: I: Testing call_stubs...
 unittest_test: I: Testing call_stubs... PASSED
 EOF
-}
+    }
 
 
-shtk_unittest_register run__unregistered_error
-run__unregistered_error_test() {
-    ( shtk_unittest_run not_there >out 2>err ) \
-        && fail "run did not fail for an unregistered test case"
-    assert_file_contents err \
+    shtk_unittest_add_test unregistered_error
+    unregistered_error_test() {
+        ( _shtk_unittest_run_standalone_test not_there >out 2>err ) \
+            && fail "run_test did not fail for an unregistered test case"
+        assert_file_contents err \
         "unittest_test: E: Attempting to run unregistered test case not_there"
+    }
 }
 
 
-shtk_unittest_register skip__one_argument
-skip__one_argument_test() {
-    (
-        shtk_unittest_skip "This is a message" >out 2>err
-        echo "Not reached"
-    ) || fail "skip exited with an error"
-    rm result.skipped
-    assert_file_contents out ""
-    assert_file_contents err <<EOF
+shtk_unittest_add_fixture skip
+skip_fixture() {
+    shtk_unittest_add_test one_argument
+    one_argument_test() {
+        (
+            shtk_unittest_skip "This is a message" >out 2>err
+            echo "Not reached"
+        ) || fail "skip exited with an error"
+        rm result.skipped
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
 unittest_test: W: This is a message
 EOF
-}
+    }
 
 
-shtk_unittest_register skip__argument_concatenation
-skip__argument_concatenation_test() {
-    (
-        shtk_unittest_skip "This is" "another message" >out 2>err
-        echo "Not reached"
-    ) || fail "skip exited with an error"
-    rm result.skipped
-    assert_file_contents out ""
-    assert_file_contents err <<EOF
+    shtk_unittest_add_test argument_concatenation
+    argument_concatenation_test() {
+        (
+            shtk_unittest_skip "This is" "another message" >out 2>err
+            echo "Not reached"
+        ) || fail "skip exited with an error"
+        rm result.skipped
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
 unittest_test: W: This is another message
 EOF
+    }
 }

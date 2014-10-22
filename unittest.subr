@@ -175,9 +175,9 @@ _shtk_unittest_run_fixture_test() {
         _shtk_unittest_enter_test "${name}"
 
         local failed=no
-        if setup; then
-            ( "${basename}_test" ) || failed=yes
-            teardown || failed=yes
+        if { setup; true; }; then
+            ( "${basename}_test"; true ) || failed=yes
+            { teardown; true; } || failed=yes
         else
             failed=yes
         fi
@@ -202,6 +202,7 @@ _shtk_unittest_run_standalone_test() {
         _shtk_unittest_enter_test "${name}"
 
         "${name}_test"
+        true
     )
     _shtk_unittest_leave_test "${name}" "${?}"
 }

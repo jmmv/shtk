@@ -475,6 +475,32 @@ EOF
     }
 
 
+    shtk_unittest_add_test pass_on_fallthrough_even_if_false
+    pass_on_fallthrough_even_if_false_test() {
+        setup() { echo "This is the setup"; false; }
+        teardown() { echo "This is the teardown"; false; }
+
+        shtk_unittest_add_test should_pass
+        should_pass_test() {
+            echo "This is the test code"
+            false
+        }
+
+        ( _shtk_unittest_run_fixture_test container should_pass >out 2>err ) \
+            || fail "run_fixture reported failure for passing test case"
+
+        assert_file_contents out <<EOF
+This is the setup
+This is the test code
+This is the teardown
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing container__should_pass...
+unittest_test: I: Testing container__should_pass... PASSED
+EOF
+    }
+
+
     shtk_unittest_add_test process_lifecycle
     process_lifecycle_test() {
         GLOBAL=empty
@@ -574,6 +600,27 @@ EOF
         assert_file_contents err <<EOF
 unittest_test: I: Testing always_passes...
 unittest_test: I: Testing always_passes... PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test pass_on_fallthrough_even_if_false
+    pass_on_fallthrough_even_if_false_test() {
+        shtk_unittest_add_test should_pass
+        should_pass_test() {
+            echo "This is the test code"
+            false
+        }
+
+        ( _shtk_unittest_run_standalone_test should_pass >out 2>err ) \
+            || fail "run_test reported failure for passing test case"
+
+        assert_file_contents out <<EOF
+This is the test code
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing should_pass...
+unittest_test: I: Testing should_pass... PASSED
 EOF
     }
 

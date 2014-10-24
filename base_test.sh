@@ -62,6 +62,18 @@ import__ok_body() {
 }
 
 
+atf_test_case import__ok_from_subdirectory
+import__ok_from_subdirectory_body() {
+    create_mock_module modules/dir1/dir2/mock.subr mock_value
+    SHTK_MODULESPATH=
+    SHTK_MODULESDIR="$(pwd)/modules"
+
+    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    shtk_import dir1/dir2/mock
+    atf_check_equal 1 "${mock_value}"
+}
+
+
 atf_test_case import__idempotent
 import__idempotent_body() {
     create_mock_module modules/mock1.subr mock1_value
@@ -147,6 +159,7 @@ EOF
 
 atf_init_test_cases() {
     atf_add_test_case import__ok
+    atf_add_test_case import__ok_from_subdirectory
     atf_add_test_case import__idempotent
     atf_add_test_case import__from_path__load_once
     atf_add_test_case import__from_path__prefer_path

@@ -115,6 +115,60 @@ add_test_fixture() {
 }
 
 
+shtk_unittest_add_fixture delayed_fail
+delayed_fail_fixture() {
+    shtk_unittest_add_test one_argument
+    one_argument_test() {
+        ( shtk_unittest_delayed_fail "This is a message"; echo "more stuff" ) \
+            >out 2>err || fail "delayed_fail exited prematurely"
+        assert_file_contents out <<EOF
+more stuff
+EOF
+        assert_file_contents err <<EOF
+unittest_test: W: Delayed failure: This is a message
+EOF
+        assert_file_contents result.delayed-fail 1
+        rm -f result.delayed-fail
+    }
+
+
+    shtk_unittest_add_test argument_concatenation
+    argument_concatenation_test() {
+        ( shtk_unittest_delayed_fail "One" "more message"; echo "hi" ) \
+            >out 2>err || fail "delayed_fail exited prematurely"
+        assert_file_contents out <<EOF
+hi
+EOF
+        assert_file_contents err <<EOF
+unittest_test: W: Delayed failure: One more message
+EOF
+        assert_file_contents result.delayed-fail 1
+        rm -f result.delayed-fail
+    }
+
+
+    shtk_unittest_add_test counter
+    counter_test() {
+        (
+            shtk_unittest_delayed_fail "This is a message";
+            echo "more stuff"
+            shtk_unittest_delayed_fail "This is another message";
+            echo "exiting"
+        ) >out 2>err || fail "delayed_fail exited prematurely"
+        assert_file_contents out <<EOF
+more stuff
+exiting
+EOF
+        assert_file_contents err <<EOF
+unittest_test: W: Delayed failure: This is a message
+unittest_test: W: Delayed failure: This is another message
+EOF
+        assert_file_contents result.delayed-fail 2
+        rm -f result.delayed-fail
+    }
+}
+
+
 shtk_unittest_add_fixture fail
 fail_fixture() {
     shtk_unittest_add_test one_argument
@@ -690,6 +744,70 @@ EOF
     }
 
 
+    shtk_unittest_add_test fail_due_to_delayed_failures
+    fail_due_to_delayed_failures_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            shtk_unittest_delayed_fail "first delayed failure"
+            shtk_unittest_delayed_fail "second delayed failure"
+            shtk_unittest_delayed_fail "third delayed failure"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing always_fails...
+unittest_test: W: Delayed failure: first delayed failure
+unittest_test: W: Delayed failure: second delayed failure
+unittest_test: W: Delayed failure: third delayed failure
+unittest_test: W: Testing always_fails... FAILED (3 delayed failures)
+EOF
+    }
+
+
+    shtk_unittest_add_test fail_trumps_delayed_fail
+    fail_trumps_delayed_fail_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            shtk_unittest_delayed_fail "first delayed failure"
+            shtk_unittest_fail "fatal failure"
+            shtk_unittest_delayed_fail "second delayed failure"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing always_fails...
+unittest_test: W: Delayed failure: first delayed failure
+unittest_test: E: fatal failure
+unittest_test: W: Testing always_fails... FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test delayed_fail_trumps_skip
+    delayed_fail_trumps_skip_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            shtk_unittest_delayed_fail "first delayed failure"
+            skip "ignored skip condition"
+            shtk_unittest_delayed_fail "second delayed failure"
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing always_fails...
+unittest_test: W: Delayed failure: first delayed failure
+unittest_test: W: ignored skip condition
+unittest_test: W: Testing always_fails... FAILED (1 delayed failures)
+EOF
+    }
+
+
     shtk_unittest_add_test skip
     skip_test() {
         shtk_unittest_add_test always_skips
@@ -717,7 +835,7 @@ EOF
     bring_into_namespace_test() {
         shtk_unittest_add_test call_stubs
         call_stubs_test() {
-            local funcs="fail skip"
+            local funcs="delayed_fail fail skip"
 
             for func in ${funcs}; do
                 eval "shtk_unittest_${func}() { \
@@ -736,6 +854,7 @@ EOF
 
         assert_file_contents out <<EOF
 Calling stubs
+stub for delayed_fail: arguments to the stub
 stub for fail: arguments to the stub
 stub for skip: arguments to the stub
 All stubs done

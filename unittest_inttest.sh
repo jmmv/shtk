@@ -268,13 +268,166 @@ EOF
 }
 
 
+assert_command__ok() {
+    cat >command.sh <<EOF
+echo "some contents to stdout"
+echo "some contents to stderr" 1>&2
+exit 42
+EOF
+
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    echo "some contents to stdout" >expout
+    echo "some contents to stderr" >experr
+    assert_command -s exit:42 -o file:expout -e file:experr sh $(pwd)/command.sh
+    echo "reached"
+}
+EOF
+
+    cat >expout <<EOF
+Running checked command: sh $(pwd)/command.sh
+reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: I: Testing first... PASSED
+program: I: Ran 1 tests; ALL PASSED
+EOF
+
+    check 0 expout experr ./program || return 1
+}
+
+
+assert_command__fail() {
+    cat >command.sh <<EOF
+echo "some contents to stdout"
+echo "some contents to stderr" 1>&2
+exit 42
+EOF
+
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    assert_command -s exit:42 sh $(pwd)/command.sh
+    echo "not reached"
+}
+EOF
+
+    cat >expout <<EOF
+Running checked command: sh $(pwd)/command.sh
+Expected standard output to be empty; found:
+some contents to stdout
+Expected standard error to be empty; found:
+some contents to stderr
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: E: Check of 'sh $(pwd)/command.sh' failed; see stdout for details
+program: W: Testing first... FAILED
+program: W: Ran 1 tests; 1 FAILED
+EOF
+
+    check 1 expout experr ./program || return 1
+}
+
+
+expect_command__ok() {
+    cat >command.sh <<EOF
+echo "some contents to stdout"
+echo "some contents to stderr" 1>&2
+exit 42
+EOF
+
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    echo "some contents to stdout" >expout
+    echo "some contents to stderr" >experr
+    expect_command -s exit:42 -o file:expout -e file:experr sh $(pwd)/command.sh
+    echo "reached"
+}
+EOF
+
+    cat >expout <<EOF
+Running checked command: sh $(pwd)/command.sh
+reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: I: Testing first... PASSED
+program: I: Ran 1 tests; ALL PASSED
+EOF
+
+    check 0 expout experr ./program || return 1
+}
+
+
+expect_command__fail() {
+    cat >command.sh <<EOF
+echo "some contents to stdout"
+echo "some contents to stderr" 1>&2
+exit 42
+EOF
+
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    expect_command -s exit:42 sh $(pwd)/command.sh
+    echo "reached"
+    expect_command sh $(pwd)/command.sh
+    echo "also reached"
+}
+EOF
+
+    cat >expout <<EOF
+Running checked command: sh $(pwd)/command.sh
+Expected standard output to be empty; found:
+some contents to stdout
+Expected standard error to be empty; found:
+some contents to stderr
+reached
+Running checked command: sh $(pwd)/command.sh
+Expected exit code 0 != actual exit code 42
+stdout: some contents to stdout
+stderr: some contents to stderr
+also reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: W: Delayed failure: Check of 'sh $(pwd)/command.sh' failed; see stdout for details
+program: W: Delayed failure: Check of 'sh $(pwd)/command.sh' failed; see stdout for details
+program: W: Testing first... FAILED (2 delayed failures)
+program: W: Ran 1 tests; 1 FAILED
+EOF
+
+    check 1 expout experr ./program || return 1
+}
+
+
 main() {
     for name in \
         one_test__always_passes \
         one_test__always_fails \
         some_tests__all_pass \
         some_tests__some_fail \
-        fixtures
+        fixtures \
+        assert_command__ok \
+        assert_command__fail \
+        expect_command__ok \
+        expect_command__fail
     do
         local failed=no
         echo "Running test ${name}"

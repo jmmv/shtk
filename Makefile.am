@@ -43,6 +43,9 @@ dist_pkgdata_DATA += list.subr
 dist_pkgdata_DATA += process.subr
 dist_pkgdata_DATA += unittest.subr
 
+unittest_pkgdatadir = $(pkgdatadir)/unittest
+dist_unittest_pkgdata_DATA = unittest/commands.subr
+
 pkgdata_DATA = version.subr
 CLEANFILES = version.subr
 EXTRA_DIST += version.subr.in
@@ -130,6 +133,9 @@ shtk.pc: $(srcdir)/shtk.pc.in Makefile
 if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
 
+unittest_testsdir = $(pkgtestsdir)/unittest
+dist_unittest_tests_DATA = unittest/Kyuafile
+
 BUILD_TEST = \
 	$(mkdir_p) "$$(dirname $${name})"; \
 	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH=$(abs_builddir) \
@@ -207,6 +213,12 @@ CLEANFILES += unittest_test
 EXTRA_DIST += unittest_test.sh
 unittest_test: $(srcdir)/unittest_test.sh shtk
 	$(AM_V_GEN)name=unittest_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS = unittest/commands_test
+CLEANFILES += unittest/commands_test
+EXTRA_DIST += unittest/commands_test.sh
+unittest/commands_test: $(srcdir)/unittest/commands_test.sh shtk
+	$(AM_V_GEN)name=unittest/commands_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += version_test
 CLEANFILES += version_test

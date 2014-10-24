@@ -411,3 +411,7 @@ shtk_unittest_skip() {
         shtk_cli_error "Attempted to skip a test while expecting a failure"
     fi
 }
+
+
+# All unittest core functionality defined; let's pull in all checks!
+shtk_import unittest/commands

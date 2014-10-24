@@ -1029,6 +1029,7 @@ EOF
         shtk_unittest_add_test call_stubs
         call_stubs_test() {
             local funcs="delayed_fail fail set_expect_failure skip"
+            local funcs="${funcs} assert_command expect_command"
 
             for func in ${funcs}; do
                 eval "shtk_unittest_${func}() { \
@@ -1051,6 +1052,8 @@ stub for delayed_fail: arguments to the stub
 stub for fail: arguments to the stub
 stub for set_expect_failure: arguments to the stub
 stub for skip: arguments to the stub
+stub for assert_command: arguments to the stub
+stub for expect_command: arguments to the stub
 All stubs done
 EOF
         assert_file_contents err <<EOF

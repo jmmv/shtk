@@ -1,4 +1,4 @@
-syntax("kyuafile", 1)
+syntax(2)
 
 test_suite("shtk")
 
@@ -14,3 +14,5 @@ atf_test_program{name="shtk_test"}
 plain_test_program{name="unittest_inttest"}
 plain_test_program{name="unittest_test"}
 atf_test_program{name="version_test"}
+
+include("unittest/Kyuafile")

@@ -422,6 +422,119 @@ EOF
 }
 
 
+shtk_unittest_add_fixture register_check
+register_check_fixture() {
+    _shtk_unittest_check_mock() {
+        local wrapper_name="${1}"; shift
+        local fail_function="${1}"; shift
+
+        echo "Mock called by ${wrapper_name}"
+        echo "Mock with arguments: ${*}"
+        [ "${1}" != fail ] || "${fail_function}" "Failing test"
+    }
+    _shtk_unittest_register_check mock
+
+
+    shtk_unittest_add_test assert__ok
+    assert__ok_test() {
+        (
+            assert_mock "this call" "should pass"
+            echo reached
+        ) >out 2>err || fail "mock call expected to pass but failed"
+        assert_file_contents out <<EOF
+Mock called by shtk_unittest_assert_mock
+Mock with arguments: this call should pass
+reached
+EOF
+        assert_file_contents err ""
+    }
+
+
+    shtk_unittest_add_test assert__fail
+    assert__fail_test() {
+        (
+            assert_mock fail
+            echo reached
+        ) >out 2>err && fail "mock call expected to fail but passed"
+        assert_file_contents out <<EOF
+Mock called by shtk_unittest_assert_mock
+Mock with arguments: fail
+EOF
+        assert_file_contents err "unittest_test: E: Failing test"
+    }
+
+
+    shtk_unittest_add_test expect__ok
+    expect__ok_test() {
+        (
+            expect_mock "this call" "should pass"
+            echo reached
+        ) >out 2>err || fail "mock call expected to pass but failed"
+        assert_file_contents out <<EOF
+Mock called by shtk_unittest_expect_mock
+Mock with arguments: this call should pass
+reached
+EOF
+        assert_file_contents err ""
+    }
+
+
+    shtk_unittest_add_test expect__fail
+    expect__fail_test() {
+        (
+            expect_mock fail
+            echo reached
+            expect_mock fail
+            echo reached as well
+        ) >out 2>err || fail "mock call expected to pass but failed"
+        assert_file_contents out <<EOF
+Mock called by shtk_unittest_expect_mock
+Mock with arguments: fail
+reached
+Mock called by shtk_unittest_expect_mock
+Mock with arguments: fail
+reached as well
+EOF
+        assert_file_contents err <<EOF
+unittest_test: W: Delayed failure: Failing test
+unittest_test: W: Delayed failure: Failing test
+EOF
+        assert_file_contents result.delayed-fail 2
+        rm -f result.delayed-fail
+    }
+
+
+    shtk_unittest_add_test expect__integration_with_run
+    expect__integration_with_run_test() {
+        shtk_unittest_add_test always_fails
+        always_fails_test() {
+            expect_mock fail
+            echo reached
+            expect_mock fail
+            echo reached as well
+        }
+
+        ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+
+        assert_file_contents out <<EOF
+Mock called by shtk_unittest_expect_mock
+Mock with arguments: fail
+reached
+Mock called by shtk_unittest_expect_mock
+Mock with arguments: fail
+reached as well
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing always_fails...
+unittest_test: W: Delayed failure: Failing test
+unittest_test: W: Delayed failure: Failing test
+unittest_test: W: Testing always_fails... FAILED (2 delayed failures)
+EOF
+    }
+}
+
+
 shtk_unittest_add_fixture run_fixture_test
 run_fixture_test_fixture() {
     # Because run_fixture_test and run_standalone_test share most of their code

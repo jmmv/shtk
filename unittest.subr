@@ -165,6 +165,35 @@ _shtk_unittest_leave_test() {
 }
 
 
+# Defines assert and expect functions for a given check function.
+#
+# For a given _shtk_unittest_check_${name} function, a pair of
+# shtk_unittest_assert_${name} and shtk_unittest_expect_${name} functions are
+# defined.  The former implements a fatal test and the latter a delayed test.
+#
+# \param name Name of the check.
+#
+# \pre A _shtk_unittest_check_${name} function must exist.  This function must
+# take the name of the wrapper function as the first argument, the name of a
+# "fail function" as the second argument, and then all of the check-specific
+# arguments (including, possibly, options).
+_shtk_unittest_register_check() {
+    local name="${1}"; shift
+
+    eval "shtk_unittest_assert_${name}() {
+        _shtk_unittest_check_${name} shtk_unittest_assert_${name} \
+            shtk_unittest_fail \"\${@}\"
+    }"
+
+    eval "shtk_unittest_expect_${name}() {
+        _shtk_unittest_check_${name} shtk_unittest_expect_${name} \
+            shtk_unittest_delayed_fail \"\${@}\"
+    }"
+
+    _Shtk_Unittest_Use="${_Shtk_Unittest_Use} assert_${name} expect_${name}"
+}
+
+
 # Executes a test case within a fixture.
 #
 # \param fixture Name of the fixture containing the test case to run.

@@ -166,6 +166,27 @@ EOF
         assert_file_contents result.delayed-fail 2
         rm -f result.delayed-fail
     }
+
+
+    shtk_unittest_add_test expect_failure
+    expect_failure_test() {
+        (
+            shtk_unittest_set_expect_failure
+            shtk_unittest_delayed_fail "This is a message"
+            echo "more stuff"
+        ) >out 2>err
+        if [ "${?}" -eq 0 ]; then
+            rm -f result.expect-fail
+            fail "delayed_fail exited cleanly"
+        else
+            rm -f result.expect-fail
+        fi
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: E: delayed_fail does not support expected failures
+EOF
+        [ ! -f result.delayed-fail ] || fail "Found delayed_fail cookie"
+    }
 }
 
 
@@ -189,6 +210,26 @@ EOF
         assert_file_contents out ""
         assert_file_contents err <<EOF
 unittest_test: E: This is another message
+EOF
+    }
+
+
+    shtk_unittest_add_test expect_failure
+    expect_failure_test() {
+        (
+            shtk_unittest_set_expect_failure
+            shtk_unittest_fail "Some text"
+            echo "not reached"
+        ) >out 2>err
+        if [ "${?}" -eq 0 ]; then
+            rm -f result.expect-fail
+            fail "fail did not exit with an error"
+        else
+            rm -f result.expect-fail
+        fi
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: E: Expected failure: Some text
 EOF
     }
 }
@@ -921,6 +962,45 @@ EOF
     }
 
 
+    shtk_unittest_add_test expected_failure__fail_is_pass
+    expected_failure__fail_is_pass_test() {
+        shtk_unittest_add_test subtest
+        subtest_test() {
+            shtk_unittest_set_expect_failure
+            shtk_unittest_fail "first xfail"
+            echo "not reached"
+        }
+
+        ( _shtk_unittest_run_standalone_test subtest >out 2>err ) \
+            || fail "run_test reported failure for passing test case"
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: I: Testing subtest...
+unittest_test: E: Expected failure: first xfail
+unittest_test: I: Testing subtest... EXPECTED FAILURE
+EOF
+    }
+
+
+    shtk_unittest_add_test expected_failure__pass_is_fail
+    expected_failure__pass_is_fail_test() {
+        shtk_unittest_add_test subtest
+        subtest_test() {
+            shtk_unittest_set_expect_failure
+            echo "nothing fails"
+        }
+
+        ( _shtk_unittest_run_standalone_test subtest >out 2>err ) \
+            && fail "run_test reported success for failing test case"
+        assert_file_contents out "nothing fails"
+        assert_file_contents err <<EOF
+unittest_test: I: Testing subtest...
+unittest_test: W: Expected failure but none found
+unittest_test: W: Testing subtest... FAILED
+EOF
+    }
+
+
     shtk_unittest_add_test skip
     skip_test() {
         shtk_unittest_add_test always_skips
@@ -948,7 +1028,7 @@ EOF
     bring_into_namespace_test() {
         shtk_unittest_add_test call_stubs
         call_stubs_test() {
-            local funcs="delayed_fail fail skip"
+            local funcs="delayed_fail fail set_expect_failure skip"
 
             for func in ${funcs}; do
                 eval "shtk_unittest_${func}() { \
@@ -969,6 +1049,7 @@ EOF
 Calling stubs
 stub for delayed_fail: arguments to the stub
 stub for fail: arguments to the stub
+stub for set_expect_failure: arguments to the stub
 stub for skip: arguments to the stub
 All stubs done
 EOF
@@ -1015,6 +1096,26 @@ EOF
         assert_file_contents out ""
         assert_file_contents err <<EOF
 unittest_test: W: This is another message
+EOF
+    }
+
+
+    shtk_unittest_add_test expect_failure
+    expect_failure_test() {
+        (
+            shtk_unittest_set_expect_failure
+            shtk_unittest_skip "Some text"
+            echo "not reached"
+        ) >out 2>err
+        if [ "${?}" -eq 0 ]; then
+            rm -f result.expect-fail
+            fail "skip did not exit with an error"
+        else
+            rm -f result.expect-fail
+        fi
+        assert_file_contents out ""
+        assert_file_contents err <<EOF
+unittest_test: E: Attempted to skip a test while expecting a failure
 EOF
     }
 }

@@ -147,7 +147,7 @@ shtk_unittest_add_test first
 first_test() { echo "First"; }
 
 shtk_unittest_add_test second
-second_test() { echo "Second"; }
+second_test() { set_expect_failure; fail "Second"; echo "not reached"; }
 
 shtk_unittest_add_test third
 third_test() { echo "Third"; }
@@ -155,7 +155,6 @@ EOF
 
     cat >expout <<EOF
 First
-Second
 Third
 EOF
 
@@ -163,7 +162,8 @@ EOF
 program: I: Testing first...
 program: I: Testing first... PASSED
 program: I: Testing second...
-program: I: Testing second... PASSED
+program: E: Expected failure: Second
+program: I: Testing second... EXPECTED FAILURE
 program: I: Testing third...
 program: I: Testing third... PASSED
 program: I: Ran 3 tests; ALL PASSED

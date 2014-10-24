@@ -72,6 +72,10 @@ shtk_import cli
 shtk_import list
 
 
+# Current expectation of the test regarding failure conditions.
+_Shtk_Unittest_ExpectFailure=no
+
+
 # Names of all the registered test cases.
 #
 # Upon program startup, this variable tracks all standalone test cases.
@@ -85,7 +89,7 @@ _Shtk_Unittest_TestFixtures=
 
 
 # Functions to bring into the global namespace within the tests.
-_Shtk_Unittest_Use="delayed_fail fail skip"
+_Shtk_Unittest_Use="delayed_fail fail set_expect_failure skip"
 
 
 # Prepares for the execution of a test case.
@@ -102,6 +106,8 @@ _shtk_unittest_enter_test() {
     local name="${1}"; shift
 
     shtk_cli_info "Testing ${name}..."
+
+    _Shtk_Unittest_ExpectFailure=no
 
     for function_name in ${_Shtk_Unittest_Use}; do
         eval "${function_name}() { " \
@@ -126,19 +132,40 @@ _shtk_unittest_leave_test() {
     local name="${1}"; shift
     local exit_code="${1}"; shift
 
+    local delayed_failures=0
+    [ ! -f "${name}/result.delayed-fail" ] \
+        || delayed_failures="$(cat "${name}/result.delayed-fail")"
+
+    local expected_failure=no
+    [ ! -f "${name}/result.expect-fail" ] || expected_failure=yes
+
+    local skipped=no
+    [ ! -f "${name}/result.skipped" ] || skipped=yes
+
     local result
-    local delayed_failures=
-    if [ ${exit_code} -eq 0 ]; then
-        if [ -f "${name}/result.delayed-fail" ]; then
-            result=delayed-fail
-            delayed_failures="$(cat "${name}/result.delayed-fail")"
-        elif [ -f "${name}/result.skipped" ]; then
-            result=skip
+    if [ "${expected_failure}" = no ]; then
+        if [ ${exit_code} -eq 0 ]; then
+            if [ "${delayed_failures}" -gt 0 ]; then
+                result=delayed-fail
+            elif [ "${skipped}" = yes ]; then
+                result=skip
+            else
+                result=pass
+            fi
         else
-            result=pass
+            result=fail
         fi
     else
-        result=fail
+        if [ ${exit_code} -eq 0 ]; then
+            if [ "${delayed_failures}" -gt 0 ]; then
+                result=expected-failure
+            else
+                shtk_cli_warning "Expected failure but none found"
+                result=fail
+            fi
+        else
+            result=expected-failure
+        fi
     fi
     rm -rf "${name}"
 
@@ -147,6 +174,10 @@ _shtk_unittest_leave_test() {
             shtk_cli_warning "Testing ${name}... FAILED" \
                 "(${delayed_failures} delayed failures)"
             return 1
+            ;;
+        expected-failure)
+            shtk_cli_info "Testing ${name}... EXPECTED FAILURE"
+            return 0
             ;;
         fail)
             shtk_cli_warning "Testing ${name}... FAILED"
@@ -280,6 +311,9 @@ shtk_unittest_add_test() {
 #
 # \param ... Error message to print before failing.
 shtk_unittest_delayed_fail() {
+    [ "${_Shtk_Unittest_ExpectFailure}" = no ] \
+        || shtk_cli_error "delayed_fail does not support expected failures"
+
     # TODO(jmmv): Consider using ${LINENO} if available.
     shtk_cli_warning "Delayed failure: ${@}"
 
@@ -302,7 +336,11 @@ shtk_unittest_delayed_fail() {
 # \param ... Error message to print before failing.
 shtk_unittest_fail() {
     # TODO(jmmv): Consider using ${LINENO} if available.
-    shtk_cli_error "${@}"
+    if [ "${_Shtk_Unittest_ExpectFailure}" = no ]; then
+        shtk_cli_error "${@}"
+    else
+        shtk_cli_error "Expected failure:" "${@}"
+    fi
 }
 
 
@@ -353,12 +391,23 @@ shtk_unittest_main() {
 }
 
 
+# Changes the test to expect a failures from now on.
+shtk_unittest_set_expect_failure() {
+    _Shtk_Unittest_ExpectFailure=yes
+    touch result.expect-fail
+}
+
+
 # Skips the test currently being run.
 #
 # \param ... Message to print before exiting.
 shtk_unittest_skip() {
     # TODO(jmmv): Consider using ${LINENO} if available.
-    shtk_cli_warning "${@}"
-    touch result.skipped
-    exit 0
+    if [ "${_Shtk_Unittest_ExpectFailure}" = no ]; then
+        shtk_cli_warning "${@}"
+        touch result.skipped
+        exit 0
+    else
+        shtk_cli_error "Attempted to skip a test while expecting a failure"
+    fi
 }

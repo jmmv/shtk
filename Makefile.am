@@ -44,7 +44,8 @@ dist_pkgdata_DATA += process.subr
 dist_pkgdata_DATA += unittest.subr
 
 unittest_pkgdatadir = $(pkgdatadir)/unittest
-dist_unittest_pkgdata_DATA = unittest/commands.subr
+dist_unittest_pkgdata_DATA  = unittest/commands.subr
+dist_unittest_pkgdata_DATA += unittest/operators.subr
 
 pkgdata_DATA = version.subr
 CLEANFILES = version.subr
@@ -219,6 +220,12 @@ CLEANFILES += unittest/commands_test
 EXTRA_DIST += unittest/commands_test.sh
 unittest/commands_test: $(srcdir)/unittest/commands_test.sh shtk
 	$(AM_V_GEN)name=unittest/commands_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS += unittest/operators_test
+CLEANFILES += unittest/operators_test
+EXTRA_DIST += unittest/operators_test.sh
+unittest/operators_test: $(srcdir)/unittest/operators_test.sh shtk
+	$(AM_V_GEN)name=unittest/operators_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += version_test
 CLEANFILES += version_test

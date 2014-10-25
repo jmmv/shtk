@@ -415,3 +415,4 @@ shtk_unittest_skip() {
 
 # All unittest core functionality defined; let's pull in all checks!
 shtk_import unittest/commands
+shtk_import unittest/operators

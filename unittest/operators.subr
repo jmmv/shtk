@@ -1,0 +1,78 @@
+# Copyright 2014 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# \file unittest/check_operators.subr
+# Checks for the unittest module to perform relational comparisons.
+#
+# This is an internal module not intended for direct user consumption.
+
+shtk_import cli
+#shtk_import unittest  # unittest imports us, so we can assume it is present.
+
+
+# Compares two values for equality.
+#
+# \param wrapper Name of the calling function for error reporting purposes.
+# \param fail_function Function to use to report a failure.
+# \param expected_value Expected value.
+# \param actual_value Actual value.
+#
+# \return If fail_function is not terminal, returns true if the expected value
+# is equal to the actual value; false otherwise.
+_shtk_unittest_check_equal() {
+    local wrapper="${1}"; shift
+    local fail_function="${1}"; shift
+    local expected_value="${1}"; shift
+    local actual_value="${1}"; shift
+
+    [ "${expected_value}" = "${actual_value}" ] || \
+        "${fail_function}" "Expected value ${expected_value} but got" \
+            "${actual_value}"
+}
+_shtk_unittest_register_check equal
+
+
+# Compares two values for inequality.
+#
+# \param wrapper Name of the calling function for error reporting purposes.
+# \param fail_function Function to use to report a failure.
+# \param unexpected_value Unexpected value.
+# \param actual_value Actual value.
+#
+# \return If fail_function is not terminal, returns true if the unexpected value
+# is different than the actual value; false otherwise.
+_shtk_unittest_check_not_equal() {
+    local wrapper="${1}"; shift
+    local fail_function="${1}"; shift
+    local expected_value="${1}"; shift
+    local actual_value="${1}"; shift
+
+    [ "${expected_value}" != "${actual_value}" ] || \
+        "${fail_function}" "Expected value different than ${expected_value}"
+}
+_shtk_unittest_register_check not_equal

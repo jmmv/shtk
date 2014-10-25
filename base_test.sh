@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# No imports: we can assume the bootstrap code to be present.
+shtk_import unittest
 
 
 # Creates a mock module for shtk_import.
@@ -50,119 +50,104 @@ EOF
 }
 
 
-atf_test_case import__ok
-import__ok_body() {
+shtk_unittest_add_test import__ok
+import__ok_test() {
     create_mock_module modules/mock.subr mock_value
     SHTK_MODULESPATH=
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    [ -z "${mock_value}" ] || fail "mock_value already defined"
     shtk_import mock
-    atf_check_equal 1 "${mock_value}"
+    expect_equal 1 "${mock_value}"
 }
 
 
-atf_test_case import__ok_from_subdirectory
-import__ok_from_subdirectory_body() {
+shtk_unittest_add_test import__ok_from_subdirectory
+import__ok_from_subdirectory_test() {
     create_mock_module modules/dir1/dir2/mock.subr mock_value
     SHTK_MODULESPATH=
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    [ -z "${mock_value}" ] || fail "mock_value already defined"
     shtk_import dir1/dir2/mock
-    atf_check_equal 1 "${mock_value}"
+    expect_equal 1 "${mock_value}"
 }
 
 
-atf_test_case import__idempotent
-import__idempotent_body() {
+shtk_unittest_add_test import__idempotent
+import__idempotent_test() {
     create_mock_module modules/mock1.subr mock1_value
     create_mock_module modules/mock2.subr mock2_value
     SHTK_MODULESPATH=
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock1_value}" ] || atf_fail "mock1_value already defined"
-    [ -z "${mock2_value}" ] || atf_fail "mock2_value already defined"
+    [ -z "${mock1_value}" ] || fail "mock1_value already defined"
+    [ -z "${mock2_value}" ] || fail "mock2_value already defined"
     shtk_import mock1
     shtk_import mock2
-    atf_check_equal 1 "${mock1_value}"
-    atf_check_equal 1 "${mock2_value}"
+    expect_equal 1 "${mock1_value}"
+    expect_equal 1 "${mock2_value}"
     shtk_import mock1
     shtk_import mock2
-    atf_check_equal 1 "${mock1_value}"
-    atf_check_equal 1 "${mock2_value}"
+    expect_equal 1 "${mock1_value}"
+    expect_equal 1 "${mock2_value}"
 }
 
 
-atf_test_case import__from_path__load_once
-import__from_path__load_once_body() {
+shtk_unittest_add_test import__from_path__load_once
+import__from_path__load_once_test() {
     create_mock_module modules/mock.subr mock_value
     create_mock_module site/mock.subr mock_value
     SHTK_MODULESPATH="$(pwd)/site"
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
+    [ -z "${mock_value}" ] || fail "mock_value already defined"
     shtk_import mock
-    atf_check_equal 1 "${mock_value}"
+    expect_equal 1 "${mock_value}"
 }
 
 
-atf_test_case import__from_path__prefer_path
-import__from_path__prefer_path_body() {
+shtk_unittest_add_test import__from_path__prefer_path
+import__from_path__prefer_path_test() {
     create_mock_module modules/mock.subr base_value
     create_mock_module site/mock.subr site_value
     SHTK_MODULESPATH="$(pwd)/site"
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${site_value}" ] || atf_fail "site_value already defined"
-    [ -z "${base_value}" ] || atf_fail "base_value already defined"
+    [ -z "${site_value}" ] || fail "site_value already defined"
+    [ -z "${base_value}" ] || fail "base_value already defined"
     shtk_import mock
-    [ -n "${site_value}" ] || atf_fail "Site-specific module not loaded"
-    [ -z "${base_value}" ] || atf_fail "Base module loaded"
+    [ -n "${site_value}" ] || fail "Site-specific module not loaded"
+    [ -z "${base_value}" ] || fail "Base module loaded"
 }
 
 
-atf_test_case import__from_path__various_directories
-import__from_path__various_directories_body() {
+shtk_unittest_add_test import__from_path__various_directories
+import__from_path__various_directories_test() {
     create_mock_module modules/mock.subr mock_value
     create_mock_module site1/foo.subr foo_value
     create_mock_module site2/bar.subr bar_value
     SHTK_MODULESPATH="$(pwd)/site1:$(pwd)/site2"
     SHTK_MODULESDIR="$(pwd)/modules"
 
-    [ -z "${mock_value}" ] || atf_fail "mock_value already defined"
-    [ -z "${foo_value}" ] || atf_fail "foo_value already defined"
-    [ -z "${bar_value}" ] || atf_fail "bar_value already defined"
+    [ -z "${mock_value}" ] || fail "mock_value already defined"
+    [ -z "${foo_value}" ] || fail "foo_value already defined"
+    [ -z "${bar_value}" ] || fail "bar_value already defined"
     shtk_import mock
     shtk_import foo
     shtk_import bar
-    atf_check_equal 1 "${mock_value}"
-    atf_check_equal 1 "${foo_value}"
-    atf_check_equal 1 "${bar_value}"
+    expect_equal 1 "${mock_value}"
+    expect_equal 1 "${foo_value}"
+    expect_equal 1 "${bar_value}"
 }
 
 
-atf_test_case import__not_found
-import__not_found_body() {
+shtk_unittest_add_test import__not_found
+import__not_found_test() {
     SHTK_MODULESPATH=; export SHTK_MODULESPATH
     SHTK_MODULESDIR=$(pwd); export SHTK_MODULESDIR
-    if ( shtk_import abcde ) >out 2>err; then
-        atf_fail "import of a non-existent module succeeded"
-    else
-        cat >experr <<EOF
+    cat >experr <<EOF
 base_test: E: Cannot load module abcde; tried $(pwd)/abcde.subr
 EOF
-        atf_check -o file:experr cat err
-    fi
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case import__ok
-    atf_add_test_case import__ok_from_subdirectory
-    atf_add_test_case import__idempotent
-    atf_add_test_case import__from_path__load_once
-    atf_add_test_case import__from_path__prefer_path
-    atf_add_test_case import__from_path__various_directories
-    atf_add_test_case import__not_found
+    expect_command -s exit:1 -e file:experr shtk_import abcde
 }

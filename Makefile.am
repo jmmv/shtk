@@ -152,7 +152,7 @@ pkgtests_SCRIPTS = base_test
 CLEANFILES += base_test
 EXTRA_DIST += base_test.sh
 base_test: $(srcdir)/base_test.sh shtk
-	$(AM_V_GEN)name=base_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=base_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += bool_test
 CLEANFILES += bool_test

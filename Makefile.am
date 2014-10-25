@@ -164,7 +164,7 @@ pkgtests_SCRIPTS += cleanup_test
 CLEANFILES += cleanup_test
 EXTRA_DIST += cleanup_test.sh
 cleanup_test: $(srcdir)/cleanup_test.sh shtk
-	$(AM_V_GEN)name=cleanup_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=cleanup_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cli_test
 CLEANFILES += cli_test

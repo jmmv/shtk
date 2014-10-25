@@ -27,53 +27,40 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import bool
+shtk_import unittest
 
 
-atf_test_case check__true
-check__true_body() {
+shtk_unittest_add_test check__true
+check__true_test() {
     for value in yes Yes YES true True TRUE 1; do
-        shtk_bool_check "${value}" || atf_fail "${value} is not true"
+        expect_command -s exit:0 shtk_bool_check "${value}"
     done
 }
 
 
-atf_test_case check__false
-check__false_body() {
+shtk_unittest_add_test check__false
+check__false_test() {
     for value in no No NO false False FALSE 0; do
-        if shtk_bool_check "${value}"; then
-            atf_fail "${value} is not false"
-        fi
+        expect_command -s exit:1 shtk_bool_check "${value}"
     done
 }
 
 
-atf_test_case check__error__default_message
-check__error__default_message_body() {
+shtk_unittest_add_test check__error__default_message
+check__error__default_message_test() {
     for value in 'yes ' ' no' 'foo'; do
-        if ( shtk_bool_check "${value}" ) >out 2>err; then
-            atf_fail "'${value}' not detected as invalid"
-        fi
-        atf_check -o empty cat out
-        atf_check -o match:"E: Invalid boolean value '${value}'" cat err
+        expect_command -s exit:1 \
+            -e match:"E: Invalid boolean value '${value}'" \
+            shtk_bool_check "${value}"
     done
 }
 
 
-atf_test_case check__error__custom_message
-check__error__custom_message_body() {
+shtk_unittest_add_test check__error__custom_message
+check__error__custom_message_test() {
     for value in 'yes ' ' no' 'foo'; do
-        if ( shtk_bool_check "${value}" "WRONG ${value}") >out 2>err; then
-            atf_fail "'${value}' not detected as invalid"
-        fi
-        atf_check -o empty cat out
-        atf_check -o match:"E: WRONG ${value}" cat err
+        expect_command -s exit:1 \
+            -e match:"E: WRONG ${value}" \
+            shtk_bool_check "${value}" "WRONG ${value}"
     done
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case check__true
-    atf_add_test_case check__false
-    atf_add_test_case check__error__default_message
-    atf_add_test_case check__error__custom_message
 }

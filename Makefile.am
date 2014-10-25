@@ -158,7 +158,7 @@ pkgtests_SCRIPTS += bool_test
 CLEANFILES += bool_test
 EXTRA_DIST += bool_test.sh
 bool_test: $(srcdir)/bool_test.sh shtk
-	$(AM_V_GEN)name=bool_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=bool_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cleanup_test
 CLEANFILES += cleanup_test

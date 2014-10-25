@@ -3,7 +3,7 @@ syntax(2)
 test_suite("shtk")
 
 plain_test_program{name="base_test"}
-atf_test_program{name="bool_test"}
+plain_test_program{name="bool_test"}
 atf_test_program{name="cleanup_test"}
 atf_test_program{name="cli_test"}
 atf_test_program{name="config_test"}

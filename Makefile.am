@@ -176,7 +176,7 @@ pkgtests_SCRIPTS += config_test
 CLEANFILES += config_test
 EXTRA_DIST += config_test.sh
 config_test: $(srcdir)/config_test.sh shtk
-	$(AM_V_GEN)name=config_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=config_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += cvs_test
 CLEANFILES += cvs_test

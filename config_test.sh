@@ -27,214 +27,229 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import config
+shtk_import unittest
 
 
-atf_test_case is_valid__true
-is_valid__true_body() {
-    shtk_config_init VAR1 VAR3
-    for var in VAR1 VAR3; do
-        _shtk_config_is_valid "${var}" || atf_fail "${var} not found"
-    done
+shtk_unittest_add_fixture is_valid
+is_valid_fixture() {
+    setup() {
+        shtk_config_init VAR1 VAR3
+    }
+
+
+    shtk_unittest_add_test true
+    true_test() {
+        for var in VAR1 VAR3; do
+            _shtk_config_is_valid "${var}" || fail "${var} not found"
+        done
+    }
+
+
+    shtk_unittest_add_test false
+    false_test() {
+        for var in VAR11 VAR2 VAR; do
+            if _shtk_config_is_valid "${var}"; then
+                fail "${var} found but was not registered"
+            fi
+        done
+    }
 }
 
 
-atf_test_case is_valid__false
-is_valid__false_body() {
-    shtk_config_init VAR1 VAR3
-    for var in VAR11 VAR2 VAR; do
-        if _shtk_config_is_valid "${var}"; then
-            atf_fail "${var} found but was not registered"
+shtk_unittest_add_fixture has
+has_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
+
+
+    shtk_unittest_add_test true__empty
+    true__empty_test() {
+        shtk_config_set TESTVAR ""
+        shtk_config_has TESTVAR || fail "Expected variable not found"
+    }
+
+
+    shtk_unittest_add_test true__not_empty
+    true__not_empty_test() {
+        shtk_config_set TESTVAR "foo"
+        shtk_config_has TESTVAR || fail "Expected variable not found"
+    }
+
+
+    shtk_unittest_add_test false
+    false_test() {
+        if shtk_config_has TESTVAR; then
+            fail "Unexpected variable found"
         fi
-    done
+    }
 }
 
 
-atf_test_case has__true__empty
-has__true__empty_body() {
-    shtk_config_init TESTVAR
-    shtk_config_set TESTVAR ""
-    shtk_config_has TESTVAR || atf_fail "Expected variable not found"
+shtk_unittest_add_fixture get
+get_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
+
+
+    shtk_unittest_add_test ok__empty
+    ok__empty_test() {
+        shtk_config_set TESTVAR ""
+        [ -z "$(shtk_config_get TESTVAR)" ] || fail "Failed to query value"
+    }
+
+
+    shtk_unittest_add_test ok__not_empty
+    ok__not_empty_test() {
+        shtk_config_set TESTVAR some-value
+        [ "$(shtk_config_get TESTVAR)" = some-value ] \
+            || fail "Failed to query value"
+    }
+
+
+    shtk_unittest_add_test undefined_variable
+    undefined_variable_test() {
+        expect_command -s exit:1 \
+            -e match:"Required configuration variable TESTVAR not set" \
+            shtk_config_get TESTVAR
+    }
 }
 
 
-atf_test_case has__true__not_empty
-has__true__not_empty_body() {
-    shtk_config_init TESTVAR
-    shtk_config_set TESTVAR "foo"
-    shtk_config_has TESTVAR || atf_fail "Expected variable not found"
-}
+shtk_unittest_add_fixture get_bool
+get_bool_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
 
 
-atf_test_case has__false
-has__false_body() {
-    shtk_config_init TESTVAR
-    if shtk_config_has TESTVAR; then
-        atf_fail "Unexpected variable found"
-    fi
-}
+    shtk_unittest_add_test true
+    true_test() {
+        for value in yes Yes true True; do
+            shtk_config_set TESTVAR "${value}"
+            shtk_config_get_bool TESTVAR || fail "Expected true, but got false"
+        done
+    }
 
 
-atf_test_case get__ok__empty
-get__ok__empty_body() {
-    shtk_config_init TESTVAR
-
-    shtk_config_set TESTVAR ""
-    [ -z "$(shtk_config_get TESTVAR)" ] || atf_fail "Failed to query value"
-}
-
-
-atf_test_case get__ok__not_empty
-get__ok__not_empty_body() {
-    shtk_config_init TESTVAR
-
-    shtk_config_set TESTVAR some-value
-    [ "$(shtk_config_get TESTVAR)" = some-value ] || atf_fail "Failed to query value"
-}
+    shtk_unittest_add_test false
+    false_test() {
+        for value in no No false False; do
+            shtk_config_set TESTVAR "${value}"
+            if shtk_config_get_bool TESTVAR; then
+                fail "Expected false, but got true"
+            fi
+        done
+    }
 
 
-atf_test_case get__undefined_variable
-get__undefined_variable_body() {
-    shtk_config_init TESTVAR
-
-    if ( shtk_config_get TESTVAR ) >out 2>err; then
-        atf_fail "Got unset variable successfully"
-    else
-        grep "Required configuration variable TESTVAR not set" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
-
-
-atf_test_case get_bool__true
-get_bool__true_body() {
-    shtk_config_init TESTVAR
-
-    for value in yes Yes true True; do
-        shtk_config_set TESTVAR "${value}"
-        shtk_config_get_bool TESTVAR || atf_fail "Expected true, but got false"
-    done
-}
-
-
-atf_test_case get_bool__false
-get_bool__false_body() {
-    shtk_config_init TESTVAR
-
-    for value in no No false False; do
-        shtk_config_set TESTVAR "${value}"
+    shtk_unittest_add_test undefined_variable
+    undefined_variable_test() {
         if shtk_config_get_bool TESTVAR; then
-            atf_fail "Expected false, but got true"
+            fail "Expected false, but got true"
         fi
-    done
+    }
+
+
+    shtk_unittest_add_test invalid_value
+    invalid_value_test() {
+        shtk_config_set TESTVAR not-a-boolean
+        expect_command -s exit:1 \
+            -e match:"Invalid boolean value in variable TESTVAR" \
+            shtk_config_get_bool TESTVAR
+    }
 }
 
 
-atf_test_case get_bool__undefined_variable
-get_bool__undefined_variable_body() {
-    shtk_config_init TESTVAR
+shtk_unittest_add_fixture get_default
+get_default_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
 
-    if shtk_config_get_bool TESTVAR; then
-        atf_fail "Expected false, but got true"
-    fi
+
+    shtk_unittest_add_test defined__empty
+    defined__empty_test() {
+        shtk_config_set TESTVAR ""
+        [ "$(shtk_config_get_default TESTVAR 'foo')" = "" ] \
+            || fail "Did not fetch defined value"
+    }
+
+
+    shtk_unittest_add_test defined__not_empty
+    defined__not_empty_test() {
+        shtk_config_set TESTVAR "bar"
+        [ "$(shtk_config_get_default TESTVAR 'foo')" = "bar" ] \
+            || fail "Did not fetch defined value"
+    }
+
+
+    shtk_unittest_add_test default__empty
+    default__empty_test() {
+        [ "$(shtk_config_get_default TESTVAR '')" = "" ] \
+            || fail "Did not fetch default value"
+    }
+
+
+    shtk_unittest_add_test default__not_empty
+    default__not_empty_test() {
+        [ "$(shtk_config_get_default TESTVAR 'foo')" = "foo" ] \
+            || fail "Did not fetch default value"
+    }
 }
 
 
-atf_test_case get_bool__invalid_value
-get_bool__invalid_value_body() {
-    shtk_config_init TESTVAR
+shtk_unittest_add_fixture set
+set_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
 
-    shtk_config_set TESTVAR not-a-boolean
-    if ( shtk_config_get_bool TESTVAR ) >out 2>err; then
-        atf_fail "Got invalid boolean value successfully"
-    else
-        grep "Invalid boolean value in variable TESTVAR" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
+
+    shtk_unittest_add_test ok
+    ok_test() {
+        shtk_config_set TESTVAR some-value
+        expect_equal some-value "${shtk_config_var_TESTVAR}"
+    }
+
+
+    shtk_unittest_add_test unknown_variable
+    unknown_variable_test() {
+        expect_command -s exit:1 \
+            -e match:"Unknown configuration variable TESTVAR2" \
+            shtk_config_set TESTVAR2
+    }
 }
 
 
-atf_test_case get_default__defined__empty
-get_default__defined__empty_body() {
-    shtk_config_init TESTVAR
-    shtk_config_set TESTVAR ""
-    [ "$(shtk_config_get_default TESTVAR 'foo')" = "" ] \
-        || atf_fail "Did not fetch defined value"
+shtk_unittest_add_fixture unset
+unset_fixture() {
+    setup() {
+        shtk_config_init TESTVAR
+    }
+
+
+    shtk_unittest_add_test ok
+    ok_test() {
+        shtk_config_var_TESTVAR=some-value
+        shtk_config_unset TESTVAR
+        [ "${shtk_config_var_TESTVAR-unset}" = unset ] \
+            || fail "Failed to unset variable"
+    }
+
+
+    shtk_unittest_add_test unknown_variable
+    unknown_variable_test() {
+        expect_command -s exit:1 \
+            -e match:"Unknown configuration variable TESTVAR2" \
+            shtk_config_unset TESTVAR2
+    }
 }
 
 
-atf_test_case get_default__defined__not_empty
-get_default__defined__not_empty_body() {
-    shtk_config_init TESTVAR
-    shtk_config_set TESTVAR "bar"
-    [ "$(shtk_config_get_default TESTVAR 'foo')" = "bar" ] \
-        || atf_fail "Did not fetch defined value"
-}
-
-
-atf_test_case get_default__default__empty
-get_default__default__empty_body() {
-    shtk_config_init TESTVAR
-    [ "$(shtk_config_get_default TESTVAR '')" = "" ] \
-        || atf_fail "Did not fetch default value"
-}
-
-
-atf_test_case get_default__default__not_empty
-get_default__default__not_empty_body() {
-    shtk_config_init TESTVAR
-    [ "$(shtk_config_get_default TESTVAR 'foo')" = "foo" ] \
-        || atf_fail "Did not fetch default value"
-}
-
-
-atf_test_case set__ok
-set__ok_body() {
-    shtk_config_init TESTVAR
-
-    shtk_config_set TESTVAR some-value
-    [ "${shtk_config_var_TESTVAR}" = some-value ] || atf_fail "Failed to set value"
-}
-
-
-atf_test_case set__unknown_variable
-set__unknown_variable_body() {
-    shtk_config_init TESTVAR
-
-    if ( shtk_config_set TESTVAR2 some-value ) >out 2>err; then
-        atf_fail "Set unknown variable successfully"
-    else
-        grep "Unknown configuration variable TESTVAR2" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
-
-
-atf_test_case unset__ok
-unset__ok_body() {
-    shtk_config_init TESTVAR
-
-    shtk_config_var_TESTVAR=some-value
-    shtk_config_unset TESTVAR
-    [ "${shtk_config_var_TESTVAR-unset}" = unset ] \
-        || atf_fail "Failed to unset variable"
-}
-
-
-atf_test_case unset__unknown_variable
-unset__unknown_variable_body() {
-    shtk_config_init TESTVAR
-
-    if ( shtk_config_unset TESTVAR2 ) >out 2>err; then
-        atf_fail "Unset unknown variable successfully"
-    else
-        grep "Unknown configuration variable TESTVAR2" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
-
-
-atf_test_case load__filter_variables
-load__filter_variables_body() {
+shtk_unittest_add_test load__filter_variables
+load__filter_variables_test() {
     shtk_config_init Z VAR1 EMPTY
 
     cat >test.conf <<EOF
@@ -244,37 +259,38 @@ VAR1="some text"
 VAR2="some other text"
 EOF
 
-    shtk_config_load $(pwd)/test.conf || atf_fail "Failed to load test configuration"
+    shtk_config_load $(pwd)/test.conf \
+        || fail "Failed to load test configuration"
 
     [ "${shtk_config_var_Z}" = bar ] || \
-        atf_fail "Z not found in configuration"
+        fail "Z not found in configuration"
     [ "${shtk_config_var_VAR1}" = "some text" ] || \
-        atf_fail "VAR1 not found in configuration"
+        fail "VAR1 not found in configuration"
 
     [ "${shtk_config_var_EMPTY-has_not_been_set}" = has_not_been_set ] || \
-        atf_fail "Undefined variable set, but should not have been"
+        fail "Undefined variable set, but should not have been"
 
     [ "${shtk_config_var_A-unset}" = unset ] || \
-        atf_fail "A set in configuration, but not expected"
+        fail "A set in configuration, but not expected"
     [ "${shtk_config_var_VAR2-unset}" = unset ] || \
-        atf_fail "VAR2 set in configuration, but not expected"
+        fail "VAR2 set in configuration, but not expected"
 }
 
 
-atf_test_case load__respect_existing
-load__respect_existing_body() {
+shtk_unittest_add_test load__respect_existing
+load__respect_existing_test() {
     shtk_config_init VAR1 V2
 
     shtk_config_set VAR1 "value 1"
     shtk_config_set V2 "value-2"
-    shtk_config_load /dev/null || atf_fail "Failed to load empty configuration"
-    shtk_config_has VAR1 || atf_fail "VAR1 was undefined on load"
-    shtk_config_has V2 || atf_fail "V2 was undefined on load"
+    shtk_config_load /dev/null || fail "Failed to load empty configuration"
+    shtk_config_has VAR1 || fail "VAR1 was undefined on load"
+    shtk_config_has V2 || fail "V2 was undefined on load"
 }
 
 
-atf_test_case load__allow_undefine
-load__allow_undefine_body() {
+shtk_unittest_add_test load__allow_undefine
+load__allow_undefine_test() {
     shtk_config_init UNDEFINE
 
     cat >test.conf <<EOF
@@ -282,55 +298,48 @@ UNDEFINE=
 EOF
 
     shtk_config_set UNDEFINE "remove me"
-    shtk_config_load $(pwd)/test.conf || atf_fail "Failed to load test configuration"
+    shtk_config_load $(pwd)/test.conf \
+        || fail "Failed to load test configuration"
     if shtk_config_has UNDEFINE; then
-        atf_fail "Undefine attempt from configuration did not work"
+        fail "Undefine attempt from configuration did not work"
     fi
 }
 
 
-atf_test_case load__current_directory
-load__current_directory_body() {
+shtk_unittest_add_test load__current_directory
+load__current_directory_test() {
     shtk_config_init A
 
     cat >test.conf <<EOF
 A=foo
 EOF
 
-    shtk_config_load test.conf || atf_fail "Failed to load test configuration"
+    shtk_config_load test.conf || fail "Failed to load test configuration"
 
     [ "${shtk_config_var_A}" = foo ] || \
-        atf_fail "A not found in configuration"
+        fail "A not found in configuration"
 }
 
 
-atf_test_case load__missing_file
-load__missing_file_body() {
-    if ( shtk_config_load missing.conf ) >out 2>err; then
-        atf_fail "Missing configuration file load succeeded"
-    else
-        grep "Configuration file missing.conf does not exist" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
+shtk_unittest_add_test load__missing_file
+load__missing_file_test() {
+    expect_command -s exit:1 \
+        -e match:"Configuration file missing.conf does not exist" \
+        shtk_config_load missing.conf
 }
 
 
-atf_test_case load__invalid_file
-load__invalid_file_body() {
+shtk_unittest_add_test load__invalid_file
+load__invalid_file_test() {
     echo "this file is invalid" >invalid.conf
-
-    if ( shtk_config_load invalid.conf ) >out 2>err; then
-        atf_fail "Invalid configuration file load succeeded"
-    else
-        cat err
-        grep "Failed to load configuration file invalid.conf" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
+    expect_command -s exit:1 \
+        -e match:"Failed to load configuration file invalid.conf" \
+        shtk_config_load invalid.conf
 }
 
 
-atf_test_case include__absolute
-include__absolute_body() {
+shtk_unittest_add_test include__absolute
+include__absolute_test() {
     shtk_config_init A B
 
     mkdir -p dir1/dir2/dir3
@@ -359,15 +368,15 @@ B=from-file-1.B
 EOF
 
     shtk_config_load dir1/dir2/dir3/test3.conf \
-        || atf_fail "Failed to load test configuration"
+        || fail "Failed to load test configuration"
 
-    atf_check_equal from-file-0 "${shtk_config_var_A}"
-    atf_check_equal from-file-1.B "${shtk_config_var_B}"
+    expect_equal from-file-0 "${shtk_config_var_A}"
+    expect_equal from-file-1.B "${shtk_config_var_B}"
 }
 
 
-atf_test_case include__relative
-include__relative_body() {
+shtk_unittest_add_test include__relative
+include__relative_test() {
     shtk_config_init A B
 
     mkdir -p dir1/dir2/dir3
@@ -396,15 +405,15 @@ B=from-file-1.B
 EOF
 
     shtk_config_load dir1/dir2/dir3/test3.conf \
-        || atf_fail "Failed to load test configuration"
+        || fail "Failed to load test configuration"
 
-    atf_check_equal from-file-0 "${shtk_config_var_A}"
-    atf_check_equal from-file-1.B "${shtk_config_var_B}"
+    expect_equal from-file-0 "${shtk_config_var_A}"
+    expect_equal from-file-1.B "${shtk_config_var_B}"
 }
 
 
-atf_test_case override__ok_before_load
-override__ok_before_load_body() {
+shtk_unittest_add_test override__ok_before_load
+override__ok_before_load_test() {
     shtk_config_init VAR1 VAR2
 
     cat >test.conf <<EOF
@@ -413,16 +422,16 @@ VAR2="do not override me"
 EOF
 
     shtk_config_override "VAR1=new value"
-    shtk_config_load test.conf || atf_fail "Failed to load test configuration"
+    shtk_config_load test.conf || fail "Failed to load test configuration"
 
-    [ "${shtk_config_var_VAR1}" = "new value" ] || atf_fail "Override failed"
+    [ "${shtk_config_var_VAR1}" = "new value" ] || fail "Override failed"
     [ "${shtk_config_var_VAR2}" = "do not override me" ] \
-        || atf_fail "Overrode more than one variable"
+        || fail "Overrode more than one variable"
 }
 
 
-atf_test_case override__not_ok_after_load
-override__not_ok_after_load_body() {
+shtk_unittest_add_test override__not_ok_after_load
+override__not_ok_after_load_test() {
     shtk_config_init VAR1 VAR2
 
     cat >test.conf <<EOF
@@ -430,47 +439,40 @@ VAR1="override me"
 VAR2="do not override me"
 EOF
 
-    shtk_config_load test.conf || atf_fail "Failed to load test configuration"
+    shtk_config_load test.conf || fail "Failed to load test configuration"
     shtk_config_override "VAR1=new value"
 
     [ "${shtk_config_var_VAR1}" = "override me" ] \
-        || atf_fail "Override succeeded, but it should not have"
+        || fail "Override succeeded, but it should not have"
     [ "${shtk_config_var_VAR2}" = "do not override me" ] \
-        || atf_fail "Overrode more than one variable"
+        || fail "Overrode more than one variable"
 }
 
 
-atf_test_case override__invalid_format
-override__invalid_format_body() {
+shtk_unittest_add_test override__invalid_format
+override__invalid_format_test() {
     for arg in foo =bar ''; do
-        if ( shtk_config_override "${arg}" ) >out 2>err; then
-            atf_fail "Invalid configuration override ${arg} succeeded"
-        else
-            cat err
-            grep "Invalid configuration override ${arg}" err >/dev/null \
-                || atf_fail "Expected error message not found"
-        fi
+        expect_command \
+            -s exit:1 -e match:"Invalid configuration override ${arg}" \
+            shtk_config_override "${arg}"
     done
 }
 
 
-atf_test_case override__unknown_variable
-override__unknown_variable_body() {
+shtk_unittest_add_test override__unknown_variable
+override__unknown_variable_test() {
     shtk_config_init Z VAR1
-    for arg in A=b VAR2=d; do
-        if ( shtk_config_override "${arg}" ) >out 2>err; then
-            atf_fail "Invalid configuration override ${arg} succeeded"
-        else
-            cat err
-            grep "Unknown configuration variable ${var}" err >/dev/null \
-                || atf_fail "Expected error message not found"
-        fi
-    done
+    expect_command \
+        -s exit:1 -e match:"Unknown configuration variable A" \
+        shtk_config_override "A=b"
+    expect_command \
+        -s exit:1 -e match:"Unknown configuration variable VAR2" \
+        shtk_config_override "VAR2=d"
 }
 
 
-atf_test_case run_hook__ok
-run_hook__ok_body() {
+shtk_unittest_add_test run_hook__ok
+run_hook__ok_test() {
     shtk_config_init VAR1 VAR2 VAR3
     shtk_config_set VAR1 "first"
     shtk_config_set VAR3 "third"
@@ -482,22 +484,19 @@ run_hook__ok_body() {
         echo "VAR3=${VAR3:-unset}"
     }
 
-    VAR1=ignore-this; VAR2=ignore-this; VAR3=ignore-this
-    shtk_config_run_hook test_hook arg1 arg2 >out 2>err
-
     cat >expout <<EOF
 ARGS=arg1 arg2
 VAR1=first
 VAR2=unset
 VAR3=third
 EOF
-    atf_check -o file:expout cat out
-    atf_check -o empty cat err
+    VAR1=ignore-this; VAR2=ignore-this; VAR3=ignore-this
+    expect_command -o file:expout shtk_config_run_hook test_hook arg1 arg2
 }
 
 
-atf_test_case run_hook__fail
-run_hook__fail_body() {
+shtk_unittest_add_test run_hook__fail
+run_hook__fail_test() {
     shtk_config_init VAR1
     shtk_config_set VAR1 "first"
 
@@ -506,66 +505,8 @@ run_hook__fail_body() {
         false
     }
 
-    (
-        if shtk_config_run_hook test_hook >out 2>err; then
-            atf_fail "Hook failure did not report an error"
-        fi
-    )
-
-    cat >expout <<EOF
-VAR1=first
-EOF
-    cat >experr <<EOF
-EOF
-    atf_check -o file:expout cat out
-    grep "The hook test_hook returned an error" err >/dev/null \
-        || atf_fail "Expected error message not found"
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case is_valid__true
-    atf_add_test_case is_valid__false
-
-    atf_add_test_case has__true__empty
-    atf_add_test_case has__true__not_empty
-    atf_add_test_case has__false
-
-    atf_add_test_case get__ok__empty
-    atf_add_test_case get__ok__not_empty
-    atf_add_test_case get__undefined_variable
-
-    atf_add_test_case get_bool__true
-    atf_add_test_case get_bool__false
-    atf_add_test_case get_bool__undefined_variable
-    atf_add_test_case get_bool__invalid_value
-
-    atf_add_test_case get_default__defined__empty
-    atf_add_test_case get_default__defined__not_empty
-    atf_add_test_case get_default__default__empty
-    atf_add_test_case get_default__default__not_empty
-
-    atf_add_test_case set__ok
-    atf_add_test_case set__unknown_variable
-
-    atf_add_test_case unset__ok
-    atf_add_test_case unset__unknown_variable
-
-    atf_add_test_case load__filter_variables
-    atf_add_test_case load__respect_existing
-    atf_add_test_case load__allow_undefine
-    atf_add_test_case load__current_directory
-    atf_add_test_case load__missing_file
-    atf_add_test_case load__invalid_file
-
-    atf_add_test_case include__absolute
-    atf_add_test_case include__relative
-
-    atf_add_test_case override__ok_before_load
-    atf_add_test_case override__not_ok_after_load
-    atf_add_test_case override__invalid_format
-    atf_add_test_case override__unknown_variable
-
-    atf_add_test_case run_hook__ok
-    atf_add_test_case run_hook__fail
+    expect_command \
+        -s exit:1 -o inline:"VAR1=first\n" \
+        -e match:"The hook test_hook returned an error" \
+        shtk_config_run_hook test_hook
 }

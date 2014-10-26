@@ -5,7 +5,7 @@ test_suite("shtk")
 plain_test_program{name="base_test"}
 plain_test_program{name="bool_test"}
 plain_test_program{name="cleanup_test"}
-atf_test_program{name="cli_test"}
+plain_test_program{name="cli_test"}
 atf_test_program{name="config_test"}
 atf_test_program{name="cvs_test"}
 atf_test_program{name="list_test"}

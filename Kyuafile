@@ -8,7 +8,7 @@ plain_test_program{name="cleanup_test"}
 plain_test_program{name="cli_test"}
 plain_test_program{name="config_test"}
 plain_test_program{name="cvs_test", required_programs="cvs"}
-atf_test_program{name="list_test"}
+plain_test_program{name="list_test"}
 atf_test_program{name="process_test"}
 atf_test_program{name="shtk_test"}
 plain_test_program{name="unittest_inttest"}

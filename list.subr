@@ -41,9 +41,18 @@ shtk_list_contains() {
 shtk_list_filter() {
     local pattern="${1}"; shift
 
+    local found=no
     for arg in "${@}"; do
         case "${arg}" in
-            ${pattern}) echo "${arg}" ;;
+            ${pattern})
+                if [ "${found}" = yes ]; then
+                    printf " ${arg}"
+                else
+                    printf "${arg}"
+                    found=yes
+                fi
+                ;;
         esac
     done
+    [ "${found}" = no ] || echo
 }

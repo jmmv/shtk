@@ -27,47 +27,38 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import list
+shtk_import unittest
 
 
-atf_test_case contains__yes
-contains__yes_body() {
+shtk_unittest_add_test contains__yes
+contains__yes_test() {
     items="bar foo baz"
-    shtk_list_contains foo ${items} || atf_fail "Element not found in list"
+    shtk_list_contains foo ${items} || fail "Element not found in list"
 }
 
 
-atf_test_case contains__no
-contains__no_body() {
+shtk_unittest_add_test contains__no
+contains__no_test() {
     items="bar foo baz"
-    ! shtk_list_contains fo ${items} || atf_fail "Element found in list"
+    shtk_list_contains fo ${items} && fail "Element found in list"
 }
 
 
-atf_test_case filter__no_items
-filter__no_items_body() {
-    atf_check_equal "" "$(shtk_list_filter '*')"
+shtk_unittest_add_test filter__no_items
+filter__no_items_test() {
+    expect_equal "" "$(shtk_list_filter '*')"
 }
 
 
-atf_test_case filter__no_results
-filter__no_results_body() {
+shtk_unittest_add_test filter__no_results
+filter__no_results_test() {
     items="abc a1 foo a2 a3 bar"
-    atf_check_equal "" "$(shtk_list_filter '*a' ${items})"
+    expect_equal "" "$(shtk_list_filter '*a' ${items})"
 }
 
 
-atf_test_case filter__some_results
-filter__some_results_body() {
+shtk_unittest_add_test filter__some_results
+filter__some_results_test() {
     items="abc a1 foo a2 a3 bar"
-    atf_check_equal "a1 a2 a3" "$(shtk_list_filter 'a[0-9]*' ${items})"
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case contains__yes
-    atf_add_test_case contains__no
-
-    atf_add_test_case filter__no_items
-    atf_add_test_case filter__no_results
-    atf_add_test_case filter__some_results
+    expect_equal "a1 a2 a3" "$(shtk_list_filter 'a[0-9]*' ${items})"
 }

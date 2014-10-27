@@ -231,7 +231,7 @@ pkgtests_SCRIPTS += version_test
 CLEANFILES += version_test
 EXTRA_DIST += version_test.sh
 version_test: $(srcdir)/version_test.sh shtk
-	$(AM_V_GEN)name=version_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=version_test; $(BUILD_TEST)
 
 if HAVE_KYUA
 CHECK_ENVIRONMENT  = PATH=$(abs_top_builddir):$${PATH}

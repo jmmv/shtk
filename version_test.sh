@@ -26,83 +26,74 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+shtk_import unittest
 shtk_import version
 
 
-atf_test_case at_least__yes
-at_least__yes_body() {
+shtk_unittest_add_test at_least__yes
+at_least__yes_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
-    shtk_version_at_least 3.8 || atf_fail "Same version check failed"
-    shtk_version_at_least 3.7 || atf_fail "Minor version check failed"
-    shtk_version_at_least 2.0 || atf_fail "Major version check failed"
-    shtk_version_at_least 2.9 || atf_fail "Minor version check failed"
+    shtk_version_at_least 3.8 || fail "Same version check failed"
+    shtk_version_at_least 3.7 || fail "Minor version check failed"
+    shtk_version_at_least 2.0 || fail "Major version check failed"
+    shtk_version_at_least 2.9 || fail "Minor version check failed"
 }
 
 
-atf_test_case at_least__no
-at_least__no_body() {
+shtk_unittest_add_test at_least__no
+at_least__no_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
     if shtk_version_at_least 3.9; then
-        atf_fail "Minor version check failed"
+        fail "Minor version check failed"
     fi
     if shtk_version_at_least 4.0; then
-        atf_fail "Major version check failed"
+        fail "Major version check failed"
     fi
 }
 
 
-atf_test_case at_most__yes
-at_most__yes_body() {
+shtk_unittest_add_test at_most__yes
+at_most__yes_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
-    shtk_version_at_most 3.8 || atf_fail "Same version check failed"
-    shtk_version_at_most 3.9 || atf_fail "Minor version check failed"
-    shtk_version_at_most 4.0 || atf_fail "Major version check failed"
-    shtk_version_at_most 4.7 || atf_fail "Minor version check failed"
+    shtk_version_at_most 3.8 || fail "Same version check failed"
+    shtk_version_at_most 3.9 || fail "Minor version check failed"
+    shtk_version_at_most 4.0 || fail "Major version check failed"
+    shtk_version_at_most 4.7 || fail "Minor version check failed"
 }
 
 
-atf_test_case at_most__no
-at_most__no_body() {
+shtk_unittest_add_test at_most__no
+at_most__no_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
     if shtk_version_at_most 3.7; then
-        atf_fail "Minor version check failed"
+        fail "Minor version check failed"
     fi
     if shtk_version_at_most 2.0; then
-        atf_fail "Major version check failed"
+        fail "Major version check failed"
     fi
 }
 
 
-atf_test_case is__yes
-is__yes_body() {
+shtk_unittest_add_test is__yes
+is__yes_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
-    shtk_version_is 3.8 || atf_fail "Same version check failed"
+    shtk_version_is 3.8 || fail "Same version check failed"
 }
 
 
-atf_test_case is__no
-is__no_body() {
+shtk_unittest_add_test is__no
+is__no_test() {
     SHTK_VERSION=3.8  # Override the builtin version with fake data.
 
     if shtk_version_is 3.7; then
-        atf_fail "Minor version check failed"
+        fail "Minor version check failed"
     fi
     if shtk_version_is 4.0; then
-        atf_fail "Major version check failed"
+        fail "Major version check failed"
     fi
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case at_least__yes
-    atf_add_test_case at_least__no
-    atf_add_test_case at_most__yes
-    atf_add_test_case at_most__no
-    atf_add_test_case is__yes
-    atf_add_test_case is__no
 }

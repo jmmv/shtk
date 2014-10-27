@@ -194,7 +194,7 @@ pkgtests_SCRIPTS += process_test
 CLEANFILES += process_test
 EXTRA_DIST += process_test.sh
 process_test: $(srcdir)/process_test.sh shtk
-	$(AM_V_GEN)name=process_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=process_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += shtk_test
 CLEANFILES += shtk_test

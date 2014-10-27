@@ -27,10 +27,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import process
+shtk_import unittest
 
 
-atf_test_case run__ok
-run__ok_body() {
+shtk_unittest_add_test run__ok
+run__ok_test() {
     cat >helper.sh <<EOF
 #! /bin/sh
 echo "This exits cleanly:" "\${@}"
@@ -38,24 +39,20 @@ exit 0
 EOF
     chmod +x helper.sh
 
-    shtk_process_run ./helper.sh one two three >out 2>err \
-        || atf_fail "Got an unexpected error code"
-
     cat >expout <<EOF
 This exits cleanly: one two three
 EOF
-    atf_check -o file:expout cat out
-
     cat >experr <<EOF
 process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: I: Command finished successfully
 EOF
-    atf_check -o file:experr cat err
+    expect_command -o file:expout -e file:experr \
+        shtk_process_run ./helper.sh one two three
 }
 
 
-atf_test_case run__fail
-run__fail_body() {
+shtk_unittest_add_test run__fail
+run__fail_test() {
     cat >helper.sh <<EOF
 #! /bin/sh
 echo "This exits with an error:" "\${@}"
@@ -63,26 +60,20 @@ exit 42
 EOF
     chmod +x helper.sh
 
-    code=0
-    shtk_process_run ./helper.sh one two three >out 2>err || code="${?}"
-    [ ${code} -eq 42 ] \
-        || atf_fail "Did not get the expected error code; got ${code}"
-
     cat >expout <<EOF
 This exits with an error: one two three
 EOF
-    atf_check -o file:expout cat out
-
     cat >experr <<EOF
 process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: W: Command failed with code 42
 EOF
-    atf_check -o file:experr cat err
+    expect_command -s exit:42 -o file:expout -e file:experr \
+        shtk_process_run ./helper.sh one two three
 }
 
 
-atf_test_case run__timeout__ok
-run__timeout__ok_body() {
+shtk_unittest_add_test run__timeout__ok
+run__timeout__ok_test() {
     cat >helper.sh <<EOF
 #! /bin/sh
 echo "This exits quickly:" "\${@}"
@@ -90,24 +81,20 @@ exit 0
 EOF
     chmod +x helper.sh
 
-    shtk_process_run -t 10 ./helper.sh one two three >out 2>err \
-        || atf_fail "Got an unexpected error code"
-
     cat >expout <<EOF
 This exits quickly: one two three
 EOF
-    atf_check -o file:expout cat out
-
     cat >experr <<EOF
 process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: I: Command finished successfully
 EOF
-    atf_check -o file:experr cat err
+    expect_command -o file:expout -e file:experr \
+        shtk_process_run -t 10 ./helper.sh one two three
 }
 
 
-atf_test_case run__timeout__fail
-run__timeout__fail_body() {
+shtk_unittest_add_test run__timeout__fail
+run__timeout__fail_test() {
     cat >helper.sh <<EOF
 #! /bin/sh
 echo "This exits with an error:" "\${@}"
@@ -115,46 +102,34 @@ exit 42
 EOF
     chmod +x helper.sh
 
-    code=0
-    shtk_process_run -t 10 ./helper.sh one two three >out 2>err || code="${?}"
-    [ ${code} -eq 42 ] \
-        || atf_fail "Did not get the expected error code; got ${code}"
-
     cat >expout <<EOF
 This exits with an error: one two three
 EOF
-    atf_check -o file:expout cat out
-
     cat >experr <<EOF
 process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: W: Command failed with code 42
 EOF
-    atf_check -o file:experr cat err
+    expect_command -s exit:42 -o file:expout -e file:experr \
+        shtk_process_run -t 10 ./helper.sh one two three
 }
 
 
-atf_test_case run__timeout__fail_cookie
-run__timeout__fail_cookie_body() {
+shtk_unittest_add_test run__timeout__fail_cookie
+run__timeout__fail_cookie_test() {
     echo "Won't be run" >helper.sh
-
-    code=0
-    ( TMPDIR="$(pwd)/non-existent" shtk_process_run -t 10 \
-        ./helper.sh one two three >out 2>err ) || code="${?}"
-    [ ${code} -eq 1 ] \
-        || atf_fail "Did not get the expected error code; got ${code}"
-
-    atf_check cat out
 
     cat >experr <<EOF
 process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: E: Failed to create temporary file using pattern $(pwd)/non-existent/shtk.XXXXXX
 EOF
-    atf_check -o file:experr cat err
+    export TMPDIR="$(pwd)/non-existent"
+    expect_command -s exit:1 -e file:experr \
+        shtk_process_run -t 10 ./helper.sh one two three
 }
 
 
-atf_test_case run__timeout__expired
-run__timeout__expired_body() {
+shtk_unittest_add_test run__timeout__expired
+run__timeout__expired_test() {
     cat >helper.sh <<EOF
 #! /bin/sh
 echo "This does not exit on time:" "\${@}"
@@ -164,24 +139,9 @@ exit 0
 EOF
     chmod +x helper.sh
 
-    code=0
-    shtk_process_run -t 1 ./helper.sh one two three >out 2>err || code="${?}"
-    [ ${code} -ne 0 ] || atf_fail "Got an unexpected error code"
-
     cat >expout <<EOF
 This does not exit on time: one two three
 EOF
-    atf_check -o file:expout cat out
-    atf_check -o match:"Timer expired" cat err
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case run__ok
-    atf_add_test_case run__fail
-
-    atf_add_test_case run__timeout__ok
-    atf_add_test_case run__timeout__fail
-    atf_add_test_case run__timeout__fail_cookie
-    atf_add_test_case run__timeout__expired
+    expect_command -s not-exit:0 -o file:expout -e match:"Timer expired" \
+        shtk_process_run -t 1 ./helper.sh one two three
 }

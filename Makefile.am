@@ -200,7 +200,7 @@ pkgtests_SCRIPTS += shtk_test
 CLEANFILES += shtk_test
 EXTRA_DIST += shtk_test.sh
 shtk_test: $(srcdir)/shtk_test.sh shtk
-	$(AM_V_GEN)name=shtk_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=shtk_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += unittest_inttest
 CLEANFILES += unittest_inttest

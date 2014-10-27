@@ -93,8 +93,7 @@ The main function is automatically executed by the generated script.
 If the value of
 .Ar main_function
 is empty, then no call to main is issued which may be necessary if the script
-already has a call to main for whatever reason (e.g. the script also uses
-.Xr atf-sh 1 ) .
+already has a call to main for whatever reason.
 .Pp
 Default:
 .Sq main .

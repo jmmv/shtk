@@ -57,17 +57,6 @@ if test "${SHTK_SHELL}" = ""; then
 fi
 
 
-m4_ifndef([PKG_CHECK_MODULES],
-    [m4_fatal([Cannot find pkg.m4; see the INSTALL document for help])])
-
-m4_ifndef([ATF_CHECK_SH],
-    [m4_fatal([Cannot find atf-sh.m4; see the INSTALL document for help])])
-ATF_CHECK_SH([>= 0.17])
-m4_ifndef([ATF_ARG_WITH],
-    [m4_fatal([Cannot find atf-common.m4; see the INSTALL document for help])])
-ATF_ARG_WITH
-
-
 AC_PATH_PROG([KYUA], [kyua])
 AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
 

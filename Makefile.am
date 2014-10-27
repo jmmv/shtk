@@ -131,7 +131,6 @@ EXTRA_DIST += shtk.pc.in
 shtk.pc: $(srcdir)/shtk.pc.in Makefile
 	$(AM_V_GEN)source=shtk.pc.in target=shtk.pc; $(BUILD_FILE)
 
-if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
 
 unittest_testsdir = $(pkgtestsdir)/unittest
@@ -141,11 +140,6 @@ BUILD_TEST = \
 	$(mkdir_p) "$$(dirname $${name})"; \
 	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH=$(abs_builddir) \
 	    $(builddir)/shtk build -m shtk_unittest_main -o "$${name}" \
-	    "$(srcdir)/$${name}.sh"
-
-BUILD_ATF_TEST = \
-	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH=$(abs_builddir) \
-	    $(builddir)/shtk build -s '$(ATF_SH)' -m '' -o "$${name}" \
 	    "$(srcdir)/$${name}.sh"
 
 pkgtests_SCRIPTS = base_test
@@ -264,13 +258,6 @@ missing-kyua:
 check-local: missing-kyua
 installcheck-local: missing-kyua
 endif  # HAVE_KYUA
-else  # WITH_ATF
-dist-hook: forbid-dist
-PHONY_TARGETS += forbid-dist
-forbid-dist:
-	@echo "Sorry; cannot make dist without atf."
-	@false
-endif  # WITH_ATF
 
 PHONY_TARGETS += clean-all
 clean-all:

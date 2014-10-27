@@ -182,7 +182,7 @@ pkgtests_SCRIPTS += cvs_test
 CLEANFILES += cvs_test
 EXTRA_DIST += cvs_test.sh
 cvs_test: $(srcdir)/cvs_test.sh shtk
-	$(AM_V_GEN)name=cvs_test; $(BUILD_ATF_TEST)
+	$(AM_V_GEN)name=cvs_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += list_test
 CLEANFILES += list_test

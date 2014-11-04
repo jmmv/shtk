@@ -25,12 +25,12 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd August 7, 2013
+.Dd November 4, 2014
 .Dt SHTK 1
 .Os
 .Sh NAME
 .Nm shtk
-.Nd interface to the Shell Toolkit
+.Nd Interface to the Shell Toolkit
 .Sh SYNOPSIS
 .Nm
 build
@@ -52,6 +52,8 @@ The tool described in this page, also named
 .Nm ,
 is a program that accompanies the Shell Toolkit and provides functionality that
 may be necessary to use the toolkit.
+For documentation on the API, please see
+.Xr shtk 3 .
 .Pp
 The interface of
 .Nm
@@ -133,20 +135,11 @@ Overrides the built-in location of the default shell interpreter.
 .Bl -tag -width XXXX
 .It Pa __SHTK_MODULESDIR__/
 Location of the
-.Nm
+.Nm shtk
 modules.
 .El
 .Sh SEE ALSO
-Unfortunately, there currently is no standalone documentation of the
-.Nm .
-The documentation exists, but is in the form of docstrings next to the
-functions they describe.
-Such docstrings document the purpose of the function, the parameters it
-takes, its return value (if any) and any side-effects.
-.Pp
-Please look at the files in
-.Pa __SHTK_MODULESDIR__
-for additional details.
+.Xr shtk 3
 .Sh AUTHORS
 The
 .Nm

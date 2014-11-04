@@ -30,7 +30,7 @@ PHONY_TARGETS =
 
 doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL README
-EXTRA_DIST = $(doc_DATA) INSTALL README
+EXTRA_DIST = $(doc_DATA) INSTALL README man/README
 
 dist_pkgdata_DATA  = base.subr
 dist_pkgdata_DATA += bool.subr
@@ -49,6 +49,7 @@ version.subr: $(srcdir)/version.subr.in
 	$(AM_V_GEN)source=version.subr.in target=version.subr; $(BUILD_FILE)
 
 BUILD_FILE = \
+	mkdir -p "$$(dirname "$${target}")"; \
 	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
 	    -e 's,__SHTK_SHELL__,$(SHTK_SHELL),g' \
 	    -e 's,__SHTK_TOOL__,$(exec_prefix)/bin/shtk,g' \
@@ -70,6 +71,15 @@ CLEANFILES += shtk.1
 EXTRA_DIST += shtk.1.in
 shtk.1: $(srcdir)/shtk.1.in
 	$(AM_V_GEN)source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+
+man_MANS += man/shtk_import.3
+CLEANFILES += man/shtk_import.3
+EXTRA_DIST += man/shtk_import.3.in
+man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
+	$(AM_V_GEN)target=man/shtk_import.3; source=$${target}.in; \
+	$(BUILD_FILE)
+
+dist_man_MANS = man/shtk.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

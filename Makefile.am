@@ -84,6 +84,13 @@ dist_man_MANS += man/shtk_bool.3
 dist_man_MANS += man/shtk_bool_check.3
 dist_man_MANS += man/shtk_cleanup.3
 dist_man_MANS += man/shtk_cleanup_register.3
+dist_man_MANS += man/shtk_cli.3
+dist_man_MANS += man/shtk_cli_dirname.3
+dist_man_MANS += man/shtk_cli_error.3
+dist_man_MANS += man/shtk_cli_info.3
+dist_man_MANS += man/shtk_cli_progname.3
+dist_man_MANS += man/shtk_cli_usage_error.3
+dist_man_MANS += man/shtk_cli_warning.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

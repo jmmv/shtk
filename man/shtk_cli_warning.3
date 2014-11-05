@@ -26,75 +26,43 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .Dd November 5, 2014
-.Dt SHTK 3
+.Dt SHTK_CLI_WARNING 3
 .Os
 .Sh NAME
-.Nm shtk
-.Nd Application Programming Interface (API) of the Shell Toolkit
+.Nm shtk_cli_warning
+.Nd Prints a warning message
+.Sh LIBRARY
+shtk_import cli
+.Sh SYNOPSIS
+.Nm shtk_cli_warning
+.Ar message1
+.Op Ar .. messageN
 .Sh DESCRIPTION
-The Shell Toolkit, or
+The
 .Nm
-for short, is a collection of modules written in
-.Xr sh 1
-that provide common functionality to simplify the implementation of complex
-shell scripts.
-This page provides an introduction to writing scripts using
-.Nm
-and serves as a reference to all the provided modules by it.
-.Ss Script structure
-Scripts using
-.Nm
-follow this structure:
+function prints the given warning message to stderr.
+The message can be provided as one or more arguments as depicted by
+.Ar message1
+to
+.Ar messageN ;
+all arguments are concatenated together into a single line.
+.Pp
+The printed message has the following form, where
+.Sq progname
+is determined by
+.Xr shtk_cli_progname 3 :
 .Bd -literal -offset indent
-shtk_import module1
-shtk_import moduleN
-
-# possibly define globals here
-
-some_custom_function() {
-    local arg1="${1}"; shift
-    local arg2="${1}"; shift
-
-    # do something
-}
-
-main() {
-    # program entry point; automatically invoked
-}
+progname: W: message1 .. messageN
 .Ed
 .Pp
-In particular, note: that there is no shebang line at the beginning of the
-script; that there is no explicit call to
-.Nm main ;
-and that there is no code outside of shell functions other than for calls to
-.Xr shtk_import 3 .
-.Ss Script compilation
-The
-.Xr shtk 1
-tool offers a compilation process for scripts using
-.Xr shtk 3 .
-In this context, compilation just refers to the addition of initialization
-boilerplate code to the script so that the correct modules can be located and
-that a well-known shell interpreter is used.
-.Ss Modules
-The
-.Xr shtk_import 3
-function depicted above is used to bring the specified modules into the script.
-For details on all existing modules, see the list of cross-referenced pages
-in the
-.Sx SEE ALSO
-section below.
-.Sh SEE ALSO
-.Xr shtk 1
-.Ss Built-in functions
-.Xr shtk_import 3
-.Ss Modules
-.Xr shtk_bool 3 ,
-.Xr shtk_cleanup 3 ,
-.Xr shtk_cli 3
-.Sh AUTHORS
-The
 .Nm
-package was developed by
-.An Julio Merino
-.Aq jmmv@google.com .
+should be used to inform the user of erroneous but non-critical conditions that
+permit the script to continue execution.
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_cli 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.0.

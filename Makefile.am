@@ -79,7 +79,9 @@ man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
 	$(AM_V_GEN)target=man/shtk_import.3; source=$${target}.in; \
 	$(BUILD_FILE)
 
-dist_man_MANS = man/shtk.3
+dist_man_MANS  = man/shtk.3
+dist_man_MANS += man/shtk_bool.3
+dist_man_MANS += man/shtk_bool_check.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

@@ -82,6 +82,8 @@ man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
 dist_man_MANS  = man/shtk.3
 dist_man_MANS += man/shtk_bool.3
 dist_man_MANS += man/shtk_bool_check.3
+dist_man_MANS += man/shtk_cleanup.3
+dist_man_MANS += man/shtk_cleanup_register.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

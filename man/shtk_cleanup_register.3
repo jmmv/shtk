@@ -26,74 +26,46 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .Dd November 5, 2014
-.Dt SHTK 3
+.Dt SHTK_CLEANUP_REGISTER 3
 .Os
 .Sh NAME
-.Nm shtk
-.Nd Application Programming Interface (API) of the Shell Toolkit
+.Nm shtk_cleanup_register
+.Nd Installs cleanup handlers to be called on script termination
+.Sh LIBRARY
+shtk_import cleanup
+.Sh SYNOPSIS
+.Nm
+.Ar handler1
+.Op Ar .. handlerN
 .Sh DESCRIPTION
-The Shell Toolkit, or
+The
 .Nm
-for short, is a collection of modules written in
-.Xr sh 1
-that provide common functionality to simplify the implementation of complex
-shell scripts.
-This page provides an introduction to writing scripts using
-.Nm
-and serves as a reference to all the provided modules by it.
-.Ss Script structure
-Scripts using
-.Nm
-follow this structure:
-.Bd -literal -offset indent
-shtk_import module1
-shtk_import moduleN
-
-# possibly define globals here
-
-some_custom_function() {
-    local arg1="${1}"; shift
-    local arg2="${1}"; shift
-
-    # do something
-}
-
-main() {
-    # program entry point; automatically invoked
-}
-.Ed
+function installs one or more cleanup handlers, given in the
+.Ar handler1
+to
+.Ar handlerN
+arguments as function names.
 .Pp
-In particular, note: that there is no shebang line at the beginning of the
-script; that there is no explicit call to
-.Nm main ;
-and that there is no code outside of shell functions other than for calls to
-.Xr shtk_import 3 .
-.Ss Script compilation
-The
-.Xr shtk 1
-tool offers a compilation process for scripts using
-.Xr shtk 3 .
-In this context, compilation just refers to the addition of initialization
-boilerplate code to the script so that the correct modules can be located and
-that a well-known shell interpreter is used.
-.Ss Modules
-The
-.Xr shtk_import 3
-function depicted above is used to bring the specified modules into the script.
-For details on all existing modules, see the list of cross-referenced pages
-in the
-.Sx SEE ALSO
-section below.
+The registered handlers are executed in the order they are originally
+registered.
+Registration of handlers is idempotent.
+.Sh EXAMPLES
+The following example creates a temporary file and installs a cleanup
+handler to ensure that the file gets removed when the script terminates:
+.Bd -literal -offset indent
+local pattern="${TMPDIR:-/tmp}/my_program.XXXXXX"
+
+local temp_file="$(mktemp "${pattern}" 2>/dev/null)"
+[ -f "${temp_file}" ] || shtk_cli_error "Failed to create temporary file"
+
+eval "remove_temp_file() { rm -f '${temp_file}'; }"
+shtk_cleanup_register remove_temp_file
+.Ed
 .Sh SEE ALSO
-.Xr shtk 1
-.Ss Built-in functions
-.Xr shtk_import 3
-.Ss Modules
-.Xr shtk_bool 3 ,
+.Xr shtk 3 ,
 .Xr shtk_cleanup 3
-.Sh AUTHORS
-The
+.Sh HISTORY
 .Nm
-package was developed by
-.An Julio Merino
-.Aq jmmv@google.com .
+first appeared in
+.Nm shtk
+1.4.

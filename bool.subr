@@ -26,21 +26,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file bool.subr
-# Boolean manipulation functions.
-
 shtk_import cli
 
 
-# Converts a string to a boolean value.
-#
-# \param value The input value as a string.
-# \param ... Optional error message to exit with if the input value is invalid.
-#     If not provided, a default message is used.
-#
-# \return 0 if the string represents true, 1 if it represents false.
-#
-# \post Raises an error if the input value is not a valid boolean.
 shtk_bool_check() {
     local value="${1}"; shift
 

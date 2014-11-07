@@ -8,7 +8,8 @@ autom4te.cache
 config.log
 config.status
 configure
+man/shtk.1
+man/shtk_import.3
 shtk
-shtk.1
 shtk.pc
 version.subr

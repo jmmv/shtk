@@ -26,9 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file bootstrap.subr
-# Fundamental stuff that gets loaded unconditionally.
-#
 # Be aware that this code runs very early in the script.  Therefore, we
 # cannot assume that any of the other shtk libraries have been loaded (and
 # we cannot attempt to load them).  The only thing we can assume is that
@@ -40,11 +37,6 @@
 _Shtk_LoadedModules=
 
 
-# Loads a new module.
-#
-# If a module has already been loaded, this has no effect.
-#
-# \param module The name of the shtk module to load.
 shtk_import() {
     local module="${1}"; shift
 

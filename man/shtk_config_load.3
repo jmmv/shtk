@@ -1,0 +1,81 @@
+.\" Copyright 2014 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd November 6, 2014
+.Dt SHTK_CONFIG_LOAD 3
+.Os
+.Sh NAME
+.Nm shtk_config_load
+.Nd Loads a configuration file
+.Sh LIBRARY
+shtk_import config
+.Sh SYNOPSIS
+.Nm
+.Ar config_file
+.Sh DESCRIPTION
+The
+.Nm
+function parses and loads the configuration file given by
+.Ar config_file .
+.Pp
+Only the configuration variables previously registered as valid with a call to
+.Xr shtk_config_init 3
+will be recognized as valid variables during load.
+Any variables defined by the configuration file but not registered in the
+.Nm
+module will be ignored during load.
+.Sh EXAMPLES
+Consider the following configuration file:
+.Bd -literal -offset indent
+prefix=/usr
+OBJDIR="${prefix}/obj"
+SRCDIR="${prefix}/src"
+.Ed
+.Pp
+The following piece of code illustrates how to load and display the settings
+of the file above:
+.Bd -literal -offset indent
+shtk_config_init OBJDIR SRCDIR
+shtk_config_load ".../path/to/the/file/above.conf"
+
+echo "prefix was defined but is not available:" \\
+    "$(shtk_config_get_default prefix default-value)"
+echo "OBJDIR is $(shtk_config_get OBJDIR)"
+echo "SRCDIR is $(shtk_config_get SRCDIR)"
+.Ed
+.Sh ERRORS
+Errors during the processing of
+.Ar config_file
+result in the termination of the caller script.
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_config 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.0.

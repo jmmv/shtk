@@ -1,0 +1,23 @@
+This directory contains the shtk API reference.  The following conventions
+apply:
+
+* There shall be one shtk_<module>_<function>(3) page per public function,
+  describing the function's purpose, arguments and return values.
+
+* Each shtk_<module>_<function>(3) page shall be linked from the
+  corresponding shtk_<module>(3) page and viceversa.
+
+* There shall be one shtk_<module>(3) page per module, describing what
+  the module is about.
+
+* All shtk_*(3) page shall link to shtk(3).
+
+* All shtk_<module>(3) pages shall be linked from the shtk(3) page.
+
+* The base module is an exception and does not have an shtk_base(3) manual
+  page.  The reason for this is that base is loaded unconditionally so the
+  user never knows that such module exists.
+
+These guidelines are intended to let the user navigate the documentation as
+follows: shtk(3) -> pick a module -> see shtk_<module>(3) for all its
+functions -> pick a function -> see shtk_<module>_<function>(3).

@@ -26,20 +26,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file process.subr
-# Process manipulation functions.
-
 shtk_import cleanup
 shtk_import cli
 
 
-# Executes a command with logging.
-#
-# \param -ttimeout Seconds after which to kill the subprocess.
-# \param ... The command to execute.
-#
-# \return The exit code of the executed command.  If a timeout was specified and
-# the command times out, an arbitrary exit code greater than 0 is returned.
 shtk_process_run() {
     local timeout=
 

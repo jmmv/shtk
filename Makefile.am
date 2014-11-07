@@ -30,7 +30,7 @@ PHONY_TARGETS =
 
 doc_DATA = AUTHORS COPYING NEWS README
 noinst_DATA = INSTALL README
-EXTRA_DIST = $(doc_DATA) INSTALL README
+EXTRA_DIST = $(doc_DATA) INSTALL README man/README
 
 dist_pkgdata_DATA  = base.subr
 dist_pkgdata_DATA += bool.subr
@@ -49,6 +49,7 @@ version.subr: $(srcdir)/version.subr.in
 	$(AM_V_GEN)source=version.subr.in target=version.subr; $(BUILD_FILE)
 
 BUILD_FILE = \
+	mkdir -p "$$(dirname "$${target}")"; \
 	sed -e 's,__SHTK_MODULESDIR__,$(pkgdatadir),g' \
 	    -e 's,__SHTK_SHELL__,$(SHTK_SHELL),g' \
 	    -e 's,__SHTK_TOOL__,$(exec_prefix)/bin/shtk,g' \
@@ -65,11 +66,56 @@ EXTRA_DIST += shtk.sh
 shtk: $(srcdir)/shtk.sh
 	$(AM_V_GEN)source=shtk.sh target=shtk; $(BUILD_SCRIPT)
 
-man_MANS = shtk.1
-CLEANFILES += shtk.1
-EXTRA_DIST += shtk.1.in
-shtk.1: $(srcdir)/shtk.1.in
-	$(AM_V_GEN)source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+man_MANS = man/shtk.1
+CLEANFILES += man/shtk.1
+EXTRA_DIST += man/shtk.1.in
+man/shtk.1: $(srcdir)/man/shtk.1.in
+	$(AM_V_GEN)target=man/shtk.1; source=$${target}.in; $(BUILD_FILE)
+
+man_MANS += man/shtk_import.3
+CLEANFILES += man/shtk_import.3
+EXTRA_DIST += man/shtk_import.3.in
+man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
+	$(AM_V_GEN)target=man/shtk_import.3; source=$${target}.in; \
+	$(BUILD_FILE)
+
+dist_man_MANS  = man/shtk.3
+dist_man_MANS += man/shtk_bool.3
+dist_man_MANS += man/shtk_bool_check.3
+dist_man_MANS += man/shtk_cleanup.3
+dist_man_MANS += man/shtk_cleanup_register.3
+dist_man_MANS += man/shtk_cli.3
+dist_man_MANS += man/shtk_cli_dirname.3
+dist_man_MANS += man/shtk_cli_error.3
+dist_man_MANS += man/shtk_cli_info.3
+dist_man_MANS += man/shtk_cli_progname.3
+dist_man_MANS += man/shtk_cli_usage_error.3
+dist_man_MANS += man/shtk_cli_warning.3
+dist_man_MANS += man/shtk_config.3
+dist_man_MANS += man/shtk_config_get.3
+dist_man_MANS += man/shtk_config_get_bool.3
+dist_man_MANS += man/shtk_config_get_default.3
+dist_man_MANS += man/shtk_config_has.3
+dist_man_MANS += man/shtk_config_include.3
+dist_man_MANS += man/shtk_config_init.3
+dist_man_MANS += man/shtk_config_load.3
+dist_man_MANS += man/shtk_config_override.3
+dist_man_MANS += man/shtk_config_run_hook.3
+dist_man_MANS += man/shtk_config_set.3
+dist_man_MANS += man/shtk_config_unset.3
+dist_man_MANS += man/shtk_cvs.3
+dist_man_MANS += man/shtk_cvs_checkout.3
+dist_man_MANS += man/shtk_cvs_fetch.3
+dist_man_MANS += man/shtk_cvs_update.3
+dist_man_MANS += man/shtk_list.3
+dist_man_MANS += man/shtk_list_contains.3
+dist_man_MANS += man/shtk_list_filter.3
+dist_man_MANS += man/shtk_process.3
+dist_man_MANS += man/shtk_process_run.3
+dist_man_MANS += man/shtk_version.3
+dist_man_MANS += man/shtk_version_at_least.3
+dist_man_MANS += man/shtk_version_at_most.3
+dist_man_MANS += man/shtk_version_is.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

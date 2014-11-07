@@ -26,20 +26,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file cvs.subr
-# Utilities to invoke CVS and wrappers to simplify its operation.
-
 shtk_import cli
 shtk_import process
 
 
-# Checks out or updates a working copy.
-#
-# \param cvsroot Location of the CVS repository.
-# \param module Module to check out, when the working copy does not exist yet.
-# \param tag CVS tag to use, if any; may be empty.
-# \param directory Target directory in which to store the checked out files or
-#     the updated files.
 shtk_cvs_fetch() {
     local cvsroot="${1}"; shift
     local module="${1}"; shift
@@ -54,12 +44,6 @@ shtk_cvs_fetch() {
 }
 
 
-# Checks out a new directory from CVS.
-#
-# \param cvsroot Location of the CVS repository.
-# \param module The name of the module to check out.
-# \param tag CVS tag to use, if any; may be empty.
-# \param directory The directory in which to perform the checkout.
 shtk_cvs_checkout() {
     local cvsroot="${1}"; shift
     local module="${1}"; shift
@@ -76,18 +60,13 @@ shtk_cvs_checkout() {
         || shtk_cli_error "Failed to create ${directory}"
     ( cd "${directory}"/.cvs-checkout &&
         shtk_process_run cvs -d"${cvsroot}" -q checkout -P ${rflag} \
-	"${module}" ) || shtk_cli_error "CVS checkout failed"
+        "${module}" ) || shtk_cli_error "CVS checkout failed"
     mv "${directory}"/.cvs-checkout/"${module}"/* "${directory}"/ \
         || true  # Maybe the checkout yielded no files...
     rm -rf "${directory}"/.cvs-checkout
 }
 
 
-# Updates an existing directory from CVS.
-#
-# \param cvsroot Location of the CVS repository.
-# \param tag CVS tag to use, if any; may be empty.
-# \param directory The directory in which to perform the update.
 shtk_cvs_update() {
     local cvsroot="${1}"; shift
     local tag="${1}"; shift
@@ -108,5 +87,5 @@ shtk_cvs_update() {
 
     ( cd "${directory}" && \
         shtk_process_run cvs -d"${cvsroot}" -q update -d -P ${rflag} ) \
-	|| shtk_cli_error "CVS update failed"
+        || shtk_cli_error "CVS update failed"
 }

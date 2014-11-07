@@ -26,19 +26,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file version.subr
-# Functions to check the version of shtk being used.
-
 
 # The version of the installed shtk modules.
 SHTK_VERSION="__SHTK_VERSION__"
 
 
-# Checks if shtk is a minimum version.
-#
-# \param version Desired minimum version.
-#
-# \return 0 if true, 1 otherwise.
 shtk_version_at_least() {
     local version="${1}"; shift
 
@@ -60,11 +52,6 @@ shtk_version_at_least() {
 }
 
 
-# Checks if shtk is a maximum version.
-#
-# \param version Desired maximum version.
-#
-# \return 0 if true, 1 otherwise.
 shtk_version_at_most() {
     local version="${1}"; shift
 
@@ -86,11 +73,6 @@ shtk_version_at_most() {
 }
 
 
-# Checks if shtk is a specific version.
-#
-# \param version Desired specific version.
-#
-# \return 0 if true, 1 otherwise.
 shtk_version_is() {
     local version="${1}"; shift
 

@@ -33,7 +33,7 @@ atf_test_case is_valid__true
 is_valid__true_body() {
     shtk_config_init VAR1 VAR3
     for var in VAR1 VAR3; do
-        shtk_config_is_valid "${var}" || atf_fail "${var} not found"
+        _shtk_config_is_valid "${var}" || atf_fail "${var} not found"
     done
 }
 
@@ -42,7 +42,7 @@ atf_test_case is_valid__false
 is_valid__false_body() {
     shtk_config_init VAR1 VAR3
     for var in VAR11 VAR2 VAR; do
-        if shtk_config_is_valid "${var}"; then
+        if _shtk_config_is_valid "${var}"; then
             atf_fail "${var} found but was not registered"
         fi
     done

@@ -1,0 +1,76 @@
+.\" Copyright 2014 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd November 7, 2014
+.Dt SHTK_PROCESS_RUN 3
+.Os
+.Sh NAME
+.Nm shtk_process_run
+.Nd Executes a command in a controlled environment
+.Sh LIBRARY
+shtk_import run
+.Sh SYNOPSIS
+.Nm
+.Op Fl t Ar seconds
+.Ar command
+.Op Ar arg1 .. argN
+.Sh DESCRIPTION
+The
+.Nm
+function executes the command provided in the list of arguments starting at
+.Ar command
+and logs, using the logging functions offered by
+.Xr shtk_cli 3 ,
+the invocation of the command and its termination status.
+.Pp
+Optionally,
+.Nm
+can enforce a maximum run time for the executed command.
+If the
+.Fl t
+is provided, then the executed command will be forcibly terminated with a
+.Sq KILL
+signal if its run time exceeds the given
+.Ar seconds .
+.Sh RETURN VALUES
+.Nm
+returns the exit code of the executed command, or 127 if a timeout was provided
+and the command timed out.
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_process 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.0.
+.Pp
+The
+.Fl t
+flag appeared in
+.Nm shtk
+1.5.

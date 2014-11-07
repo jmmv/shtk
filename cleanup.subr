@@ -26,9 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file cleanup.subr
-# Utilities to install exit handlers for cleanup routines.
-
 shtk_import bool
 shtk_import list
 
@@ -75,11 +72,6 @@ _shtk_cleanup_install_traps() {
 }
 
 
-# Installs cleanup handlers to be called on script termination.
-#
-# Handlers are executed in order of installation.
-#
-# \param ... Name of the functions to install.
 shtk_cleanup_register() {
     for funcname in "${@}"; do
         shtk_list_contains "${funcname}" ${_Shtk_Cleanup_Handlers} \

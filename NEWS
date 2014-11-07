@@ -3,6 +3,11 @@ Changes in version 1.6
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Added manual pages for all public API functions.  See shtk(3) for
+  an introduction and follow all linked pages for details.  All
+  docstrings have been removed from the code in favor of the manual
+  pages.
+
 * Added the shtk_config_include function so that configuration files
   can source other files using relative (or absolute) paths.
 

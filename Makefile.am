@@ -107,6 +107,9 @@ dist_man_MANS += man/shtk_cvs.3
 dist_man_MANS += man/shtk_cvs_checkout.3
 dist_man_MANS += man/shtk_cvs_fetch.3
 dist_man_MANS += man/shtk_cvs_update.3
+dist_man_MANS += man/shtk_list.3
+dist_man_MANS += man/shtk_list_contains.3
+dist_man_MANS += man/shtk_list_filter.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

@@ -26,20 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file list.subr
-# List-manipulation functions.
-#
-# For the purposes of this file, a list is a collection of words separted
-# by IFS.  Most of the functions of this file, if not all, take lists as
-# a variable list of arguments.
 
-
-# Looks for an item in a list of items
-#
-# \param item The item to look for.
-# \param ... Contents of the list in which to search for the item.
-#
-# \return 0 if the item is found, 1 otherwise.
 shtk_list_contains() {
     local item="${1}"; shift
 
@@ -51,12 +38,6 @@ shtk_list_contains() {
 }
 
 
-# Filters a list based on a pattern.
-#
-# \param pattern Pattern to use for filtering.
-# \param ... Contents of the list to filter.
-#
-# \post The matched elements are printed on stdout.
 shtk_list_filter() {
     local pattern="${1}"; shift
 

@@ -34,6 +34,14 @@
 # -----
 # shtk_import unittest
 #
+# one_time_setup() {
+#     ... initialization code shared by all tests in the program ...
+# }
+#
+# one_time_teardown() {
+#     ... clean up code shared by all tests in the program ...
+# }
+#
 # shtk_unittest_add_fixture clients
 # clients_fixture() {
 #     setup() {
@@ -90,6 +98,11 @@ _Shtk_Unittest_TestFixtures=
 
 # Functions to bring into the global namespace within the tests.
 _Shtk_Unittest_Use="delayed_fail fail set_expect_failure skip"
+
+
+# Hooks that can be overriden by the user.
+one_time_setup() { true; }
+one_time_teardown() { true; }
 
 
 # Prepares for the execution of a test case.
@@ -356,6 +369,9 @@ shtk_unittest_main() {
     local passed=0
     local failed=0
 
+    one_time_setup || shtk_cli_error "Failed to set up test program;" \
+        "one_time_setup failed"
+
     for name in ${_Shtk_Unittest_TestCases}; do
         if _shtk_unittest_run_standalone_test "${name}"; then
             passed=$((${passed} + 1))
@@ -379,6 +395,9 @@ shtk_unittest_main() {
             fi
         done
     done
+
+    one_time_teardown || shtk_cli_error "Failed to clean up test program;" \
+        "one_time_teardown failed"
 
     local total=$((${passed} + ${failed}))
     if [ ${failed} -eq 0 ]; then

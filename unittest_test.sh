@@ -452,6 +452,36 @@ EOF
     }
 
 
+    shtk_unittest_add_test one_time_setup_and_teardown
+    one_time_setup_and_teardown_test() {
+        one_time_setup() { echo "setting up"; echo "still here" >>"cookie"; }
+        one_time_teardown() { echo "tearing down"; rm "cookie"; }
+
+        shtk_unittest_add_test first
+        first_test() { echo "first test"; cat ../cookie; }
+        shtk_unittest_add_test second
+        second_test() { echo "second test"; cat ../cookie; }
+
+        ( shtk_unittest_main >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        assert_file_contents out <<EOF
+setting up
+first test
+still here
+second test
+still here
+tearing down
+EOF
+        assert_file_contents err <<EOF
+unittest_test: I: Testing first...
+unittest_test: I: Testing first... PASSED
+unittest_test: I: Testing second...
+unittest_test: I: Testing second... PASSED
+unittest_test: I: Ran 2 tests; ALL PASSED
+EOF
+    }
+
+
     shtk_unittest_add_test no_tests_error
     no_tests_error_test() {
         ( shtk_unittest_main >out 2>err ) \

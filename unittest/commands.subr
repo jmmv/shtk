@@ -26,11 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file unittest/check_command.subr
-# Checks for the unittest module to validate commands.
-#
-# This is an internal module not intended for direct user consumption.
-
 shtk_import cli
 #shtk_import unittest  # unittest imports us, so we can assume it is present.
 
@@ -41,14 +36,14 @@ shtk_import cli
 # (such as functions defined by the user), thus allowing for unit-testing of
 # shell code.
 #
-# \param wrapper Name of the calling function for error reporting purposes.
-# \param fail_function Name of the function to use to report a failure.
-# \param -sexpected_exit_code Exit code that the command is expected to return.
-# \param -oexpected_stdout Expected behavior of the command's stdout.
-# \param -eexpected_stderr Expected behavior of the command's stderr.
-# \param ... The command to run.
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Name of the function to use to report a failure.
+# -sexpected_exit_code: Exit code that the command is expected to return.
+# -oexpected_stdout: Expected behavior of the command's stdout.
+# -eexpected_stderr: Expected behavior of the command's stderr.
+# ... The command to run.
 #
-# \return If fail_function is not terminal, returns true if the command conforms
+# If fail_function is not terminal, returns true if the command conforms
 # to the exit status and output requirements; false otherwise.
 _shtk_unittest_check_command() {
     local wrapper="${1}"; shift
@@ -124,13 +119,13 @@ _shtk_unittest_register_check command
 # This is a helper function for _shtk_unittest_check_command only and should not
 # be seen as generic.
 #
-# \param wrapper Name of the calling function for error reporting purposes.
-# \param spec The expectations that the exit code must match.
-# \param exit_code The actual exit code gotten from the process.
+# wrapper: Name of the calling function for error reporting purposes.
+# spec: The expectations that the exit code must match.
+# exit_code: The actual exit code gotten from the process.
 #
-# \return True if the exit code matches the specification; false otherwise.
+# Returns true if the exit code matches the specification; false otherwise.
 #
-# \post Errors out if the specification is broken or if some other unexpected
+# Errors out if the specification is broken or if some other unexpected
 # error is detected.
 _shtk_unittest_check_exit_code() {
     local wrapper="${1}"; shift
@@ -214,13 +209,13 @@ _shtk_unittest_check_exit_code() {
 # specification which, strictly speaking, is not a verification; it is an
 # action.
 #
-# \param wrapper Name of the calling function for error reporting purposes.
-# \param spec The expectations that the file must match.
-# \param path The file to be checked.
+# wrapper: Name of the calling function for error reporting purposes.
+# spec: The expectations that the file must match.
+# path: The file to be checked.
 #
-# \return True if the file matches the specification; false otherwise.
+# Returns true if the file matches the specification; false otherwise.
 #
-# \post Errors out if the specification is broken or if some other unexpected
+# Errors out if the specification is broken or if some other unexpected
 # error (like missing files) is detected.
 _shtk_unittest_check_file() {
     local wrapper="${1}"; shift
@@ -313,9 +308,7 @@ _shtk_unittest_check_file() {
 
 # Determines the number of a signal specified by the user.
 #
-# \param name Number or name of the signal.
-#
-# \return True if the signal name or number is valid, and in this case the
+# Returns true if the signal name or number is valid, and in this case the
 # signal number is printed on stdout.  Errors out if the name is unknown.
 _shtk_unittest_signal_number() {
     local name="${1}"; shift

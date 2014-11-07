@@ -26,56 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file unittest.subr
-# Functions to implement test programs.
-#
-# A template of a test program that uses this module is:
-#
-# -----
-# shtk_import unittest
-#
-# one_time_setup() {
-#     ... initialization code shared by all tests in the program ...
-# }
-#
-# one_time_teardown() {
-#     ... clean up code shared by all tests in the program ...
-# }
-#
-# shtk_unittest_add_fixture clients
-# clients_fixture() {
-#     setup() {
-#         ... initialization code shared by all tests in the fixture ...
-#     }
-#     teardown() {
-#         ... cleanup code shared by all tests in the fixture ...
-#     }
-#
-#     shtk_unittest_add_test add
-#     add_test() {
-#         ... first test in the fixture ...
-#     }
-#
-#     shtk_unittest_add_test modify
-#     modify_test() {
-#         ... second test in the fixture ...
-#         fail "And it fails"
-#     }
-# }
-#
-# shtk_unittest_add_test initialization
-# initialization_test() {
-#     ... standalone test not part of any fixture ...
-#     skip "But cannot run due to some unsatisfied condition"
-# }
-#
-# ... Either do this or, preferably, pass -mshtk_unittest_main to
-# ... "shtk build" when compiling the test program and don't define main.
-# main() {
-#     shtk_unittest_main "${@}"
-# }
-# -----
-
 shtk_import cli
 shtk_import list
 
@@ -105,16 +55,15 @@ one_time_setup() { true; }
 one_time_teardown() { true; }
 
 
-# Prepares for the execution of a test case.
+# Prepares for the execution of the given fully-qualified test case.
 #
 # This involves bringing all the required functions into the current namespace,
 # creating a work directory for the test and entering the work directory.
 #
-# \pre This function must be called from the subprocess used to run the test.
-# \post The parent process must use _shtk_unittest_leave_test to clean up after
-# execution.
+# This function must be called from the subprocess used to run the test.
 #
-# \param name Fully-qualified name of the test case to execute.
+# The parent process must use _shtk_unittest_leave_test to clean up after
+# execution.
 _shtk_unittest_enter_test() {
     local name="${1}"; shift
 
@@ -134,13 +83,14 @@ _shtk_unittest_enter_test() {
 
 # Cleans up after executing a test case and computes its result.
 #
-# \pre This function must be called from the parent process of a process that
+# This function must be called from the parent process of a process that
 # previously called _shtk_unittest_enter_test.
 #
-# \param name Fully-qualified name of the test case to clean up.
-# \param exit_code Exit code of the subprocess used to run the test.
+# The name parameter provides the fully-qualified name of the test case to
+# clean up and the exit_code parameter holds the exit code of the
+# subprocess used to run the test.
 #
-# \post True if the test case exited successfully; false otherwise.
+# Returns true if the test case exited successfully; false otherwise.
 _shtk_unittest_leave_test() {
     local name="${1}"; shift
     local exit_code="${1}"; shift
@@ -209,15 +159,13 @@ _shtk_unittest_leave_test() {
 }
 
 
-# Defines assert and expect functions for a given check function.
+# Defines assert and expect functions for a given name.
 #
 # For a given _shtk_unittest_check_${name} function, a pair of
 # shtk_unittest_assert_${name} and shtk_unittest_expect_${name} functions are
 # defined.  The former implements a fatal test and the latter a delayed test.
 #
-# \param name Name of the check.
-#
-# \pre A _shtk_unittest_check_${name} function must exist.  This function must
+# A _shtk_unittest_check_${name} function must exist.  This function must
 # take the name of the wrapper function as the first argument, the name of a
 # "fail function" as the second argument, and then all of the check-specific
 # arguments (including, possibly, options).
@@ -240,10 +188,7 @@ _shtk_unittest_register_check() {
 
 # Executes a test case within a fixture.
 #
-# \param fixture Name of the fixture containing the test case to run.
-# \param basename Name of the test case to execute.
-#
-# \return True if the test case passes; false otherwise.
+# Returns true if the test case passes; false otherwise.
 _shtk_unittest_run_fixture_test() {
     local fixture="${1}"; shift
     local basename="${1}"; shift
@@ -271,9 +216,7 @@ _shtk_unittest_run_fixture_test() {
 
 # Executes a standalone test case.
 #
-# \param name Name of the test case to execute.
-#
-# \return True if the test case passes; false otherwise.
+# Returns true if the test case passes; false otherwise.
 _shtk_unittest_run_standalone_test() {
     local name="${1}"; shift
 
@@ -290,9 +233,6 @@ _shtk_unittest_run_standalone_test() {
 }
 
 
-# Defines a test fixture.
-#
-# \param name Name of the test fixture to register.
 shtk_unittest_add_fixture() {
     local name="${1}"; shift
 
@@ -305,9 +245,6 @@ shtk_unittest_add_fixture() {
 }
 
 
-# Defines a test case.
-#
-# \param name Name of the test case to register.
 shtk_unittest_add_test() {
     local name="${1}"; shift
 
@@ -320,9 +257,6 @@ shtk_unittest_add_test() {
 }
 
 
-# Records a failure for the test currently being run, but continues execution.
-#
-# \param ... Error message to print before failing.
 shtk_unittest_delayed_fail() {
     [ "${_Shtk_Unittest_ExpectFailure}" = no ] \
         || shtk_cli_error "delayed_fail does not support expected failures"
@@ -344,9 +278,6 @@ shtk_unittest_delayed_fail() {
 }
 
 
-# Fails the test currently being run.
-#
-# \param ... Error message to print before failing.
 shtk_unittest_fail() {
     # TODO(jmmv): Consider using ${LINENO} if available.
     if [ "${_Shtk_Unittest_ExpectFailure}" = no ]; then
@@ -357,9 +288,6 @@ shtk_unittest_fail() {
 }
 
 
-# Default test program entry point to run all registered test cases.
-#
-# \return True if all test cases pass; false otherwise.
 shtk_unittest_main() {
     [ -n "${_Shtk_Unittest_TestFixtures}" -o \
       -n "${_Shtk_Unittest_TestCases}" ] \
@@ -410,16 +338,12 @@ shtk_unittest_main() {
 }
 
 
-# Changes the test to expect a failures from now on.
 shtk_unittest_set_expect_failure() {
     _Shtk_Unittest_ExpectFailure=yes
     touch result.expect-fail
 }
 
 
-# Skips the test currently being run.
-#
-# \param ... Message to print before exiting.
 shtk_unittest_skip() {
     # TODO(jmmv): Consider using ${LINENO} if available.
     if [ "${_Shtk_Unittest_ExpectFailure}" = no ]; then

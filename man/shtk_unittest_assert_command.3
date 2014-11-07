@@ -1,0 +1,171 @@
+.\" Copyright 2014 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd November 8, 2014
+.Dt SHTK_UNITTEST_ASSERT_COMMAND 3
+.Os
+.Sh NAME
+.Nm shtk_unittest_assert_command
+.Nd Runs a command and validates its exit status and output
+.Sh LIBRARY
+shtk_import unittest
+.Sh SYNOPSIS
+.Nm
+.Op Fl e output_spec
+.Op Fl o output_spec
+.Op Fl s exit_code_spec
+.Ar command Op arg1 .. argN
+.Sh DESCRIPTION
+The
+.Nm
+function runs the command provided in the arguments starting at
+.Ar command ,
+which can possibly refer to an in-process shell function, and verifies both
+its exit status and its output to stdout and stderr.
+If any of the checks fails, the calling test case fails as well.
+.Nm
+is the most versatile check offered by
+.Xr shtk_unittest 3
+and should be used to validate the majority of the executions performed
+by test cases.
+.Ss Exit checks
+The
+.Fl s
+flag can be used to specify a check on the exit status of the
+.Ar command .
+If this flag is not given, the default is to expect a successful exit;
+in other words, that
+.Ar command
+exits zero.
+.Pp
+The valid values for
+.Ar exit_code_spec
+are of the form:
+.Bl -tag -offset indent -width XXXX
+.It Ar \*(Ltexit-code\*(Gt
+The exit code of the command must match
+.Ar exit-code .
+.It Ar ignore
+The exit code of the command is irrelevant.
+.It Ar exit:\*(Ltexit-code\*(Gt
+The exit code of the command must match
+.Ar exit-code .
+.It Ar not-exit:\*(Ltexit-code\*(Gt
+The exit code of the command must not match
+.Ar exit-code .
+.It Ar signal:\*(Ltsignal-number\*(Gt
+The command must have been terminated by signal
+.Ar signal-number ,
+which can be provided both as an integer or as a name.
+.It Ar not-signal:\*(Ltsignal-number\*(Gt
+The command must have been terminated by a signal and the signal must
+not be
+.Ar signal-number ,
+which can be provided both as an integer or as a name.
+.El
+.Ss Output checks
+The
+.Fl o
+and
+.Fl e
+flags can be used to specify a check on the contents of stdout or
+stderr, respectively, of the
+.Ar command .
+If no checks are specified, the default is to expect the outputs to be
+empty.
+.Pp
+The valid values for
+.Ar output_spec
+are of the form:
+.Bl -tag -offset indent -width XXXX
+.It Ar empty
+The output must be empty.
+.It Ar not-empty
+The output must not be empty.
+.It Ar ignore
+The contents of the output are irrelevant.
+.It Ar file:\*(Ltpath\*(Gt
+The contents of the output must match the contents of the file
+.Pa path .
+.It Ar inline:\*(Lttext\*(Gt
+The contents of the output must match the inline contents provided in
+.Pa text .
+Note that
+.Pa text
+can include escape sequences.
+.It Ar match:\*(Ltregexp\*(Gt
+The contents of the output must match the given regular expression in
+.Ar regexp .
+.It Ar not-match:\*(Ltregexp\*(Gt
+The contents of the output must not match the given regular expression in
+.Ar regexp .
+.It Ar save:\*(Ltpath\*(Gt
+The contents of the output are saved to
+.Pa path
+for further inspection by the test case.
+.El
+.Sh EXAMPLES
+In the simplest form,
+.Nm
+checks for success and no output so the following invocation would pass:
+.Bd -literal -offset indent
+assert_command true
+.Ed
+.Pp
+However, the following invocations would fail:
+.Bd -literal -offset indent
+assert_command false
+assert_command echo "foo"
+.Ed
+.Pp
+With flags, the expectations of the executed command can be changed.
+For example, the following variants of the above would now pass:
+.Bd -literal -offset indent
+assert_command -s exit:1 false
+assert_command -o inline:"foo\\n" echo "foo"
+.Ed
+.Pp
+Built-in functions are also allowed as commands:
+.Bd -literal -offset indent
+my_verbose_command() {
+    echo "sent to stdout"
+    echo "sent to stderr: ${*}" 1>&2
+    exit 42
+}
+
+echo "sent to stderr: arg1 arg2" >experr
+assert_command -s exit:42 -o inline:"sent to stdout\\n" \\
+    -e file:experr my_verbose_command arg1 arg2
+.Ed
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_unittest 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.6.

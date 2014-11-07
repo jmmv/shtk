@@ -40,6 +40,9 @@ AC_CONFIG_SRCDIR([shtk.sh])
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
 
+AC_PROG_LN_S
+
+
 AC_ARG_VAR([SHTK_SHELL], [Location of the POSIX shell interpreter to use])
 if test "${SHTK_SHELL}" = ""; then
     AC_PATH_PROGS(SHTK_SHELL, [bash sh])

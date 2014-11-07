@@ -26,23 +26,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# \file unittest/check_operators.subr
-# Checks for the unittest module to perform relational comparisons.
-#
-# This is an internal module not intended for direct user consumption.
-
 shtk_import cli
 #shtk_import unittest  # unittest imports us, so we can assume it is present.
 
 
 # Compares two values for equality.
 #
-# \param wrapper Name of the calling function for error reporting purposes.
-# \param fail_function Function to use to report a failure.
-# \param expected_value Expected value.
-# \param actual_value Actual value.
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Function to use to report a failure.
+# expected_value: Expected value.
+# actual_value: Actual value.
 #
-# \return If fail_function is not terminal, returns true if the expected value
+# If fail_function is not terminal, returns true if the expected value
 # is equal to the actual value; false otherwise.
 _shtk_unittest_check_equal() {
     local wrapper="${1}"; shift
@@ -59,12 +54,12 @@ _shtk_unittest_register_check equal
 
 # Compares two values for inequality.
 #
-# \param wrapper Name of the calling function for error reporting purposes.
-# \param fail_function Function to use to report a failure.
-# \param unexpected_value Unexpected value.
-# \param actual_value Actual value.
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Function to use to report a failure.
+# unexpected_value: Unexpected value.
+# actual_value: Actual value.
 #
-# \return If fail_function is not terminal, returns true if the unexpected value
+# If fail_function is not terminal, returns true if the unexpected value
 # is different than the actual value; false otherwise.
 _shtk_unittest_check_not_equal() {
     local wrapper="${1}"; shift

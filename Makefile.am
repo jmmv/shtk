@@ -103,6 +103,10 @@ dist_man_MANS += man/shtk_config_override.3
 dist_man_MANS += man/shtk_config_run_hook.3
 dist_man_MANS += man/shtk_config_set.3
 dist_man_MANS += man/shtk_config_unset.3
+dist_man_MANS += man/shtk_cvs.3
+dist_man_MANS += man/shtk_cvs_checkout.3
+dist_man_MANS += man/shtk_cvs_fetch.3
+dist_man_MANS += man/shtk_cvs_update.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

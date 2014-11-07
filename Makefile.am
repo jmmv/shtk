@@ -110,6 +110,8 @@ dist_man_MANS += man/shtk_cvs_update.3
 dist_man_MANS += man/shtk_list.3
 dist_man_MANS += man/shtk_list_contains.3
 dist_man_MANS += man/shtk_list_filter.3
+dist_man_MANS += man/shtk_process.3
+dist_man_MANS += man/shtk_process_run.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

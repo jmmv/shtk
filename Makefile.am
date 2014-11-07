@@ -66,11 +66,11 @@ EXTRA_DIST += shtk.sh
 shtk: $(srcdir)/shtk.sh
 	$(AM_V_GEN)source=shtk.sh target=shtk; $(BUILD_SCRIPT)
 
-man_MANS = shtk.1
-CLEANFILES += shtk.1
-EXTRA_DIST += shtk.1.in
-shtk.1: $(srcdir)/shtk.1.in
-	$(AM_V_GEN)source=shtk.1.in target=shtk.1; $(BUILD_FILE)
+man_MANS = man/shtk.1
+CLEANFILES += man/shtk.1
+EXTRA_DIST += man/shtk.1.in
+man/shtk.1: $(srcdir)/man/shtk.1.in
+	$(AM_V_GEN)target=man/shtk.1; source=$${target}.in; $(BUILD_FILE)
 
 man_MANS += man/shtk_import.3
 CLEANFILES += man/shtk_import.3

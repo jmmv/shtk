@@ -26,76 +26,69 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .Dd November 6, 2014
-.Dt SHTK 3
+.Dt SHTK_CONFIG_RUN_HOOK 3
 .Os
 .Sh NAME
-.Nm shtk
-.Nd Application Programming Interface (API) of the Shell Toolkit
+.Nm shtk_config_run_hook
+.Nd Executes a hook defined in a configuration file
+.Sh LIBRARY
+shtk_import config
+.Sh SYNOPSIS
+.Nm
+.Ar hook
+.Op Ar arg1 .. argN
 .Sh DESCRIPTION
-The Shell Toolkit, or
+The
 .Nm
-for short, is a collection of modules written in
-.Xr sh 1
-that provide common functionality to simplify the implementation of complex
-shell scripts.
-This page provides an introduction to writing scripts using
-.Nm
-and serves as a reference to all the provided modules by it.
-.Ss Script structure
-Scripts using
-.Nm
-follow this structure:
+function executes the function
+.Ar hook ,
+defined by the configuration file, in the same context as the file.
+Any arguments
+.Ar arg1
+to
+.Ar argN
+are passed literally to the hook.
+Hooks should not be executed directly because otherwise they would need to
+use the
+.Xr shtk_config_get 3
+familiy of functions to read the variables defined in the file, which could be
+quite strange.
+.Pp
+Keep in mind that the hook will only be able to access the configuration
+variables previously registered with
+.Xr shtk_config_init 3 .
+Any other variables will be hidden and not available to the hook.
+.Sh EXAMPLES
+Consider the following configuration file:
 .Bd -literal -offset indent
-shtk_import module1
-shtk_import moduleN
+SRCDIR=/usr/src
 
-# possibly define globals here
-
-some_custom_function() {
-    local arg1="${1}"; shift
-    local arg2="${1}"; shift
-
-    # do something
-}
-
-main() {
-    # program entry point; automatically invoked
+show_srcdir_hook() {
+    # Note that we can access SRCDIR directly, as would be normal in a
+    # configuration file.  No need to use shtk_config_get.
+    echo "SRCDIR is ${SRCDIR}"
 }
 .Ed
 .Pp
-In particular, note: that there is no shebang line at the beginning of the
-script; that there is no explicit call to
-.Nm main ;
-and that there is no code outside of shell functions other than for calls to
-.Xr shtk_import 3 .
-.Ss Script compilation
-The
-.Xr shtk 1
-tool offers a compilation process for scripts using
-.Xr shtk 3 .
-In this context, compilation just refers to the addition of initialization
-boilerplate code to the script so that the correct modules can be located and
-that a well-known shell interpreter is used.
-.Ss Modules
-The
-.Xr shtk_import 3
-function depicted above is used to bring the specified modules into the script.
-For details on all existing modules, see the list of cross-referenced pages
-in the
-.Sx SEE ALSO
-section below.
+Then, we could process the file and execute the defined hook like this:
+.Bd -literal -offset indent
+shtk_config_init SRCDIR
+shtk_config_load ".../path/to/the/file/above.conf"
+
+# This will print nothing because SRCDIR is not available here.
+echo "SRCDIR is ${SRCDIR}"
+
+# But this will display the right SRCDIR value.
+shtk_config_run_hook show_srcdir_hook
+.Ed
+.Sh ERRORS
+Errors during the execution of the hook result in the termination of the
+script.
 .Sh SEE ALSO
-.Xr shtk 1
-.Ss Built-in functions
-.Xr shtk_import 3
-.Ss Modules
-.Xr shtk_bool 3 ,
-.Xr shtk_cleanup 3 ,
-.Xr shtk_cli 3 ,
+.Xr shtk 3 ,
 .Xr shtk_config 3
-.Sh AUTHORS
-The
+.Sh HISTORY
 .Nm
-package was developed by
-.An Julio Merino
-.Aq jmmv@google.com .
+first appeared in
+.Nm shtk
+1.1.

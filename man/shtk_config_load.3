@@ -26,76 +26,56 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .Dd November 6, 2014
-.Dt SHTK 3
+.Dt SHTK_CONFIG_LOAD 3
 .Os
 .Sh NAME
-.Nm shtk
-.Nd Application Programming Interface (API) of the Shell Toolkit
+.Nm shtk_config_load
+.Nd Loads a configuration file
+.Sh LIBRARY
+shtk_import config
+.Sh SYNOPSIS
+.Nm
+.Ar config_file
 .Sh DESCRIPTION
-The Shell Toolkit, or
+The
 .Nm
-for short, is a collection of modules written in
-.Xr sh 1
-that provide common functionality to simplify the implementation of complex
-shell scripts.
-This page provides an introduction to writing scripts using
+function parses and loads the configuration file given by
+.Ar config_file .
+.Pp
+Only the configuration variables previously registered as valid with a call to
+.Xr shtk_config_init 3
+will be recognized as valid variables during load.
+Any variables defined by the configuration file but not registered in the
 .Nm
-and serves as a reference to all the provided modules by it.
-.Ss Script structure
-Scripts using
-.Nm
-follow this structure:
+module will be ignored during load.
+.Sh EXAMPLES
+Consider the following configuration file:
 .Bd -literal -offset indent
-shtk_import module1
-shtk_import moduleN
-
-# possibly define globals here
-
-some_custom_function() {
-    local arg1="${1}"; shift
-    local arg2="${1}"; shift
-
-    # do something
-}
-
-main() {
-    # program entry point; automatically invoked
-}
+prefix=/usr
+OBJDIR="${prefix}/obj"
+SRCDIR="${prefix}/src"
 .Ed
 .Pp
-In particular, note: that there is no shebang line at the beginning of the
-script; that there is no explicit call to
-.Nm main ;
-and that there is no code outside of shell functions other than for calls to
-.Xr shtk_import 3 .
-.Ss Script compilation
-The
-.Xr shtk 1
-tool offers a compilation process for scripts using
-.Xr shtk 3 .
-In this context, compilation just refers to the addition of initialization
-boilerplate code to the script so that the correct modules can be located and
-that a well-known shell interpreter is used.
-.Ss Modules
-The
-.Xr shtk_import 3
-function depicted above is used to bring the specified modules into the script.
-For details on all existing modules, see the list of cross-referenced pages
-in the
-.Sx SEE ALSO
-section below.
+The following piece of code illustrates how to load and display the settings
+of the file above:
+.Bd -literal -offset indent
+shtk_config_init OBJDIR SRCDIR
+shtk_config_load ".../path/to/the/file/above.conf"
+
+echo "prefix was defined but is not available:" \\
+    "$(shtk_config_get_default prefix default-value)"
+echo "OBJDIR is $(shtk_config_get OBJDIR)"
+echo "SRCDIR is $(shtk_config_get SRCDIR)"
+.Ed
+.Sh ERRORS
+Errors during the processing of
+.Ar config_file
+result in the termination of the caller script.
 .Sh SEE ALSO
-.Xr shtk 1
-.Ss Built-in functions
-.Xr shtk_import 3
-.Ss Modules
-.Xr shtk_bool 3 ,
-.Xr shtk_cleanup 3 ,
-.Xr shtk_cli 3 ,
+.Xr shtk 3 ,
 .Xr shtk_config 3
-.Sh AUTHORS
-The
+.Sh HISTORY
 .Nm
-package was developed by
-.An Julio Merino
-.Aq jmmv@google.com .
+first appeared in
+.Nm shtk
+1.0.

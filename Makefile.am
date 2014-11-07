@@ -112,6 +112,10 @@ dist_man_MANS += man/shtk_list_contains.3
 dist_man_MANS += man/shtk_list_filter.3
 dist_man_MANS += man/shtk_process.3
 dist_man_MANS += man/shtk_process_run.3
+dist_man_MANS += man/shtk_version.3
+dist_man_MANS += man/shtk_version_at_least.3
+dist_man_MANS += man/shtk_version_at_most.3
+dist_man_MANS += man/shtk_version_is.3
 
 aclocal_DATA = shtk.m4
 EXTRA_DIST += shtk.m4

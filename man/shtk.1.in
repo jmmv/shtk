@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 4, 2014
+.Dd November 8, 2014
 .Dt SHTK 1
 .Os
 .Sh NAME
@@ -84,6 +84,10 @@ The following options are supported:
 .Bl -tag -width XXXX
 .It Fl m Ar main_function
 Name of the function that implements the entry point of the program.
+For programs using the
+.Xr shkt_unittest 3
+module, this should be passed as
+.Fl m Ar shtk_unittest_main .
 .Pp
 All scripts that use
 .Nm
@@ -93,8 +97,7 @@ The main function is automatically executed by the generated script.
 If the value of
 .Ar main_function
 is empty, then no call to main is issued which may be necessary if the script
-already has a call to main for whatever reason (e.g. the script also uses
-.Xr atf-sh 1 ) .
+already has a call to main for whatever reason.
 .Pp
 Default:
 .Sq main .

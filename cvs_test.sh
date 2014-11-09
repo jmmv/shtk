@@ -27,9 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import cvs
-
-
-MOCK_CVSROOT=":local:$(pwd)/cvsroot"
+shtk_import unittest
 
 
 # Creates a local CVS repository with a variety of modules.
@@ -39,7 +37,7 @@ MOCK_CVSROOT=":local:$(pwd)/cvsroot"
 init_cvsroot() {
     local repository="${1}"; shift
 
-    atf_check -o ignore -e ignore cvs -d "${repository}" init
+    expect_command -o ignore -e ignore cvs -d "${repository}" init
 
     for module in "${@}"; do
         mkdir module
@@ -53,188 +51,159 @@ init_cvsroot() {
 }
 
 
-atf_test_case fetch
-fetch_head() {
-    atf_set "require.progs" "cvs"
-}
-fetch_body() {
-    init_cvsroot "${MOCK_CVSROOT}" src
-
-    shtk_cvs_fetch "${MOCK_CVSROOT}" src "" first
-    grep "first revision" first/file-in-src >/dev/null \
-        || atf_fail "Unexpected version found"
-
-    cp -rf first second
-    echo "second revision" >second/file-in-src
-    ( cd second && cvs commit -m "Second commit." )
-
-    shtk_cvs_fetch "${MOCK_CVSROOT}" src "" first
-    grep "second revision" first/file-in-src >/dev/null \
-        || atf_fail "Unexpected version found"
-}
+shtk_unittest_add_fixture fetch
+fetch_fixture() {
+    setup() {
+        MOCK_CVSROOT=":local:$(pwd)/cvsroot"
+        init_cvsroot "${MOCK_CVSROOT}" src
+    }
 
 
-atf_test_case checkout__same_name
-checkout__same_name_head() {
-    atf_set "require.progs" "cvs"
-}
-checkout__same_name_body() {
-    init_cvsroot "${MOCK_CVSROOT}" first second
-    shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/first
-    [ -f a/b/c/first/file-in-first ] || atf_fail "Files not checked out"
-    if [ -f a/b/c/second/file-in-second ]; then
-        atf_fail "Unexpected module checked out"
-    fi
+    teardown() {
+        rm -rf "${MOCK_CVSROOT}"
+    }
+
+
+    shtk_unittest_add_test ok
+    ok_test() {
+        shtk_cvs_fetch "${MOCK_CVSROOT}" src "" first
+        grep "first revision" first/file-in-src >/dev/null \
+            || fail "Unexpected version found"
+
+        cp -rf first second
+        echo "second revision" >second/file-in-src
+        ( cd second && cvs commit -m "Second commit." )
+
+        shtk_cvs_fetch "${MOCK_CVSROOT}" src "" first
+        grep "second revision" first/file-in-src >/dev/null \
+            || fail "Unexpected version found"
+    }
 }
 
 
-atf_test_case checkout__different_name
-checkout__different_name_head() {
-    atf_set "require.progs" "cvs"
-}
-checkout__different_name_body() {
-    init_cvsroot "${MOCK_CVSROOT}" first second
-    shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/second
-    [ -f a/b/c/second/file-in-first ] || atf_fail "Files not checked out"
-}
+shtk_unittest_add_fixture checkout
+checkout_fixture() {
+    setup() {
+        MOCK_CVSROOT=":local:$(pwd)/cvsroot"
+    }
 
 
-atf_test_case checkout__already_exists
-checkout__already_exists_head() {
-    atf_set "require.progs" "cvs"
-}
-checkout__already_exists_body() {
-    mkdir -p usr/src
-    if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "" $(pwd)/usr/src ) >out 2>err
-    then
-        atf_fail "Checkout succeeded, but should not"
-    else
-        grep "Cannot checkout into $(pwd)/usr/src.*exists" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
+    teardown() {
+        rm -rf "${MOCK_CVSROOT}"
+    }
 
 
-atf_test_case checkout__permission_denied
-checkout__permission_denied_head() {
-    atf_set "require.progs" "cvs"
-    atf_set "require.user" "unprivileged"
-}
-checkout__permission_denied_body() {
-    init_cvsroot "${MOCK_CVSROOT}" src
-    mkdir usr
-    chmod 555 usr
-    if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "" $(pwd)/usr/src ) >out 2>err
-    then
-        atf_fail "Checkout succeeded, but should not"
-    else
-        grep "Failed to create $(pwd)/usr/src" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
+    shtk_unittest_add_test same_name
+    same_name_test() {
+        init_cvsroot "${MOCK_CVSROOT}" first second
+        shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/first
+        [ -f a/b/c/first/file-in-first ] || fail "Files not checked out"
+        if [ -f a/b/c/second/file-in-second ]; then
+            fail "Unexpected module checked out"
+        fi
+    }
 
 
-atf_test_case checkout__cvs_fails
-checkout__cvs_fails_head() {
-    atf_set "require.progs" "cvs"
-}
-checkout__cvs_fails_body() {
-    init_cvsroot "${MOCK_CVSROOT}" src
-    if ( shtk_cvs_checkout "${MOCK_CVSROOT}" src "foo" $(pwd)/usr/src ) >out 2>err
-    then
-        atf_fail "Checkout succeeded, but should not"
-    else
-        grep "CVS checkout failed" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
+    shtk_unittest_add_test different_name
+    different_name_test() {
+        init_cvsroot "${MOCK_CVSROOT}" first second
+        shtk_cvs_checkout "${MOCK_CVSROOT}" first "" $(pwd)/a/b/c/second
+        [ -f a/b/c/second/file-in-first ] || fail "Files not checked out"
+    }
 
 
-atf_test_case update__ok
-update__ok_head() {
-    atf_set "require.progs" "cvs"
-}
-update__ok_body() {
-    init_cvsroot "${MOCK_CVSROOT}" first second
+    shtk_unittest_add_test already_exists
+    already_exists_test() {
+        mkdir -p usr/src
+        expect_command -s exit:1 \
+            -e match:"Cannot checkout into $(pwd)/usr/src.*exists" \
+            shtk_cvs_checkout "${MOCK_CVSROOT}" src "" "$(pwd)/usr/src"
+    }
 
-    cvs -d "${MOCK_CVSROOT}" checkout first
-    mv first copy
-    cvs -d "${MOCK_CVSROOT}" checkout first
 
-    shtk_cvs_update "${MOCK_CVSROOT}" "" first
-    grep "first revision" first/file-in-first >/dev/null \
-        || atf_fail "Unexpected version found"
+    shtk_unittest_add_test permission_denied
+    permission_denied_test() {
+        [ "$(id -u)" -ne 0 ] || skip "Cannot run test as root"
 
-    echo "second revision" >copy/file-in-first
-    ( cd copy && cvs commit -m "Second commit." )
+        init_cvsroot "${MOCK_CVSROOT}" src
+        mkdir usr
+        chmod 555 usr
+        expect_command -s exit:1 -e match:"Failed to create $(pwd)/usr/src" \
+            shtk_cvs_checkout "${MOCK_CVSROOT}" src "" "$(pwd)/usr/src"
+    }
 
-    shtk_cvs_update "${MOCK_CVSROOT}" "" first
-    grep "second revision" first/file-in-first >/dev/null \
-        || atf_fail "Unexpected version found"
+
+    shtk_unittest_add_test cvs_fails
+    cvs_fails_test() {
+        init_cvsroot "${MOCK_CVSROOT}" src
+        expect_command -s exit:1 -e match:"CVS checkout failed" \
+            shtk_cvs_checkout "${MOCK_CVSROOT}" src "foo" "$(pwd)/usr/src"
+    }
 }
 
 
-atf_test_case update__resume_checkout
-update__resume_checkout_head() {
-    atf_set "require.progs" "cvs"
-}
-update__resume_checkout_body() {
-    init_cvsroot "${MOCK_CVSROOT}" first
-
-    cvs -d "${MOCK_CVSROOT}" checkout first
-    mv first copy
-
-    mkdir -p first/.cvs-checkout/first
-    mv copy/CVS first/.cvs-checkout/first
-    rm -rf copy
-
-    shtk_cvs_update "${MOCK_CVSROOT}" "" first
-    grep "first revision" first/file-in-first >/dev/null \
-        || atf_fail "Unexpected version found"
-}
+shtk_unittest_add_fixture update
+update_fixture() {
+    setup() {
+        MOCK_CVSROOT=":local:$(pwd)/cvsroot"
+    }
 
 
-atf_test_case update__does_not_exist
-update__does_not_exist_head() {
-    atf_set "require.progs" "cvs"
-}
-update__does_not_exist_body() {
-    if ( shtk_cvs_update "${MOCK_CVSROOT}" "" src ) >out 2>err; then
-        atf_fail "Update succeeded, but should not"
-    else
-        grep "Cannot update src; .*not exist" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
+    teardown() {
+        rm -rf "${MOCK_CVSROOT}"
+    }
 
 
-atf_test_case update__cvs_fails
-update__cvs_fails_head() {
-    atf_set "require.progs" "cvs"
-}
-update__cvs_fails_body() {
-    init_cvsroot "${MOCK_CVSROOT}" src
-    cvs -d "${MOCK_CVSROOT}" checkout src
-    if ( shtk_cvs_update "${MOCK_CVSROOT}" "foo" src ) >out 2>err; then
-        atf_fail "Update succeeded, but should not"
-    else
-        grep "CVS update failed" err >/dev/null \
-            || atf_fail "Expected error message not found"
-    fi
-}
+    shtk_unittest_add_test ok
+    ok_test() {
+        init_cvsroot "${MOCK_CVSROOT}" first second
+
+        cvs -d "${MOCK_CVSROOT}" checkout first
+        mv first copy
+        cvs -d "${MOCK_CVSROOT}" checkout first
+
+        shtk_cvs_update "${MOCK_CVSROOT}" "" first
+        grep "first revision" first/file-in-first >/dev/null \
+            || fail "Unexpected version found"
+
+        echo "second revision" >copy/file-in-first
+        ( cd copy && cvs commit -m "Second commit." )
+
+        shtk_cvs_update "${MOCK_CVSROOT}" "" first
+        grep "second revision" first/file-in-first >/dev/null \
+            || fail "Unexpected version found"
+    }
 
 
-atf_init_test_cases() {
-    atf_add_test_case fetch
+    shtk_unittest_add_test resume_checkout
+    resume_checkout_test() {
+        init_cvsroot "${MOCK_CVSROOT}" first
 
-    atf_add_test_case checkout__same_name
-    atf_add_test_case checkout__different_name
-    atf_add_test_case checkout__already_exists
-    atf_add_test_case checkout__permission_denied
-    atf_add_test_case checkout__cvs_fails
+        cvs -d "${MOCK_CVSROOT}" checkout first
+        mv first copy
 
-    atf_add_test_case update__ok
-    atf_add_test_case update__resume_checkout
-    atf_add_test_case update__does_not_exist
-    atf_add_test_case update__cvs_fails
+        mkdir -p first/.cvs-checkout/first
+        mv copy/CVS first/.cvs-checkout/first
+        rm -rf copy
+
+        shtk_cvs_update "${MOCK_CVSROOT}" "" first
+        grep "first revision" first/file-in-first >/dev/null \
+            || fail "Unexpected version found"
+    }
+
+
+    shtk_unittest_add_test does_not_exist
+    does_not_exist_test() {
+        expect_command -s exit:1 -e match:"Cannot update src; .*not exist" \
+            shtk_cvs_update "${MOCK_CVSROOT}" "" src
+    }
+
+
+    shtk_unittest_add_test cvs_fails
+    cvs_fails_test() {
+        init_cvsroot "${MOCK_CVSROOT}" src
+        cvs -d "${MOCK_CVSROOT}" checkout src
+        expect_command -s exit:1 -e match:"CVS update failed" \
+            shtk_cvs_update "${MOCK_CVSROOT}" "foo" src
+    }
 }

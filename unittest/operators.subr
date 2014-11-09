@@ -1,4 +1,3 @@
-#! /bin/sh
 # Copyright 2014 Google Inc.
 # All rights reserved.
 #
@@ -27,48 +26,48 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -e -x
+shtk_import cli
+#shtk_import unittest  # unittest imports us, so we can assume it is present.
 
-sudo apt-get update -qq
-sudo apt-get install -y liblua5.2-0 liblua5.2-dev \
-    libsqlite3-0 libsqlite3-dev pkg-config sqlite3 ${EXTRA_PACKAGES}
 
-install_from_github() {
-    local project="${1}"; shift
-    local name="${1}"; shift
-    local release="${1}"; shift
+# Compares two values for equality.
+#
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Function to use to report a failure.
+# expected_value: Expected value.
+# actual_value: Actual value.
+#
+# If fail_function is not terminal, returns true if the expected value
+# is equal to the actual value; false otherwise.
+_shtk_unittest_check_equal() {
+    local wrapper="${1}"; shift
+    local fail_function="${1}"; shift
+    local expected_value="${1}"; shift
+    local actual_value="${1}"; shift
 
-    local distname="${name}-${release}"
-
-    local baseurl="https://github.com/jmmv/${project}"
-    wget --no-check-certificate \
-        "${baseurl}/releases/download/${distname}/${distname}.tar.gz"
-    tar -xzvf "${distname}.tar.gz"
-
-    cd "${distname}"
-    ./configure \
-        --disable-developer \
-        --without-atf \
-        --without-doxygen \
-        CPPFLAGS="-I/usr/local/include" \
-        LDFLAGS="-L/usr/local/lib -Wl,-R/usr/local/lib" \
-        PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-    make
-    sudo make install
-    cd -
-
-    rm -rf "${distname}" "${distname}.tar.gz"
+    [ "${expected_value}" = "${actual_value}" ] || \
+        "${fail_function}" "Expected value ${expected_value} but got" \
+            "${actual_value}"
 }
+_shtk_unittest_register_check equal
 
-install_from_bintray() {
-    local name="20140803-usr-local-kyua-ubuntu-12-04-amd64-${CC:-gcc}.tar.gz"
-    wget "http://dl.bintray.com/jmmv/kyua/${name}" || return 1
-    sudo tar -xzvp -C / -f "${name}"
-    rm -f "${name}"
+
+# Compares two values for inequality.
+#
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Function to use to report a failure.
+# unexpected_value: Unexpected value.
+# actual_value: Actual value.
+#
+# If fail_function is not terminal, returns true if the unexpected value
+# is different than the actual value; false otherwise.
+_shtk_unittest_check_not_equal() {
+    local wrapper="${1}"; shift
+    local fail_function="${1}"; shift
+    local expected_value="${1}"; shift
+    local actual_value="${1}"; shift
+
+    [ "${expected_value}" != "${actual_value}" ] || \
+        "${fail_function}" "Expected value different than ${expected_value}"
 }
-
-if ! install_from_bintray; then
-    install_from_github lutok lutok 0.4
-    install_from_github kyua kyua-testers 0.2
-    install_from_github kyua kyua-cli 0.8
-fi
+_shtk_unittest_register_check not_equal

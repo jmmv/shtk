@@ -1,0 +1,228 @@
+# Copyright 2014 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+shtk_import cli
+#shtk_import unittest  # unittest imports us, so we can assume it is present.
+
+
+# Runs a command and checks its status.
+#
+# Note that this function supports both external commands and builtin commands
+# (such as functions defined by the user), thus allowing for unit-testing of
+# shell code.
+#
+# wrapper: Name of the calling function for error reporting purposes.
+# fail_function: Name of the function to use to report a failure.
+# -sexpected_exit_code: Exit code that the command is expected to return.
+# -oexpected_stdout: Expected behavior of the command's stdout.
+# -eexpected_stderr: Expected behavior of the command's stderr.
+# ... The command to run.
+#
+# If fail_function is not terminal, returns true if the command conforms
+# to the exit status and output requirements; false otherwise.
+_shtk_unittest_check_command() {
+    local wrapper="${1}"; shift
+    local fail_function="${1}"; shift
+
+    # TODO(jmmv): Add support for more than one checker of each kind.  This is
+    # tricky because of the possibility of having spaces in them, so we cannot
+    # just accumulate them all into a single variable.  We probably need a
+    # separate "vector"-management module to implement vectors using individual
+    # variables for each element...
+    local expected_exit_code=0
+    local expected_stdout=empty
+    local expected_stderr=empty
+
+    local OPTIND
+    while getopts ':e:o:s:' arg "${@}"; do
+        case "${arg}" in
+            e)  # Expected stderr behavior.
+                # TODO(jmmv): Validate argument early.
+                expected_stderr="${OPTARG}"
+                ;;
+
+            o)  # Expected stdout behavior.
+                # TODO(jmmv): Validate argument early.
+                expected_stdout="${OPTARG}"
+                ;;
+
+            s)  # Expected exit code.
+                # TODO(jmmv): Validate argument early.
+                expected_exit_code="${OPTARG}"
+                ;;
+
+            \?)
+                shtk_cli_error "Invalid option -${OPTARG} to ${wrapper}"
+                ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+    OPTIND=1  # Should not be necessary due to the 'local' above.
+
+    local actual_stdout="standard output"
+    local actual_stderr="standard error"
+
+    echo "Running checked command: ${*}"
+
+    ( "${@}" ) >"${actual_stdout}" 2>"${actual_stderr}"
+    local actual_exit_code="${?}"
+
+    local failed=no
+    if _shtk_unittest_check_exit_code "${wrapper}" "${expected_exit_code}" \
+        "${actual_exit_code}"
+    then
+        _shtk_unittest_check_file "${wrapper}" false "${expected_stdout}" \
+            "${actual_stdout}" || failed=yes
+        _shtk_unittest_check_file "${wrapper}" false "${expected_stderr}" \
+            "${actual_stderr}" || failed=yes
+    else
+        # If the exit code check fails, we do not bother checking the output
+        # according to the user specifications.  Dumping the raw output of the
+        # command is better for troubleshooting purposes.
+        sed -e "s,^,stdout: ," "${actual_stdout}"
+        sed -e "s,^,stderr: ," "${actual_stderr}"
+        failed=yes
+    fi
+    [ "${failed}" = no ] || \
+        "${fail_function}" "Check of '${*}' failed; see stdout for details"
+}
+_shtk_unittest_register_check command
+
+
+# Verifies if an exit code conforms to a specification.
+#
+# This is a helper function for _shtk_unittest_check_command only and should not
+# be seen as generic.
+#
+# wrapper: Name of the calling function for error reporting purposes.
+# spec: The expectations that the exit code must match.
+# exit_code: The actual exit code gotten from the process.
+#
+# Returns true if the exit code matches the specification; false otherwise.
+#
+# Errors out if the specification is broken or if some other unexpected
+# error is detected.
+_shtk_unittest_check_exit_code() {
+    local wrapper="${1}"; shift
+    local spec="${1}"; shift
+    local exit_code="${1}"; shift
+
+    case "${spec}" in
+        [0-9]*)
+            if [ "${exit_code}" -ne "${spec}" ]; then
+                echo "Expected exit code ${spec}" \
+                    "!= actual exit code ${exit_code}"
+                false
+            fi
+            ;;
+
+        exit:*)
+            local exp_exit_code="$(echo "${spec}" | cut -d : -f 2-)"
+            if [ "${exit_code}" -ne "${exp_exit_code}" ]; then
+                echo "Expected exit code ${exp_exit_code}" \
+                    "!= actual exit code ${exit_code}"
+                false
+            fi
+            ;;
+
+        ignore)
+            ;;
+
+        not-exit:*)
+            local exp_exit_code="$(echo "${spec}" | cut -d : -f 2-)"
+            if [ "${exit_code}" -eq "${exp_exit_code}" ]; then
+                echo "Expected exit code != ${exit_code}"
+                false
+            fi
+            ;;
+
+        not-signal:*)
+            local exp_signame="$(echo "${spec}" | cut -d : -f 2-)"
+            local exp_signo="$(_shtk_unittest_signal_number "${exp_signame}")"
+            if [ "${exit_code}" -lt 128 ]; then
+                echo "Expected signal different than ${exp_signame} but" \
+                    "exited with code ${exit_code}"
+                false
+            else
+                local signo="$((${exit_code} - 128))"
+                if [ "${signo}" -eq "${exp_signo}" ]; then
+                    echo "Expected signal != ${exp_signame}"
+                    false
+                fi
+            fi
+            ;;
+
+        signal:*)
+            local exp_signame="$(echo "${spec}" | cut -d : -f 2-)"
+            local exp_signo="$(_shtk_unittest_signal_number "${exp_signame}")"
+            if [ "${exit_code}" -lt 128 ]; then
+                echo "Expected signal ${exp_signame} but exited with code" \
+                    "${exit_code}"
+                false
+            else
+                local signo="$((${exit_code} - 128))"
+                if [ "${signo}" -ne "${exp_signo}" ]; then
+                    echo "Expected signal ${exp_signame}" \
+                        "!= actual signal ${signo}"
+                    false
+                fi
+            fi
+            ;;
+
+        *)
+            shtk_cli_error "Invalid exit code check specification in" \
+                "${wrapper}; got ${spec}"
+            ;;
+    esac
+}
+
+
+# Determines the number of a signal specified by the user.
+#
+# Returns true if the signal name or number is valid, and in this case the
+# signal number is printed on stdout.  Errors out if the name is unknown.
+_shtk_unittest_signal_number() {
+    local name="${1}"; shift
+
+    case "${name}" in
+        [0-9]*) echo "${name}" ;;
+        hup) echo 1 ;;
+        int) echo 2 ;;
+        quit) echo 3 ;;
+        trap) echo 5 ;;
+        abrt) echo 6 ;;
+        kill) echo 9 ;;
+        segv) echo 11 ;;
+        pipe) echo 13 ;;
+        alrm) echo 14 ;;
+        term) echo 15 ;;
+        usr1) echo 30 ;;
+        usr2) echo 31 ;;
+        *) shtk_cli_error "Unknown signal name or number ${name}" ;;
+    esac
+}

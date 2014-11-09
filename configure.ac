@@ -40,6 +40,9 @@ AC_CONFIG_SRCDIR([shtk.sh])
 AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
 
 
+AC_PROG_LN_S
+
+
 AC_ARG_VAR([SHTK_SHELL], [Location of the POSIX shell interpreter to use])
 if test "${SHTK_SHELL}" = ""; then
     AC_PATH_PROGS(SHTK_SHELL, [bash sh])
@@ -55,17 +58,6 @@ fi
 if test "${SHTK_SHELL}" = ""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set SHTK_SHELL?])
 fi
-
-
-m4_ifndef([PKG_CHECK_MODULES],
-    [m4_fatal([Cannot find pkg.m4; see the INSTALL document for help])])
-
-m4_ifndef([ATF_CHECK_SH],
-    [m4_fatal([Cannot find atf-sh.m4; see the INSTALL document for help])])
-ATF_CHECK_SH([>= 0.17])
-m4_ifndef([ATF_ARG_WITH],
-    [m4_fatal([Cannot find atf-common.m4; see the INSTALL document for help])])
-ATF_ARG_WITH
 
 
 AC_PATH_PROG([KYUA], [kyua])

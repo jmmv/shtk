@@ -1,0 +1,326 @@
+.\" Copyright 2014 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd November 9, 2014
+.Dt SHTK_UNITTEST 3
+.Os
+.Sh NAME
+.Nm unittest
+.Nd Utilities to implement test programs
+.Sh LIBRARY
+shtk_import
+.Nm
+.Sh DESCRIPTION
+The
+.Nm
+module provides a framework with which to implement test programs.
+.Pp
+A test program implemented with the
+.Nm
+library is made up of a combination of standalone test cases and/or test
+cases within test fixtures.
+The test program will exit with 0 (success) if and only if all tests pass,
+and 1 (failure) if any single test fails.
+Skips and expected failures are considered passes.
+.Ss Program entry point
+Test programs implemented using
+.Nm
+must use the
+.Xr shtk_unittest_main 3
+function as their entry point.
+There are two mechanisms to achieve this.
+.Pp
+The first is to end the test program with the following definition of
+.Nm main :
+.Bd -literal -offset indent
+main() { shtk_unittest_main "${@}"; }
+.Ed
+.Pp
+The second is to tell
+.Xr shtk 1
+at build time to use
+.Xr shtk_unittest_main 3
+as the program's entry point:
+.Bd -literal -offset indent
+$ shtk build -m shtk_unittest_main module_test.sh
+.Ed
+.Pp
+In general, prefer the latter mechanism.
+.Ss Asserts vs. expects
+The
+.Nm
+library provides a variety of helper check functions.
+One such example is the
+.Sq equal
+check, which allows the caller to compare two values for equality and fail
+the test case with the appropriate error message if the values differ.
+.Pp
+Each check is offered in two flavors: an
+.Em assert
+and an
+.Em expect ,
+which in the previous example means we have access to the two corresponding
+functions
+.Nm assert_equal
+and
+.Nm expect_equal .
+Assert-style checks are fatal: when the condition they test for is not
+met, the test case is immediately aborted; instead, expect-style checks
+are not fatal: they record the currently-running test case as failed but
+they let the test case continue execution.
+Assert-style checks should be used to validate conditions that must hold
+true in order to run the test (e.g. ensuring that the setup of the test
+case succeeds); expect-style checks should be used for all other cases.
+.Ss Scoping
+All functions provided by the
+.Nm
+library are prefixed by
+.Sq shtk_unittest_
+as you would expect from the coding practices of
+.Nm shtk .
+However, such long prefix is inconvenient when writing test programs, as
+test programs are a very special case of scripts in which a domain-specific
+language makes sense.
+.Pp
+Therefore, for simplicity reasons, test cases have access to shortened names
+of the
+.Nm
+functions without the
+.Sq shtk_unittest_
+prefix.
+In order words, a test case can simply call
+.Nm fail
+instead of having to call
+.Nm shtk_unittest_fail .
+.Ss Standalone test cases
+Standalone test cases are defined by top-level functions whose name
+ends with the
+.Sq _test
+suffix and are registered as test cases with the
+.Xr shtk_unittest_add_test 3
+function.
+Such test cases are run independently of each other, with no common
+setup nor teardown code among them.
+.Ss Test fixtures
+Test fixtures are collections of related test cases that may share
+optional setup and teardown methods.
+Test fixtures are defined by top-level functions whose name ends with the
+.Sq _fixture
+suffix and are registered as fixtures with the
+.Xr shtk_unittest_add_fixture 3
+function.
+.Pp
+Within fixture fuctions, there may be a
+.Nm setup
+and a
+.Nm teardown
+method, and there should be one or more test cases registered with
+.Xr shtk_unittest_add_test 3 .
+Each test within the fixture is executed independently of each other,
+but the setup and teardown methods (if any) are also executed with
+the test.
+.Ss One time setup and teardown
+Test programs may optionally define top-level
+.Nm one_time_setup
+and
+.Nm one_time_teardown .
+.Pp
+The code supplied in the
+.Nm one_time_setup
+function is executed exactly once at the beginning of the test program
+and all state set up by the function is shared across all tests.
+.Pp
+The code supplied in the
+.Nm one_time_teardown
+function is executed exactly once at the end of the test program and
+should be used to clean up any state prepared by
+.Nm one_time_setup .
+.Pp
+It is important to mention that these one-time setup and teardown routines
+.Em run in the parent directory of the executed test cases .
+In other words: if the setup routine creates any file to be shared across
+all tests, the tests will have access to such files by looking them up in
+their parent directory.
+.Ss Test results
+Any test case can complete with one of the following results:
+.Bl -tag -width XXXX
+.It Expected failure ( pass )
+The test case detected a failure, but such failure is expected.
+This condition is often use to denote test cases that are either incomplete
+or test cases that exercise a known bug.
+See
+.Xr shtk_unittest_set_expected_failure 3
+for details.
+.It Failure
+The test case explicitly failed or it unexpectedly terminated.
+See
+.Xr shtk_unittest_delayed_fail 3
+and
+.Xr shtk_unittest_fail 3
+for details.
+.It Pass
+The test case completed successfully without reporting any errors.
+.It Skip ( pass )
+The test case determined that it cannot run through completion and decided
+to abort early instead of reporting a false negative.
+See
+.Xr shtk_unittest_skip 3
+for details.
+.El
+.Sh EXAMPLES
+The most basic test program that can be written is the following, which
+provides a simple test case for
+.Xr cp 1 Ns ' Ns s
+.Fl f
+flag:
+.Bd -literal -offset indent
+shtk_import unittest
+
+shtk_unittest_add_test cp_f_forces_override
+cp_f_forces_override_test() {
+    echo "first" >first
+    echo "second" >second
+    chmod 555 second
+
+    # First make sure that cp without -f fails.
+    assert_command -s exit:1 -e ignore cp first second
+
+    # Now run a second attempt with -f and verify that the command
+    # exits successfully and it is silent.
+    assert_command cp -f first second
+
+    cmp -s first second || fail "source and destination do not match"
+}
+
+main() { shtk_unittest_main "${@}"; }
+.Ed
+.Pp
+A more complex test program can use fixtures to group related test cases
+and to provide common setup and teardown code for each of them:
+.Bd -literal -offset indent
+shtk_import unittest
+
+shtk_unittest_add_fixture cp
+    setup() {
+        # Create common files used by all test cases.  Note that this runs
+        # once per test case, so state is not shared among them.
+        echo "first" >first
+        echo "second" >second
+    }
+
+    teardown() {
+        # Common cleanup to be executed at the end of the test case, no
+        # matter if it passes or fails.
+        rm -f first second
+    }
+
+    shtk_unittest_add_test override_existing_file
+    override_existing_file_test() {
+        assert_command cp first second
+        cmp -s first second || fail "source and destination do not match"
+    }
+
+    shtk_unittest_add_test f_forces_override
+    f_forces_override_test() {
+        chmod 555 second
+        assert_command -s exit:1 -e ignore cp first second
+        assert_command cp -f first second
+        cmp -s first second || fail "source and destination do not match"
+    }
+}
+
+main() { shtk_unittest_main "${@}"; }
+.Ed
+.Pp
+Lastly, the most complex test program is depicted here, which includes a
+combination of fixtures and test cases with one-time setup and teardown
+routines:
+.Bd -literal -offset indent
+shtk_import unittest
+
+one_time_setup() {
+    ... initialization code shared by all tests in the program ...
+}
+
+one_time_teardown() {
+    ... clean up code shared by all tests in the program ...
+}
+
+shtk_unittest_add_fixture clients
+clients_fixture() {
+    setup() {
+        ... initialization code shared by all tests in the fixture ...
+    }
+    teardown() {
+        ... cleanup code shared by all tests in the fixture ...
+    }
+
+    shtk_unittest_add_test add
+    add_test() {
+        ... first test in the fixture ...
+    }
+
+    shtk_unittest_add_test modify
+    modify_test() {
+        ... second test in the fixture ...
+        fail "And it fails"
+    }
+}
+
+shtk_unittest_add_test initialization
+initialization_test() {
+    ... standalone test not part of any fixture ...
+    skip "But cannot run due to some unsatisfied condition"
+}
+
+# Either do this or, preferably, pass -mshtk_unittest_main to
+# "shtk build" when compiling the test program and don't define main.
+main() { shtk_unittest_main "${@}"; }
+.Ed
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_unittest_add_fixture 3 ,
+.Xr shtk_unittest_add_test 3 ,
+.Xr shtk_unittest_delayed_fail 3 ,
+.Xr shtk_unittest_fail 3 ,
+.Xr shtk_unittest_main 3 ,
+.Xr shtk_unittest_set_expected_failure 3 ,
+.Xr shtk_unittest_skip 3
+.Ss Checks
+.Xr shtk_unittest_assert_command 3 ,
+.Xr shtk_unittest_assert_equal 3 ,
+.Xr shtk_unittest_assert_file 3 ,
+.Xr shtk_unittest_assert_not_equal 3 ,
+.Xr shtk_unittest_expect_command 3 ,
+.Xr shtk_unittest_expect_equal 3 ,
+.Xr shtk_unittest_expect_file 3 ,
+.Xr shtk_unittest_expect_not_equal 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.6.

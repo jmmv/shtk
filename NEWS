@@ -3,6 +3,14 @@ Changes in version 1.6
 
 STILL UNDER DEVELOPMENT; NOT RELEASED YET.
 
+* Added the unittest module, a framework with which to implement
+  robust test programs purely in shell.  This new module supports
+  defining test programs as a collection of standalone test cases or
+  test fixtures; supports assert-syle vs. expect-style checks; and
+  provides advanced checks to simplify the implementation of tests
+  cases for command-line utilities.  unittest-based test programs
+  can be trivially plugged into the Kyua testing framework.
+
 * Added manual pages for all public API functions.  See shtk(3) for
   an introduction and follow all linked pages for details.  All
   docstrings have been removed from the code in favor of the manual

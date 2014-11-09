@@ -1,0 +1,7 @@
+syntax(2)
+
+test_suite("shtk")
+
+plain_test_program{name="commands_test"}
+plain_test_program{name="files_test"}
+plain_test_program{name="operators_test"}

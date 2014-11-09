@@ -1,0 +1,72 @@
+.\" Copyright 2014 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd November 8, 2014
+.Dt SHTK_UNITTEST_ADD_TEST 3
+.Os
+.Sh NAME
+.Nm shtk_unittest_add_test
+.Nd Defines a standalone test case
+.Sh LIBRARY
+shtk_import unittest
+.Sh SYNOPSIS
+.Nm
+.Ar name
+.Sh DESCRIPTION
+The
+.Nm
+function registers the standalone test case given by
+.Ar name .
+A function named
+.Sq \*(Ltname\*(Gt_test
+must be defined
+.Em after
+the call to
+.Nm
+has been made.
+.Sh EXAMPLES
+The following piece of code illustrates the definition of a couple of
+test cases:
+.Bd -literal -offset indent
+shtk_unittest_add_test first_scenario
+first_scenario_test() {
+    ... test code for the first test case ...
+}
+
+shtk_unittest_add_test second_scenario
+second_scenario_test() {
+    ... test code for the second test case ...
+}
+.Ed
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_unittest 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.6.

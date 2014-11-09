@@ -41,6 +41,12 @@ dist_pkgdata_DATA += config.subr
 dist_pkgdata_DATA += cvs.subr
 dist_pkgdata_DATA += list.subr
 dist_pkgdata_DATA += process.subr
+dist_pkgdata_DATA += unittest.subr
+
+unittest_pkgdatadir = $(pkgdatadir)/unittest
+dist_unittest_pkgdata_DATA  = unittest/commands.subr
+dist_unittest_pkgdata_DATA += unittest/files.subr
+dist_unittest_pkgdata_DATA += unittest/operators.subr
 
 pkgdata_DATA = version.subr
 CLEANFILES = version.subr
@@ -112,6 +118,22 @@ dist_man_MANS += man/shtk_list_contains.3
 dist_man_MANS += man/shtk_list_filter.3
 dist_man_MANS += man/shtk_process.3
 dist_man_MANS += man/shtk_process_run.3
+dist_man_MANS += man/shtk_unittest.3
+dist_man_MANS += man/shtk_unittest_add_fixture.3
+dist_man_MANS += man/shtk_unittest_add_test.3
+dist_man_MANS += man/shtk_unittest_assert_command.3
+dist_man_MANS += man/shtk_unittest_assert_equal.3
+dist_man_MANS += man/shtk_unittest_assert_file.3
+dist_man_MANS += man/shtk_unittest_assert_not_equal.3
+dist_man_MANS += man/shtk_unittest_delayed_fail.3
+dist_man_MANS += man/shtk_unittest_expect_command.3
+dist_man_MANS += man/shtk_unittest_expect_equal.3
+dist_man_MANS += man/shtk_unittest_expect_file.3
+dist_man_MANS += man/shtk_unittest_expect_not_equal.3
+dist_man_MANS += man/shtk_unittest_fail.3
+dist_man_MANS += man/shtk_unittest_main.3
+dist_man_MANS += man/shtk_unittest_set_expected_failure.3
+dist_man_MANS += man/shtk_unittest_skip.3
 dist_man_MANS += man/shtk_version.3
 dist_man_MANS += man/shtk_version_at_least.3
 dist_man_MANS += man/shtk_version_at_most.3
@@ -126,12 +148,15 @@ EXTRA_DIST += shtk.pc.in
 shtk.pc: $(srcdir)/shtk.pc.in Makefile
 	$(AM_V_GEN)source=shtk.pc.in target=shtk.pc; $(BUILD_FILE)
 
-if WITH_ATF
 dist_pkgtests_DATA = Kyuafile
 
+unittest_testsdir = $(pkgtestsdir)/unittest
+dist_unittest_tests_DATA = unittest/Kyuafile
+
 BUILD_TEST = \
+	$(mkdir_p) "$$(dirname $${name})"; \
 	SHTK_MODULESDIR=$(abs_srcdir) SHTK_MODULESPATH=$(abs_builddir) \
-	    $(builddir)/shtk build -s '$(ATF_SH)' -m '' -o "$${name}" \
+	    $(builddir)/shtk build -m shtk_unittest_main -o "$${name}" \
 	    "$(srcdir)/$${name}.sh"
 
 pkgtests_SCRIPTS = base_test
@@ -188,6 +213,37 @@ EXTRA_DIST += shtk_test.sh
 shtk_test: $(srcdir)/shtk_test.sh shtk
 	$(AM_V_GEN)name=shtk_test; $(BUILD_TEST)
 
+pkgtests_SCRIPTS += unittest_inttest
+CLEANFILES += unittest_inttest
+EXTRA_DIST += unittest_inttest.sh
+unittest_inttest: $(srcdir)/unittest_inttest.sh
+	$(AM_V_GEN)source=unittest_inttest.sh; target=unittest_inttest; \
+	    $(BUILD_SCRIPT)
+
+pkgtests_SCRIPTS += unittest_test
+CLEANFILES += unittest_test
+EXTRA_DIST += unittest_test.sh
+unittest_test: $(srcdir)/unittest_test.sh shtk
+	$(AM_V_GEN)name=unittest_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS = unittest/commands_test
+CLEANFILES += unittest/commands_test
+EXTRA_DIST += unittest/commands_test.sh
+unittest/commands_test: $(srcdir)/unittest/commands_test.sh shtk
+	$(AM_V_GEN)name=unittest/commands_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS += unittest/files_test
+CLEANFILES += unittest/files_test
+EXTRA_DIST += unittest/files_test.sh
+unittest/files_test: $(srcdir)/unittest/files_test.sh shtk
+	$(AM_V_GEN)name=unittest/files_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS += unittest/operators_test
+CLEANFILES += unittest/operators_test
+EXTRA_DIST += unittest/operators_test.sh
+unittest/operators_test: $(srcdir)/unittest/operators_test.sh shtk
+	$(AM_V_GEN)name=unittest/operators_test; $(BUILD_TEST)
+
 pkgtests_SCRIPTS += version_test
 CLEANFILES += version_test
 EXTRA_DIST += version_test.sh
@@ -225,13 +281,6 @@ missing-kyua:
 check-local: missing-kyua
 installcheck-local: missing-kyua
 endif  # HAVE_KYUA
-else  # WITH_ATF
-dist-hook: forbid-dist
-PHONY_TARGETS += forbid-dist
-forbid-dist:
-	@echo "Sorry; cannot make dist without atf."
-	@false
-endif  # WITH_ATF
 
 PHONY_TARGETS += clean-all
 clean-all:

@@ -27,77 +27,69 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import cli
+shtk_import unittest
 
 
 # Saves the original value of argv[0] for testing purposes.
 _Original_Arg0="${0}"
 
 
-atf_test_case dirname
-dirname_body() {
-    atf_check_equal "$(dirname "${_Original_Arg0}")" "$(shtk_cli_dirname)"
+shtk_unittest_add_test dirname
+dirname_test() {
+    expect_equal "$(dirname "${_Original_Arg0}")" "$(shtk_cli_dirname)"
 }
 
 
-atf_test_case progname
-progname_body() {
-    atf_check_equal "$(basename "${_Original_Arg0}")" "$(shtk_cli_progname)"
+shtk_unittest_add_test progname
+progname_test() {
+    expect_equal "$(basename "${_Original_Arg0}")" "$(shtk_cli_progname)"
 }
 
 
-atf_test_case error
-error_body() {
-    if ( shtk_cli_error "This is" "a message"; echo "not seen" ) >out 2>err
-    then
-        atf_fail "shtk_cli_error did not exit with an error"
-    else
-        grep "cli_test: E: This is a message" err >/dev/null \
-            || atf_fail "Expected error message not found"
-        [ ! -s out ] || atf_fail "Unexpected output in stdout"
-    fi
+shtk_unittest_add_test error
+error_test() {
+    subtest() {
+        shtk_cli_error "This is" "a message"
+        echo "not seen"
+    }
+    expect_command -s exit:1 \
+        -e inline:"cli_test: E: This is a message\n" subtest
 }
 
 
-atf_test_case info
-info_body() {
-    ( shtk_cli_info "This is" "a message"; echo "continuing" ) >out 2>err
-    grep "cli_test: I: This is a message" err >/dev/null \
-        || atf_fail "Expected info message not found"
-    grep "continuing" out >/dev/null || atf_fail "Execution aborted"
+shtk_unittest_add_test info
+info_test() {
+    subtest() {
+        shtk_cli_info "This is" "a message"
+        echo "continuing"
+    }
+    expect_command -s exit:0 \
+        -o inline:"continuing\n" \
+        -e inline:"cli_test: I: This is a message\n" subtest
 }
 
 
-atf_test_case usage_error
-usage_error_body() {
-    if ( shtk_cli_usage_error "This is" "a message"; echo "not seen" ) >out 2>err
-    then
-        atf_fail "shtk_cli_usage_error did not exit with an error"
-    else
-        grep "cli_test: E: This is a message" err >/dev/null \
-            || atf_fail "Expected error message not found"
-        grep "Type 'man cli_test' for help" err >/dev/null \
-            || atf_fail "Expected instructional message not found"
-        [ ! -s out ] || atf_fail "Unexpected output in stdout"
-    fi
+shtk_unittest_add_test usage_error
+usage_error_test() {
+    subtest() {
+        shtk_cli_usage_error "This is" "a message"
+        echo "not seen"
+    }
+    cat >experr <<EOF
+cli_test: E: This is a message
+Type 'man cli_test' for help
+EOF
+    expect_command -s exit:1 -e file:experr subtest
 }
 
 
-atf_test_case warning
-warning_body() {
-    ( shtk_cli_warning "This is" "a message"; echo "continuing" ) >out 2>err
-    grep "cli_test: W: This is a message" err >/dev/null \
-        || atf_fail "Expected info message not found"
-    grep "continuing" out >/dev/null || atf_fail "Execution aborted"
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case dirname
-    atf_add_test_case progname
-
-    atf_add_test_case error
-    atf_add_test_case info
-    atf_add_test_case warning
-
-    atf_add_test_case usage_error
+shtk_unittest_add_test warning
+warning_test() {
+    subtest() {
+        shtk_cli_warning "This is" "a message"
+        echo "continuing"
+    }
+    expect_command -s exit:0 \
+        -o inline:"continuing\n" \
+        -e inline:"cli_test: W: This is a message\n" subtest
 }

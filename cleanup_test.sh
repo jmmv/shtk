@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shtk_import cleanup
+shtk_import unittest
 
 
 # Installs a cleanup handler and validates execution on exit.
@@ -49,21 +50,21 @@ do_register_exit_test() {
         fi
     ) >out 2>err || failed="${?}"
     [ ${failed} = ${exitcode} ] \
-        || atf_fail "Cleanup handler didn't respect exit code"
+        || fail "Cleanup handler didn't respect exit code"
 
-    atf_check -o inline:"before exiting\nin the handler\n" cat out
-    atf_check -o empty cat err
+    expect_command -o inline:"before exiting\nin the handler\n" cat out
+    expect_command -o empty cat err
 }
 
 
-atf_test_case register__exit_success
-register__exit_success_body() {
+shtk_unittest_add_test register__exit_success
+register__exit_success_test() {
     do_register_exit_test 0
 }
 
 
-atf_test_case register__exit_failure
-register__exit_failure_body() {
+shtk_unittest_add_test register__exit_failure
+register__exit_failure_test() {
     do_register_exit_test 56
 }
 
@@ -93,33 +94,33 @@ main() {
     echo 'after signal'
 }
 EOF
-    atf_check shtk build script.sh
+    expect_command shtk build script.sh
 
-    atf_check -s "signal:${lowercase_name}" \
+    expect_command -s "signal:${lowercase_name}" \
         -o inline:"before signal\nin the handler\n" -e empty ./script
 }
 
 
-atf_test_case register__sighup
-register__sighup_body() {
+shtk_unittest_add_test register__sighup
+register__sighup_test() {
     do_register_signal_test HUP hup
 }
 
 
-atf_test_case register__sigint
-register__sigint_body() {
+shtk_unittest_add_test register__sigint
+register__sigint_test() {
     do_register_signal_test INT int
 }
 
 
-atf_test_case register__sigterm
-register__sigterm_body() {
+shtk_unittest_add_test register__sigterm
+register__sigterm_test() {
     do_register_signal_test TERM term
 }
 
 
-atf_test_case register__many
-register__many_body() {
+shtk_unittest_add_test register__many
+register__many_test() {
     local failed=0
     (
         handler1() { echo 'first'; }
@@ -130,18 +131,8 @@ register__many_body() {
         exit 72
         echo 'after exiting'
     ) >out 2>err || failed="${?}"
-    [ ${failed} = 72 ] || atf_fail "Cleanup handler didn't respect exit code"
+    [ ${failed} = 72 ] || fail "Cleanup handler didn't respect exit code"
 
-    atf_check -o inline:"before exiting\nfirst\nsecond\nthird\n" cat out
-    atf_check -o empty cat err
-}
-
-
-atf_init_test_cases() {
-    atf_add_test_case register__exit_success
-    atf_add_test_case register__exit_failure
-    atf_add_test_case register__sighup
-    atf_add_test_case register__sigint
-    atf_add_test_case register__sigterm
-    atf_add_test_case register__many
+    expect_command -o inline:"before exiting\nfirst\nsecond\nthird\n" cat out
+    expect_command -o empty cat err
 }

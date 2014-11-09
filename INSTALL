@@ -37,7 +37,6 @@ Optionally, if you want to build and run the tests (recommended), you
 need:
 
 * pkg-config.
-* ATF 0.17 or greater.
 * Kyua 0.6 or greater.
 
 If you are building shtk from the code on the repository, you will also
@@ -60,15 +59,6 @@ Makefile.am or any of the other build system files.  To do this, simply
 run:
 
     $ autoreconf -i -s
-
-If ATF is installed in a different prefix than Autoconf, you will also
-need to tell autoreconf where the ATF M4 macros are located.  Otherwise,
-the configure script will be incomplete and will show confusing syntax
-errors mentioning, for example, ATF_CHECK_SH.  To fix this, you have
-to run autoreconf in the following manner, replacing '<atf-prefix>' with
-the appropriate path:
-
-    $ autoreconf -i -s -I <atf-prefix>/share/aclocal
 
 
 General build procedure
@@ -122,33 +112,13 @@ script:
   Specifies the absolute path to the shell interpreter to be used by
   shtk.
 
-The following flags are specific to shtk's 'configure' script:
-
-* --with-atf
-  Possible values: yes, no, auto.
-  Default: auto.
-
-  Enables usage of ATF to build (and later install) the tests.
-
-  Setting this to 'yes' causes the configure script to look for ATF
-  unconditionally and abort if not found.  Setting this to 'auto' lets
-  configure perform the best decision based on availability of ATF.
-  Setting this to 'no' explicitly disables ATF usage.
-
-  When support for tests is enabled, the build process will generate the
-  test programs and will later install them into the tests tree.
-  Running 'make check' or 'make installcheck' from within the source
-  directory will cause these tests to be run with Kyua (assuming it is
-  also installed).
-
 
 Run the tests!
 ==============
 
-Lastly, after a successful installation (and assuming you built the
-sources with support for ATF), you should periodically run the tests
-from the final location to ensure things remain stable.  Do so as
-follows:
+Lastly, after a successful installation (and assuming you have Kyua
+installed in your system), you should periodically run the tests from
+the final location to ensure things remain stable.  Do so as follows:
 
     $ kyua test -k /usr/local/tests/shtk/Kyuafile
 

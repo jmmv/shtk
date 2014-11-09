@@ -444,6 +444,16 @@ EOF
     }
 
 
+    shtk_unittest_add_test usage_error_due_to_unknown_arguments
+    usage_error_due_to_unknown_arguments_test() {
+        ( shtk_unittest_main foo >out 2>err ) \
+            && fail "main did not error out on syntax error"
+        expect_file stdin err <<EOF
+unittest_test: E: No command-line arguments allowed
+EOF
+    }
+
+
     shtk_unittest_add_test no_tests_error
     no_tests_error_test() {
         ( shtk_unittest_main >out 2>err ) \

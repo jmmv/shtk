@@ -29,34 +29,6 @@
 shtk_import unittest
 
 
-# Checks that the given file matches some golden contents.
-#
-# \param file Name of the file to be checked.
-# \param ... If present, the textual contents to expect; if not present, the
-#     golden data is read from stdin.
-#
-# \post Fails the calling test if the file contents do not match.
-assert_file_contents() {
-    local file="${1}"; shift
-
-    if [ ${#} -gt 0 ]; then
-        if [ -z "${*}" ]; then
-            rm -f expected
-            touch expected
-        else
-            echo "${@}" >expected
-        fi
-    else
-        cat >expected
-    fi
-
-    if ! cmp -s expected "${file}"; then
-        diff -u expected "${file}"
-        fail "Contents of ${file} do not match golden contents"
-    fi
-}
-
-
 shtk_unittest_add_fixture add_fixture
 add_fixture_fixture() {
     shtk_unittest_add_test default_methods
@@ -66,8 +38,7 @@ add_fixture_fixture() {
 
         ( first_fixture >out 2>err ) \
             && fail "fixture method not properly defined"
-        assert_file_contents err \
-            "unittest_test: E: first_fixture not defined"
+        expect_file inline:"unittest_test: E: first_fixture not defined\n" err
     }
 
 
@@ -81,8 +52,8 @@ add_fixture_fixture() {
 
         ( shtk_unittest_add_fixture dup >out 2>err ) \
             && fail "add_fixture did not fail for a duplicate test case"
-        assert_file_contents err \
-            "unittest_test: E: Duplicate test fixture found: dup"
+        expect_file \
+            inline:"unittest_test: E: Duplicate test fixture found: dup\n" err
     }
 }
 
@@ -96,8 +67,7 @@ add_test_fixture() {
 
         ( first_test >out 2>err ) \
             && fail "test method not properly defined"
-        assert_file_contents err \
-            "unittest_test: E: first_test not defined"
+        expect_file inline:"unittest_test: E: first_test not defined\n" err
     }
 
 
@@ -109,8 +79,8 @@ add_test_fixture() {
 
         ( shtk_unittest_add_test dup >out 2>err ) \
             && fail "add_test did not fail for a duplicate test case"
-        assert_file_contents err \
-            "unittest_test: E: Duplicate test case found: dup"
+        expect_file \
+            inline:"unittest_test: E: Duplicate test case found: dup\n" err
     }
 }
 
@@ -121,13 +91,12 @@ delayed_fail_fixture() {
     one_argument_test() {
         ( shtk_unittest_delayed_fail "This is a message"; echo "more stuff" ) \
             >out 2>err || fail "delayed_fail exited prematurely"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 more stuff
 EOF
-        assert_file_contents err <<EOF
-unittest_test: W: Delayed failure: This is a message
-EOF
-        assert_file_contents result.delayed-fail 1
+        expect_file \
+            inline:"unittest_test: W: Delayed failure: This is a message\n" err
+        expect_file inline:"1\n" result.delayed-fail
         rm -f result.delayed-fail
     }
 
@@ -136,13 +105,12 @@ EOF
     argument_concatenation_test() {
         ( shtk_unittest_delayed_fail "One" "more message"; echo "hi" ) \
             >out 2>err || fail "delayed_fail exited prematurely"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 hi
 EOF
-        assert_file_contents err <<EOF
-unittest_test: W: Delayed failure: One more message
-EOF
-        assert_file_contents result.delayed-fail 1
+        expect_file \
+            inline:"unittest_test: W: Delayed failure: One more message\n" err
+        expect_file inline:"1\n" result.delayed-fail
         rm -f result.delayed-fail
     }
 
@@ -155,15 +123,15 @@ EOF
             shtk_unittest_delayed_fail "This is another message";
             echo "exiting"
         ) >out 2>err || fail "delayed_fail exited prematurely"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 more stuff
 exiting
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: W: Delayed failure: This is a message
 unittest_test: W: Delayed failure: This is another message
 EOF
-        assert_file_contents result.delayed-fail 2
+        expect_file inline:"2\n" result.delayed-fail
         rm -f result.delayed-fail
     }
 
@@ -181,8 +149,8 @@ EOF
         else
             rm -f result.expect-fail
         fi
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: E: delayed_fail does not support expected failures
 EOF
         [ ! -f result.delayed-fail ] || fail "Found delayed_fail cookie"
@@ -196,10 +164,8 @@ fail_fixture() {
     one_argument_test() {
         ( shtk_unittest_fail "This is a message" >out 2>err ) \
             && fail "fail did not exit with an error"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
-unittest_test: E: This is a message
-EOF
+        expect_file empty out
+        expect_file inline:"unittest_test: E: This is a message\n" err
     }
 
 
@@ -207,10 +173,8 @@ EOF
     argument_concatenation_test() {
         ( shtk_unittest_fail "This is" "another message" >out 2>err ) \
             && fail "fail did not exit with an error"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
-unittest_test: E: This is another message
-EOF
+        expect_file empty out
+        expect_file inline:"unittest_test: E: This is another message\n" err
     }
 
 
@@ -227,10 +191,8 @@ EOF
         else
             rm -f result.expect-fail
         fi
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
-unittest_test: E: Expected failure: Some text
-EOF
+        expect_file empty out
+        expect_file inline:"unittest_test: E: Expected failure: Some text\n" err
     }
 }
 
@@ -250,10 +212,10 @@ main_fixture() {
 
         ( shtk_unittest_main >out 2>err ) \
             || fail "main returned failure but all tests were supposed to pass"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 first passes
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Ran 1 tests; ALL PASSED
@@ -268,7 +230,7 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             && fail "main returned success but all tests were supposed to fail"
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: E: first fails
 unittest_test: W: Testing first... FAILED
@@ -288,11 +250,11 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             || fail "main returned failure but all tests were supposed to pass"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 first passes
 third passes
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -318,11 +280,11 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             && fail "main returned success but some tests were supposed to fail"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 first passes
 fourth passes
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -358,7 +320,7 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             || fail "main returned failure but all tests were supposed to pass"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 first passes
 second passes
 Fixture setup
@@ -368,7 +330,7 @@ Fixture setup
 other within third passes
 Fixture teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -402,7 +364,7 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             && fail "main returned success but some tests were supposed to fail"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 first passes
 Fixture setup
 Fixture teardown
@@ -410,7 +372,7 @@ Fixture setup
 other within third passes
 Fixture teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -441,8 +403,8 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             || fail "main returned failure but all tests were supposed to pass"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -464,7 +426,7 @@ EOF
 
         ( shtk_unittest_main >out 2>err ) \
             || fail "main returned failure but all tests were supposed to pass"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 setting up
 first test
 still here
@@ -472,7 +434,7 @@ second test
 still here
 tearing down
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing first...
 unittest_test: I: Testing first... PASSED
 unittest_test: I: Testing second...
@@ -486,9 +448,9 @@ EOF
     no_tests_error_test() {
         ( shtk_unittest_main >out 2>err ) \
             && fail "main did not error out on no tests"
-        assert_file_contents err \
-            "unittest_test: E: No test cases defined; did you call" \
-            "shtk_unittest_add_fixture or shtk_unittest_add_test?"
+        expect_file stdin err <<EOF
+unittest_test: E: No test cases defined; did you call shtk_unittest_add_fixture or shtk_unittest_add_test?
+EOF
     }
 }
 
@@ -512,12 +474,12 @@ register_check_fixture() {
             assert_mock "this call" "should pass"
             echo reached
         ) >out 2>err || fail "mock call expected to pass but failed"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Mock called by shtk_unittest_assert_mock
 Mock with arguments: this call should pass
 reached
 EOF
-        assert_file_contents err ""
+        expect_file empty err
     }
 
 
@@ -527,11 +489,11 @@ EOF
             assert_mock fail
             echo reached
         ) >out 2>err && fail "mock call expected to fail but passed"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Mock called by shtk_unittest_assert_mock
 Mock with arguments: fail
 EOF
-        assert_file_contents err "unittest_test: E: Failing test"
+        expect_file inline:"unittest_test: E: Failing test\n" err
     }
 
 
@@ -541,12 +503,12 @@ EOF
             expect_mock "this call" "should pass"
             echo reached
         ) >out 2>err || fail "mock call expected to pass but failed"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Mock called by shtk_unittest_expect_mock
 Mock with arguments: this call should pass
 reached
 EOF
-        assert_file_contents err ""
+        expect_file empty err
     }
 
 
@@ -558,7 +520,7 @@ EOF
             expect_mock fail
             echo reached as well
         ) >out 2>err || fail "mock call expected to pass but failed"
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Mock called by shtk_unittest_expect_mock
 Mock with arguments: fail
 reached
@@ -566,11 +528,11 @@ Mock called by shtk_unittest_expect_mock
 Mock with arguments: fail
 reached as well
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: W: Delayed failure: Failing test
 unittest_test: W: Delayed failure: Failing test
 EOF
-        assert_file_contents result.delayed-fail 2
+        expect_file inline:"2\n" result.delayed-fail
         rm -f result.delayed-fail
     }
 
@@ -588,7 +550,7 @@ EOF
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Mock called by shtk_unittest_expect_mock
 Mock with arguments: fail
 reached
@@ -596,7 +558,7 @@ Mock called by shtk_unittest_expect_mock
 Mock with arguments: fail
 reached as well
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Delayed failure: Failing test
 unittest_test: W: Delayed failure: Failing test
@@ -625,12 +587,12 @@ run_fixture_test_fixture() {
         ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
             || fail "run_fixture reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the setup
 This is the test code
 This is the teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_passes...
 unittest_test: I: Testing container__always_passes... PASSED
 EOF
@@ -652,12 +614,12 @@ EOF
         ( _shtk_unittest_run_fixture_test container always_fails >out 2>err ) \
             && fail "run_fixture reported failure for failing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the setup
 This is the test code
 This is the teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_fails...
 unittest_test: E: Oh noes; exiting
 unittest_test: W: Testing container__always_fails... FAILED
@@ -678,10 +640,10 @@ EOF
         ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
             && fail "run_fixture reported failure for failing setup"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the setup
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_passes...
 unittest_test: W: Testing container__always_passes... FAILED
 EOF
@@ -701,12 +663,12 @@ EOF
         ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
             && fail "run_fixture reported failure for failing teardown"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the setup
 This is the test code
 This is the teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_passes...
 unittest_test: W: Testing container__always_passes... FAILED
 EOF
@@ -727,12 +689,12 @@ EOF
         ( _shtk_unittest_run_fixture_test container should_pass >out 2>err ) \
             || fail "run_fixture reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the setup
 This is the test code
 This is the teardown
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__should_pass...
 unittest_test: I: Testing container__should_pass... PASSED
 EOF
@@ -765,14 +727,14 @@ EOF
         ( _shtk_unittest_run_fixture_test container change_env >out 2>err ) \
             || fail "run_fixture reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 setup enter: empty
 setup exit: setup
 test enter: setup
 test exit: body
 teardown: setup
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__change_env...
 unittest_test: I: Testing container__change_env... PASSED
 EOF
@@ -796,8 +758,8 @@ EOF
         ( _shtk_unittest_run_fixture_test container always_passes >out 2>err ) \
             || fail "run_fixture reported failure for passing test case"
 
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_passes...
 unittest_test: I: Testing container__always_passes... PASSED
 EOF
@@ -808,9 +770,9 @@ EOF
     unregistered_error_test() {
         ( _shtk_unittest_run_fixture_test container not_there >out 2>err ) \
             && fail "run_fixture did not fail for an unregistered test case"
-        assert_file_contents err \
-        "unittest_test: E: Attempting to run unregistered test case"  \
-            "container__not_there"
+        expect_file stdin err <<EOF
+unittest_test: E: Attempting to run unregistered test case container__not_there
+EOF
     }
 }
 
@@ -832,10 +794,10 @@ run_standalone_test_fixture() {
         ( _shtk_unittest_run_standalone_test always_passes >out 2>err ) \
             || fail "run_test reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_passes...
 unittest_test: I: Testing always_passes... PASSED
 EOF
@@ -853,10 +815,10 @@ EOF
         ( _shtk_unittest_run_standalone_test should_pass >out 2>err ) \
             || fail "run_test reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing should_pass...
 unittest_test: I: Testing should_pass... PASSED
 EOF
@@ -874,10 +836,10 @@ EOF
         ( _shtk_unittest_run_standalone_test always_passes >out 2>err ) \
             || fail "run_test reported failure for passing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_passes...
 unittest_test: I: Testing always_passes... PASSED
 EOF
@@ -895,10 +857,10 @@ EOF
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Testing always_fails... FAILED
 EOF
@@ -917,10 +879,10 @@ EOF
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: E: Aborting test
 unittest_test: W: Testing always_fails... FAILED
@@ -939,8 +901,8 @@ EOF
 
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Delayed failure: first delayed failure
 unittest_test: W: Delayed failure: second delayed failure
@@ -961,8 +923,8 @@ EOF
 
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Delayed failure: first delayed failure
 unittest_test: E: fatal failure
@@ -982,8 +944,8 @@ EOF
 
         ( _shtk_unittest_run_standalone_test always_fails >out 2>err ) \
             && fail "run_test reported success for failing test case"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_fails...
 unittest_test: W: Delayed failure: first delayed failure
 unittest_test: W: ignored skip condition
@@ -1003,8 +965,8 @@ EOF
 
         ( _shtk_unittest_run_standalone_test subtest >out 2>err ) \
             || fail "run_test reported failure for passing test case"
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing subtest...
 unittest_test: E: Expected failure: first xfail
 unittest_test: I: Testing subtest... EXPECTED FAILURE
@@ -1022,8 +984,8 @@ EOF
 
         ( _shtk_unittest_run_standalone_test subtest >out 2>err ) \
             && fail "run_test reported success for failing test case"
-        assert_file_contents out "nothing fails"
-        assert_file_contents err <<EOF
+        expect_file inline:"nothing fails\n" out
+        expect_file stdin err <<EOF
 unittest_test: I: Testing subtest...
 unittest_test: W: Expected failure but none found
 unittest_test: W: Testing subtest... FAILED
@@ -1043,10 +1005,10 @@ EOF
         ( _shtk_unittest_run_standalone_test always_skips >out 2>err ) \
             || fail "run_test reported failure for skipped test case"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 This is the test code
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing always_skips...
 unittest_test: W: Good bye
 unittest_test: W: Testing always_skips... SKIPPED
@@ -1061,6 +1023,7 @@ EOF
             local funcs="delayed_fail fail set_expect_failure skip"
             local funcs="${funcs} assert_command expect_command"
             local funcs="${funcs} assert_equal expect_equal"
+            local funcs="${funcs} assert_file expect_file"
             local funcs="${funcs} assert_not_equal expect_not_equal"
 
             for func in ${funcs}; do
@@ -1078,7 +1041,7 @@ EOF
         ( _shtk_unittest_run_standalone_test call_stubs >out 2>err ) \
             || fail "Failed to bring expected functions into the namespace"
 
-        assert_file_contents out <<EOF
+        expect_file stdin out <<EOF
 Calling stubs
 stub for delayed_fail: arguments to the stub
 stub for fail: arguments to the stub
@@ -1088,11 +1051,13 @@ stub for assert_command: arguments to the stub
 stub for expect_command: arguments to the stub
 stub for assert_equal: arguments to the stub
 stub for expect_equal: arguments to the stub
+stub for assert_file: arguments to the stub
+stub for expect_file: arguments to the stub
 stub for assert_not_equal: arguments to the stub
 stub for expect_not_equal: arguments to the stub
 All stubs done
 EOF
-        assert_file_contents err <<EOF
+        expect_file stdin err <<EOF
 unittest_test: I: Testing call_stubs...
 unittest_test: I: Testing call_stubs... PASSED
 EOF
@@ -1103,8 +1068,9 @@ EOF
     unregistered_error_test() {
         ( _shtk_unittest_run_standalone_test not_there >out 2>err ) \
             && fail "run_test did not fail for an unregistered test case"
-        assert_file_contents err \
-        "unittest_test: E: Attempting to run unregistered test case not_there"
+        expect_file stdin err <<EOF
+unittest_test: E: Attempting to run unregistered test case not_there
+EOF
     }
 }
 
@@ -1118,8 +1084,8 @@ skip_fixture() {
             echo "Not reached"
         ) || fail "skip exited with an error"
         rm result.skipped
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: W: This is a message
 EOF
     }
@@ -1132,8 +1098,8 @@ EOF
             echo "Not reached"
         ) || fail "skip exited with an error"
         rm result.skipped
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: W: This is another message
 EOF
     }
@@ -1152,8 +1118,8 @@ EOF
         else
             rm -f result.expect-fail
         fi
-        assert_file_contents out ""
-        assert_file_contents err <<EOF
+        expect_file empty out
+        expect_file stdin err <<EOF
 unittest_test: E: Attempted to skip a test while expecting a failure
 EOF
     }

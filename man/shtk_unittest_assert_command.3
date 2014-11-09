@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 8, 2014
+.Dd November 9, 2014
 .Dt SHTK_UNITTEST_ASSERT_COMMAND 3
 .Os
 .Sh NAME
@@ -100,34 +100,8 @@ empty.
 .Pp
 The valid values for
 .Ar output_spec
-are of the form:
-.Bl -tag -offset indent -width XXXX
-.It Ar empty
-The output must be empty.
-.It Ar not-empty
-The output must not be empty.
-.It Ar ignore
-The contents of the output are irrelevant.
-.It Ar file:\*(Ltpath\*(Gt
-The contents of the output must match the contents of the file
-.Pa path .
-.It Ar inline:\*(Lttext\*(Gt
-The contents of the output must match the inline contents provided in
-.Pa text .
-Note that
-.Pa text
-can include escape sequences.
-.It Ar match:\*(Ltregexp\*(Gt
-The contents of the output must match the given regular expression in
-.Ar regexp .
-.It Ar not-match:\*(Ltregexp\*(Gt
-The contents of the output must not match the given regular expression in
-.Ar regexp .
-.It Ar save:\*(Ltpath\*(Gt
-The contents of the output are saved to
-.Pa path
-for further inspection by the test case.
-.El
+are the same as the ones described in
+.Xr shtk_unittest_assert_file 3 .
 .Sh EXAMPLES
 In the simplest form,
 .Nm

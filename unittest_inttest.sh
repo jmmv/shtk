@@ -417,6 +417,172 @@ EOF
 }
 
 
+assert_file__ok() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    touch actual
+    assert_file empty actual
+
+    echo "foo" >>actual
+    echo "bar" >>actual
+    assert_file not-empty actual
+
+    assert_file inline:"foo\nbar\n" actual
+
+    assert_file file:actual actual
+    assert_file stdin actual <actual
+
+    echo "reached"
+}
+EOF
+
+    cat >expout <<EOF
+reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: I: Testing first... PASSED
+program: I: Ran 1 tests; ALL PASSED
+EOF
+
+    check 0 expout experr ./program || return 1
+}
+
+
+assert_file__fail() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    touch actual
+    assert_file not-empty actual
+    echo reached
+}
+
+shtk_unittest_add_test second
+second_test() {
+    echo "foo" >actual
+    assert_file empty actual
+    echo reached
+}
+
+shtk_unittest_add_test third
+third_test() {
+    echo "foo" >actual
+    assert_file match:"foobar" actual
+    echo reached
+}
+EOF
+
+    cat >expout <<EOF
+Expected actual to not be empty
+Expected actual to be empty; found:
+foo
+Expected regexp 'foobar' not found in actual:
+foo
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: E: Failed to validate contents of file actual
+program: W: Testing first... FAILED
+program: I: Testing second...
+program: E: Failed to validate contents of file actual
+program: W: Testing second... FAILED
+program: I: Testing third...
+program: E: Failed to validate contents of file actual
+program: W: Testing third... FAILED
+program: W: Ran 3 tests; 3 FAILED
+EOF
+
+    check 1 expout experr ./program || return 1
+}
+
+
+expect_file__ok() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    touch actual
+    expect_file empty actual
+
+    echo "foo" >>actual
+    echo "bar" >>actual
+    expect_file not-empty actual
+
+    expect_file inline:"foo\nbar\n" actual
+
+    expect_file file:actual actual
+    expect_file stdin actual <actual
+
+    echo "reached"
+}
+EOF
+
+    cat >expout <<EOF
+reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: I: Testing first... PASSED
+program: I: Ran 1 tests; ALL PASSED
+EOF
+
+    check 0 expout experr ./program || return 1
+}
+
+
+expect_file__fail() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test first
+first_test() {
+    touch actual
+    expect_file not-empty actual
+
+    echo "foo" >>actual
+    echo "bar" >>actual
+    expect_file empty actual
+
+    expect_file match:foobar actual
+
+    echo "reached"
+}
+EOF
+
+    cat >expout <<EOF
+Expected actual to not be empty
+Expected actual to be empty; found:
+foo
+bar
+Expected regexp 'foobar' not found in actual:
+foo
+bar
+reached
+EOF
+
+    cat >experr <<EOF
+program: I: Testing first...
+program: W: Delayed failure: Failed to validate contents of file actual
+program: W: Delayed failure: Failed to validate contents of file actual
+program: W: Delayed failure: Failed to validate contents of file actual
+program: W: Testing first... FAILED (3 delayed failures)
+program: W: Ran 1 tests; 1 FAILED
+EOF
+
+    check 1 expout experr ./program || return 1
+}
+
+
 main() {
     for name in \
         one_test__always_passes \
@@ -427,7 +593,11 @@ main() {
         assert_command__ok \
         assert_command__fail \
         expect_command__ok \
-        expect_command__fail
+        expect_command__fail \
+        assert_file__ok \
+        assert_file__fail \
+        expect_file__ok \
+        expect_file__fail
     do
         local failed=no
         echo "Running test ${name}"

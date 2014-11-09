@@ -45,6 +45,7 @@ dist_pkgdata_DATA += unittest.subr
 
 unittest_pkgdatadir = $(pkgdatadir)/unittest
 dist_unittest_pkgdata_DATA  = unittest/commands.subr
+dist_unittest_pkgdata_DATA += unittest/files.subr
 dist_unittest_pkgdata_DATA += unittest/operators.subr
 
 pkgdata_DATA = version.subr
@@ -122,10 +123,12 @@ dist_man_MANS += man/shtk_unittest_add_fixture.3
 dist_man_MANS += man/shtk_unittest_add_test.3
 dist_man_MANS += man/shtk_unittest_assert_command.3
 dist_man_MANS += man/shtk_unittest_assert_equal.3
+dist_man_MANS += man/shtk_unittest_assert_file.3
 dist_man_MANS += man/shtk_unittest_assert_not_equal.3
 dist_man_MANS += man/shtk_unittest_delayed_fail.3
 dist_man_MANS += man/shtk_unittest_expect_command.3
 dist_man_MANS += man/shtk_unittest_expect_equal.3
+dist_man_MANS += man/shtk_unittest_expect_file.3
 dist_man_MANS += man/shtk_unittest_expect_not_equal.3
 dist_man_MANS += man/shtk_unittest_fail.3
 dist_man_MANS += man/shtk_unittest_main.3
@@ -228,6 +231,12 @@ CLEANFILES += unittest/commands_test
 EXTRA_DIST += unittest/commands_test.sh
 unittest/commands_test: $(srcdir)/unittest/commands_test.sh shtk
 	$(AM_V_GEN)name=unittest/commands_test; $(BUILD_TEST)
+
+unittest_tests_SCRIPTS += unittest/files_test
+CLEANFILES += unittest/files_test
+EXTRA_DIST += unittest/files_test.sh
+unittest/files_test: $(srcdir)/unittest/files_test.sh shtk
+	$(AM_V_GEN)name=unittest/files_test; $(BUILD_TEST)
 
 unittest_tests_SCRIPTS += unittest/operators_test
 CLEANFILES += unittest/operators_test

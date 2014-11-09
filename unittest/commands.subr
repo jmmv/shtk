@@ -96,9 +96,9 @@ _shtk_unittest_check_command() {
     if _shtk_unittest_check_exit_code "${wrapper}" "${expected_exit_code}" \
         "${actual_exit_code}"
     then
-        _shtk_unittest_check_file "${wrapper}" "${expected_stdout}" \
+        _shtk_unittest_check_file "${wrapper}" false "${expected_stdout}" \
             "${actual_stdout}" || failed=yes
-        _shtk_unittest_check_file "${wrapper}" "${expected_stderr}" \
+        _shtk_unittest_check_file "${wrapper}" false "${expected_stderr}" \
             "${actual_stderr}" || failed=yes
     else
         # If the exit code check fails, we do not bother checking the output
@@ -197,110 +197,6 @@ _shtk_unittest_check_exit_code() {
         *)
             shtk_cli_error "Invalid exit code check specification in" \
                 "${wrapper}; got ${spec}"
-            ;;
-    esac
-}
-
-
-# Verifies if a file conforms to a specification.
-#
-# This is a helper function for _shtk_unittest_check_command only and should not
-# be seen as generic.  This is why, for example, this also handles the "save"
-# specification which, strictly speaking, is not a verification; it is an
-# action.
-#
-# wrapper: Name of the calling function for error reporting purposes.
-# spec: The expectations that the file must match.
-# path: The file to be checked.
-#
-# Returns true if the file matches the specification; false otherwise.
-#
-# Errors out if the specification is broken or if some other unexpected
-# error (like missing files) is detected.
-_shtk_unittest_check_file() {
-    local wrapper="${1}"; shift
-    local spec="${1}"; shift
-    local path="${1}"; shift
-
-    if [ ! -e "${path}" ]; then
-        shtk_cli_warning "Cannot find ${path} in call to ${wrapper}"
-        return 1
-    fi
-
-    case "${spec}" in
-        empty)
-            if [ -s "${path}" ]; then
-                echo "Expected ${path} to be empty; found:"
-                cat "${path}"
-                false
-            fi
-            ;;
-
-        ignore)
-            ;;
-
-        file:*)
-            local golden_file="$(echo "${spec}" | cut -d : -f 2-)"
-            [ -e "${golden_file}" ] || shtk_cli_error "Cannot find golden" \
-                "file ${golden_file} given to ${wrapper}"
-            if ! cmp -s "${path}" "${golden_file}"; then
-                echo "${path} did not match golden contents:"
-                diff -u "${golden_file}" "${path}"
-                false
-            fi
-            ;;
-
-        inline:*)
-            local golden_file="${wrapper}.inline"
-            # Use printf instead of echo because it has more predictable
-            # behavior when evaluating escape sequences.
-            printf "$(printf "%s\n" "${spec}" | cut -d : -f 2-)" \
-                >"${golden_file}"
-            if ! cmp -s "${path}" "${golden_file}"; then
-                echo "${path} did not match golden contents:"
-                diff -u "${golden_file}" "${path}"
-                rm -f "${golden_file}"
-                false
-            else
-                rm -f "${golden_file}"
-            fi
-            ;;
-
-        match:*)
-            local match_regexp="$(echo "${spec}" | cut -d : -f 2-)"
-            if ! grep -E "${match_regexp}" "${path}" >/dev/null; then
-                echo "Expected regexp '${match_regexp}' not found in ${path}:"
-                cat "${path}"
-                false
-            fi
-            ;;
-
-        not-empty)
-            if [ ! -s "${path}" ]; then
-                echo "Expected ${path} to not be empty"
-                false
-            fi
-            ;;
-
-        not-match:*)
-            local match_regexp="$(echo "${spec}" | cut -d : -f 2-)"
-            if grep -E "${match_regexp}" "${path}" >/dev/null; then
-                echo "Expected regexp '${match_regexp}' found in ${path}:"
-                cat "${path}"
-                false
-            fi
-            ;;
-
-        save:*)
-            local output_file="$(echo "${spec}" | cut -d : -f 2-)"
-            cp "${path}" "${output_file}" 2>/dev/null \
-                || shtk_cli_error "Failed to save output to ${output_file} in" \
-                "call to ${wrapper}"
-            ;;
-
-        *)
-            shtk_cli_error "Invalid file check specification in ${wrapper};" \
-                "got ${spec}"
             ;;
     esac
 }

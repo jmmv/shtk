@@ -218,7 +218,7 @@ set_fixture() {
     unknown_variable_test() {
         expect_command -s exit:1 \
             -e match:"Unknown configuration variable TESTVAR2" \
-            shtk_config_set TESTVAR2
+            shtk_config_set TESTVAR2 some-value
     }
 }
 

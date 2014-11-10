@@ -30,6 +30,46 @@ shtk_import cli
 #shtk_import unittest  # unittest imports us, so we can assume it is present.
 
 
+# Executes the command given to _shtk_unittest_check_command.
+#
+# This function takes the exact same flags as the caller function and, after
+# discarding them, proceeds to execute the remaining command.  The command is
+# executed verbatim.
+#
+# We need this helper function because the caller needs to iterate over the list
+# of flags several times, and the only way to do this safely without mangling
+# any spaces or special characters in them, is to leave the arguments intact in
+# the original "${@}".  Therefore, we cannot execute the "shift" in the caller
+# function.
+#
+# Lastly, because we want to log the invoked command but not any of the checks
+# performed, we have to do the logging here.  For this reason, the actual_stdout
+# and actual_stderr arguments carry the path to the output files in which the
+# output of the command will be stored.
+#
+# Returns the exit code of the executed command.
+_shtk_unittest_check_command_do_run() {
+    local actual_stdout="${1}"; shift
+    local actual_stderr="${1}"; shift
+
+    local OPTIND
+    while getopts ':e:o:s:' arg "${@}"; do
+        case "${arg}" in
+            e)  ;;
+            o)  ;;
+            s)  ;;
+            \?) shtk_cli_error "getopts list out of sync; internal error" ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+    OPTIND=1  # Should not be necessary due to the 'local' above.
+
+    echo "Running checked command: ${*}"
+
+    "${@}" >"${actual_stdout}" 2>"${actual_stderr}"
+}
+
+
 # Runs a command and checks its status.
 #
 # Note that this function supports both external commands and builtin commands
@@ -49,65 +89,87 @@ _shtk_unittest_check_command() {
     local wrapper="${1}"; shift
     local fail_function="${1}"; shift
 
-    # TODO(jmmv): Add support for more than one checker of each kind.  This is
-    # tricky because of the possibility of having spaces in them, so we cannot
-    # just accumulate them all into a single variable.  We probably need a
-    # separate "vector"-management module to implement vectors using individual
-    # variables for each element...
-    local expected_exit_code=0
-    local expected_stdout=empty
-    local expected_stderr=empty
-
+    # First pass through the options: make sure they are valid.
     local OPTIND
     while getopts ':e:o:s:' arg "${@}"; do
         case "${arg}" in
-            e)  # Expected stderr behavior.
-                # TODO(jmmv): Validate argument early.
-                expected_stderr="${OPTARG}"
-                ;;
-
-            o)  # Expected stdout behavior.
-                # TODO(jmmv): Validate argument early.
-                expected_stdout="${OPTARG}"
-                ;;
-
-            s)  # Expected exit code.
-                # TODO(jmmv): Validate argument early.
-                expected_exit_code="${OPTARG}"
-                ;;
-
-            \?)
-                shtk_cli_error "Invalid option -${OPTARG} to ${wrapper}"
-                ;;
+            # TODO(jmmv): Might be nice to validate argument values early.
+            e)  ;;
+            o)  ;;
+            s)  ;;
+            \?) shtk_cli_error "Invalid option -${OPTARG} to ${wrapper}" ;;
         esac
     done
-    shift $((${OPTIND} - 1))
+    local last_arg="${OPTIND}"
     OPTIND=1  # Should not be necessary due to the 'local' above.
 
     local actual_stdout="standard output"
     local actual_stderr="standard error"
 
-    echo "Running checked command: ${*}"
-
-    ( "${@}" ) >"${actual_stdout}" 2>"${actual_stderr}"
+    ( _shtk_unittest_check_command_do_run \
+        "${actual_stdout}" "${actual_stderr}" "${@}" )
     local actual_exit_code="${?}"
 
     local failed=no
-    if _shtk_unittest_check_exit_code "${wrapper}" "${expected_exit_code}" \
-        "${actual_exit_code}"
-    then
-        _shtk_unittest_check_file "${wrapper}" false "${expected_stdout}" \
-            "${actual_stdout}" || failed=yes
-        _shtk_unittest_check_file "${wrapper}" false "${expected_stderr}" \
-            "${actual_stderr}" || failed=yes
-    else
-        # If the exit code check fails, we do not bother checking the output
+
+    # Second pass through the options: execute any given -s checks.
+    local exit_code_done=no
+    while getopts ':e:o:s:' arg "${@}"; do
+        case "${arg}" in
+            e)  ;;
+            o)  ;;
+            s)  # Expected exit code.
+                _shtk_unittest_check_exit_code "${wrapper}" "${OPTARG}" \
+                    "${actual_exit_code}" || failed=yes
+                exit_code_done=yes
+                ;;
+            \?) shtk_cli_error "getopts list out of sync; internal error" ;;
+        esac
+    done
+    OPTIND=1  # Should not be necessary due to the 'local' above.
+    if [ "${exit_code_done}" = no ]; then
+        _shtk_unittest_check_exit_code "${wrapper}" exit:0 \
+            "${actual_exit_code}" || failed=yes
+    fi
+
+    if [ "${failed}" = yes ]; then
+        # If the exit code checks fail, we do not bother checking the output
         # according to the user specifications.  Dumping the raw output of the
         # command is better for troubleshooting purposes.
         sed -e "s,^,stdout: ," "${actual_stdout}"
         sed -e "s,^,stderr: ," "${actual_stderr}"
-        failed=yes
+    else
+        local stdout_done=no stderr_done=no
+
+        # Third pass through the options: execute any given -o and -e checks.
+        while getopts ':e:o:s:' arg "${@}"; do
+            case "${arg}" in
+                e)  # Expected stderr behavior.
+                    _shtk_unittest_check_file "${wrapper}" false "${OPTARG}" \
+                        "${actual_stderr}" || failed=yes
+                    stderr_done=yes
+                    ;;
+                o)  # Expected stdout behavior.
+                    _shtk_unittest_check_file "${wrapper}" false "${OPTARG}" \
+                        "${actual_stdout}" || failed=yes
+                    stdout_done=yes
+                    ;;
+                s)  ;;
+            \?) shtk_cli_error "getopts list out of sync; internal error" ;;
+            esac
+        done
+        OPTIND=1  # Should not be necessary due to the 'local' above.
+        if [ "${stdout_done}" = no ]; then
+            _shtk_unittest_check_file "${wrapper}" false \
+                empty "${actual_stdout}" || failed=yes
+        fi
+        if [ "${stderr_done}" = no ]; then
+            _shtk_unittest_check_file "${wrapper}" false \
+                empty "${actual_stderr}" || failed=yes
+        fi
     fi
+
+    shift $((${last_arg} - 1))
     [ "${failed}" = no ] || \
         "${fail_function}" "Check of '${*}' failed; see stdout for details"
 }

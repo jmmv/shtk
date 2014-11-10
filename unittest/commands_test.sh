@@ -162,6 +162,26 @@ EOF
     }
 
 
+    shtk_unittest_add_test overrides__pass_repeated_specs
+    overrides__pass_repeated_specs_test() {
+        cat >command.sh <<EOF
+echo "this is the output"
+echo "this is the error" 1>&2
+exit 23
+EOF
+        ( shtk_unittest_assert_command \
+            -e match:"error" -e match:"this is" \
+            -o match:"the output" -o not-match:"foo bar" \
+            -s exit:23 -s not-exit:25 \
+            sh ./command.sh \
+            >out 2>err ) || fail "Failed to validate passing command"
+        expect_file stdin out <<EOF
+Running checked command: sh ./command.sh
+EOF
+        expect_file empty err
+    }
+
+
     shtk_unittest_add_test overrides__fail_all_specs
     overrides__fail_all_specs_test() {
         cat >command.sh <<EOF
@@ -184,6 +204,29 @@ EOF
     }
 
 
+    shtk_unittest_add_test overrides__fail_repeated_exit_specs
+    overrides__fail_repeated_exit_specs_test() {
+        cat >command.sh <<EOF
+echo "this is the output"
+echo "this is the error" 1>&2
+exit 23
+EOF
+        ( shtk_unittest_assert_command \
+            -e empty -o match:"not here" -s 20 -s 30 sh ./command.sh \
+            >out 2>err ) && fail "Failed to validate failing command"
+        expect_file stdin out <<EOF
+Running checked command: sh ./command.sh
+Expected exit code 20 != actual exit code 23
+Expected exit code 30 != actual exit code 23
+stdout: this is the output
+stderr: this is the error
+EOF
+        expect_file stdin err <<EOF
+${_Prefix}E: Check of 'sh ./command.sh' failed; see stdout for details
+EOF
+    }
+
+
     shtk_unittest_add_test overrides__fail_output_specs
     overrides__fail_output_specs_test() {
         cat >command.sh <<EOF
@@ -196,10 +239,38 @@ EOF
             >out 2>err ) && fail "Failed to validate failing command"
         expect_file stdin out <<EOF
 Running checked command: sh ./command.sh
+Expected standard error to be empty; found:
+this is the error
+Expected regexp 'not here' not found in standard output:
+this is the output
+EOF
+        expect_file stdin err <<EOF
+${_Prefix}E: Check of 'sh ./command.sh' failed; see stdout for details
+EOF
+    }
+
+
+    shtk_unittest_add_test overrides__fail_repeated_output_specs
+    overrides__fail_repeated_output_specs_test() {
+        cat >command.sh <<EOF
+echo "this is the output"
+echo "this is the error" 1>&2
+exit 20
+EOF
+        ( shtk_unittest_assert_command \
+            -e empty -o match:"not here" -e empty -o match:"not either" \
+            -s 20 sh ./command.sh \
+            >out 2>err ) && fail "Failed to validate failing command"
+        expect_file stdin out <<EOF
+Running checked command: sh ./command.sh
+Expected standard error to be empty; found:
+this is the error
 Expected regexp 'not here' not found in standard output:
 this is the output
 Expected standard error to be empty; found:
 this is the error
+Expected regexp 'not either' not found in standard output:
+this is the output
 EOF
         expect_file stdin err <<EOF
 ${_Prefix}E: Check of 'sh ./command.sh' failed; see stdout for details
@@ -240,7 +311,7 @@ EOF
 
     shtk_unittest_add_test invalid_eflag
     invalid_eflag_test() {
-        ( shtk_unittest_assert_command -e oops \
+        ( shtk_unittest_assert_command -o empty -e oops \
             echo executed >out 2>err ) \
             && fail "Invalid -e argument did not raise an error"
         expect_file stdin out <<EOF

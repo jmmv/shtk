@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 9, 2014
+.Dd November 10, 2014
 .Dt SHTK_UNITTEST_ASSERT_COMMAND 3
 .Os
 .Sh NAME
@@ -56,7 +56,8 @@ by test cases.
 The
 .Fl s
 flag can be used to specify a check on the exit status of the
-.Ar command .
+.Ar command
+and can be given more than one time.
 If this flag is not given, the default is to expect a successful exit;
 in other words, that
 .Ar command
@@ -95,6 +96,8 @@ and
 flags can be used to specify a check on the contents of stdout or
 stderr, respectively, of the
 .Ar command .
+Both flags can be provided more than once to specify complementary checks on
+the output.
 If no checks are specified, the default is to expect the outputs to be
 empty.
 .Pp
@@ -121,6 +124,12 @@ For example, the following variants of the above would now pass:
 .Bd -literal -offset indent
 assert_command -s exit:1 false
 assert_command -o inline:"foo\\n" echo "foo"
+.Ed
+.Pp
+It is OK to specify multiple checks for a single command:
+.Bd -literal -offset indent
+assert_command -s exit:0 -o match:foo -o match:bar -e ignore \\
+    echo "foo bar"
 .Ed
 .Pp
 Built-in functions are also allowed as commands:

@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 9, 2014
+.Dd November 16, 2014
 .Dt SHTK_UNITTEST 3
 .Os
 .Sh NAME
@@ -143,6 +143,24 @@ method, and there should be one or more test cases registered with
 Each test within the fixture is executed independently of each other,
 but the setup and teardown methods (if any) are also executed with
 the test.
+.Ss Test environment
+The runtime engine (usually
+.Xr kyua 1 )
+is responsible for executing the test program under a controlled directory
+and with a sanitized environment.
+.Pp
+However, due to the nature of shell-based test programs,
+.Nm
+creates one extra directory for each test case, and such directory becomes
+the work directory of the test case.
+These directories are all created within the directory in which the test
+program was executed.
+To ensure that any files created by the test case remain within its own
+subdirectory as much as possible, the
+.Va HOME
+and
+.Va TMPDIR
+variables are set to point to the individual test's work directory.
 .Ss One time setup and teardown
 Test programs may optionally define top-level
 .Nm one_time_setup

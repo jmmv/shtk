@@ -1074,6 +1074,28 @@ EOF
     }
 
 
+    shtk_unittest_add_test sanitize_environment
+    sanitize_environment_test() {
+        shtk_unittest_add_test print_env
+        print_env_test() {
+            echo "HOME=${HOME}"
+            echo "TMPDIR=${TMPDIR}"
+        }
+
+        ( _shtk_unittest_run_standalone_test print_env >out 2>err ) \
+            || fail "run_test reported failure for passing test case"
+
+        expect_file stdin out <<EOF
+HOME=$(pwd)/print_env
+TMPDIR=$(pwd)/print_env
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing print_env...
+unittest_test: I: Testing print_env... PASSED
+EOF
+    }
+
+
     shtk_unittest_add_test unregistered_error
     unregistered_error_test() {
         ( _shtk_unittest_run_standalone_test not_there >out 2>err ) \

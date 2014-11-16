@@ -78,6 +78,9 @@ _shtk_unittest_enter_test() {
 
     mkdir "${name}"
     cd "${name}"
+
+    HOME="$(pwd)"; export HOME
+    TMPDIR="$(pwd)"; export TMPDIR
 }
 
 

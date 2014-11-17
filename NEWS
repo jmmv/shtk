@@ -1,7 +1,7 @@
 Changes in version 1.6
 ======================
 
-STILL UNDER DEVELOPMENT; NOT RELEASED YET.
+Released on 2014-11-17.
 
 * Added the unittest module, a framework with which to implement
   robust test programs purely in shell.  This new module supports

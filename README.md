@@ -14,9 +14,9 @@ utility.
 
 ## Download
 
-The latest version of `shtk` is 1.5 and was released on March 16th, 2014.
+The latest version of `shtk` is 1.6 and was released on November 17th, 2014.
 
-Download: [sthk-1.5](../../releases/tag/shtk-1.5).
+Download: [sthk-1.6](../../releases/tag/shtk-1.6).
 
 ## Installation
 

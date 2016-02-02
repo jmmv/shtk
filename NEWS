@@ -3,7 +3,7 @@ Changes in version 1.7
 
 NOT YET RELEASED; STILL UNDER DEVELOPMENT.
 
-* No changes recorded.
+* Fixed option parsing to detect missing arguments to options.
 
 
 Changes in version 1.6

@@ -40,8 +40,13 @@ shtk_process_run() {
                 timeout="${OPTARG}"
                 ;;
 
+            :)
+                shtk_cli_error "Missing argument to option -${OPTARG} in" \
+                    "shtk_process_run"
+                ;;
+
             \?)
-                shtk_cli_error "Invalid option -${OPTARG} to shtk_process_run"
+                shtk_cli_error "Unknown option -${OPTARG} in shtk_process_run"
                 ;;
         esac
     done

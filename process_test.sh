@@ -145,3 +145,23 @@ EOF
     expect_command -s not-exit:0 -o file:expout -e match:"Timer expired" \
         shtk_process_run -t 1 ./helper.sh one two three
 }
+
+
+shtk_unittest_add_test run__missing_argument
+run__missing_argument_test() {
+    cat >experr <<EOF
+process_test: E: Missing argument to option -t in shtk_process_run
+EOF
+    expect_command -s exit:1 -o empty -e file:experr \
+        shtk_process_run -t
+}
+
+
+shtk_unittest_add_test run__unknown_option
+run__unknown_option_test() {
+    cat >experr <<EOF
+process_test: E: Unknown option -Z in shtk_process_run
+EOF
+    expect_command -s exit:1 -o empty -e file:experr \
+        shtk_process_run -Z ls
+}

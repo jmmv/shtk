@@ -94,8 +94,12 @@ shtk_build() {
                 shell="${OPTARG}"
                 ;;
 
+            :)
+                usage_error "Missing argument to option -${OPTARG} in build"
+                ;;
+
             \?)
-                usage_error "Unknown option -${OPTARG}"
+                usage_error "Unknown option -${OPTARG} in build"
                 ;;
         esac
     done

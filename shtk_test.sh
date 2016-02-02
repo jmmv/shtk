@@ -163,6 +163,26 @@ EOF
 }
 
 
+shtk_unittest_add_test build__unknown_option
+build__unknown_option_test() {
+    cat >experr <<EOF
+shtk: E: Unknown option -Z in build
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk build -Z
+}
+
+
+shtk_unittest_add_test build__missing_argument
+build__missing_argument_test() {
+    cat >experr <<EOF
+shtk: E: Missing argument to option -m in build
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk build -m
+}
+
+
 shtk_unittest_add_test version__ok
 version__ok_test() {
     expect_command -s exit:0 -o match:"shtk [0-9]+\.[0-9]+.*" shtk version

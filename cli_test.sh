@@ -46,6 +46,20 @@ progname_test() {
 }
 
 
+shtk_unittest_add_test debug
+debug_test() {
+    subtest() {
+        shtk_cli_debug "This is" "a message"
+        echo "continuing"
+    }
+    expect_command -s exit:0 -o inline:"continuing\n" -e empty subtest
+    _Shtk_Cli_LogLevel=debug
+    expect_command -s exit:0 \
+        -o inline:"continuing\n" \
+        -e inline:"cli_test: D: This is a message\n" subtest
+}
+
+
 shtk_unittest_add_test error
 error_test() {
     subtest() {
@@ -66,6 +80,116 @@ info_test() {
     expect_command -s exit:0 \
         -o inline:"continuing\n" \
         -e inline:"cli_test: I: This is a message\n" subtest
+}
+
+
+write_all_levels() {
+    ( shtk_cli_error "First" ) || true
+    shtk_cli_warning "Second"
+    shtk_cli_info "Third"
+    shtk_cli_debug "Fourth"
+}
+
+
+shtk_unittest_add_test log_level__default
+log_level__default_test() {
+    shtk_cli_log_level error || delayed_fail "error should be shown"
+    shtk_cli_log_level warning || delayed_fail "warning should be shown"
+    shtk_cli_log_level info || delayed_fail "info should be shown"
+    ! shtk_cli_log_level debug || delayed_fail "debug should not be shown"
+
+    cat >expout<<EOF
+cli_test: E: First
+cli_test: W: Second
+cli_test: I: Third
+EOF
+    expect_command -s exit:0 -e file:expout write_all_levels
+}
+
+
+shtk_unittest_add_test log_level__invalid
+log_level__invalid_test() {
+    subtest() {
+        shtk_cli_log_level unknown
+        echo "not reached"
+    }
+    cat >experr <<EOF
+cli_test: E: Invalid log level given to shtk_cli_log_level
+EOF
+    expect_command -s exit:1 -e file:experr subtest
+}
+
+
+shtk_unittest_add_test log_level__set_debug
+log_level__set_debug_test() {
+    shtk_cli_set_log_level debug
+
+    shtk_cli_log_level error || delayed_fail "error should be shown"
+    shtk_cli_log_level warning || delayed_fail "warning should be shown"
+    shtk_cli_log_level info || delayed_fail "info should be shown"
+    shtk_cli_log_level debug || delayed_fail "debug should be shown"
+
+    cat >expout<<EOF
+cli_test: E: First
+cli_test: W: Second
+cli_test: I: Third
+cli_test: D: Fourth
+EOF
+    expect_command -s exit:0 -e file:expout write_all_levels
+}
+
+
+shtk_unittest_add_test log_level__set_error
+log_level__set_error_test() {
+    shtk_cli_set_log_level error
+
+    shtk_cli_log_level error || delayed_fail "error should be shown"
+    ! shtk_cli_log_level warning || delayed_fail "warning should not be shown"
+    ! shtk_cli_log_level info || delayed_fail "info should not be shown"
+    ! shtk_cli_log_level debug || delayed_fail "debug should not be shown"
+
+    cat >expout<<EOF
+cli_test: E: First
+EOF
+    expect_command -s exit:0 -e file:expout write_all_levels
+}
+
+
+shtk_unittest_add_test log_level__set_info
+log_level__set_info_test() {
+    shtk_cli_set_log_level info
+
+    log_level__default_test
+}
+
+
+shtk_unittest_add_test log_level__set_invalid
+log_level__set_invalid_test() {
+    subtest() {
+        shtk_cli_set_log_level unknown
+        echo "not reached"
+    }
+    cat >experr <<EOF
+cli_test: E: Invalid log level given to shtk_cli_set_log_level
+EOF
+    expect_command -s exit:1 -e file:experr subtest
+}
+
+
+shtk_unittest_add_test log_level__set_warning
+log_level__set_warning_test() {
+    shtk_cli_set_log_level warning
+
+    shtk_cli_log_level error || delayed_fail "error should be shown"
+    shtk_cli_log_level warning || delayed_fail "warning should be shown"
+    ! shtk_cli_log_level info || delayed_fail "info should not be shown"
+    ! shtk_cli_log_level debug || delayed_fail "debug should not be shown"
+
+    cat >expout<<EOF
+cli_test: E: First
+cli_test: W: Second
+EOF
+    expect_command -s exit:0 -e file:expout write_all_levels
 }
 
 

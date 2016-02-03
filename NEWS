@@ -3,6 +3,11 @@ Changes in version 1.7
 
 NOT YET RELEASED; STILL UNDER DEVELOPMENT.
 
+* Added the shtk_cli_debug function to log debug-level messages.
+
+* Added the shtk_cli_log_level and shtk_cli_set_log_level functions to
+  query and set the maximum log level.
+
 * Fixed option parsing to detect missing arguments to options.
 
 

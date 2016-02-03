@@ -1,4 +1,4 @@
-.\" Copyright 2014 Google Inc.
+.\" Copyright 2016 Google Inc.
 .\" All rights reserved.
 .\"
 .\" Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,47 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .Dd February 3, 2016
-.Dt SHTK_CLI 3
+.Dt SHTK_CLI_DEBUG 3
 .Os
 .Sh NAME
-.Nm cli
-.Nd Utilities to implement command-line interfaces
+.Nm shtk_cli_debug
+.Nd Prints a debug message
 .Sh LIBRARY
-shtk_import
+shtk_import cli
+.Sh SYNOPSIS
 .Nm
+.Ar message1
+.Op Ar .. messageN
 .Sh DESCRIPTION
 The
 .Nm
-module provides utilities to implement consistent and user-friendly
-command-line interfaces.
+function prints the given debug message to stderr.
+The message can be provided as one or more arguments as depicted by
+.Ar message1
+to
+.Ar messageN ;
+all arguments are concatenated together into a single line.
+.Pp
+The printed message has the following form, where
+.Sq progname
+is determined by
+.Xr shtk_cli_progname 3 :
+.Bd -literal -offset indent
+progname: D: message1 .. messageN
+.Ed
+.Pp
+Debug-level messages are disabled by default and can be enabled with the
+.Xr shtk_cli_set_log_level 3
+function.
+Therefore,
+.Nm
+should be used to report information that is generally useful to debug a
+problem and not appropriate for regular usage.
 .Sh SEE ALSO
 .Xr shtk 3 ,
-.Xr shtk_cli_debug 3 ,
-.Xr shtk_cli_dirname 3 ,
-.Xr shtk_cli_error 3 ,
-.Xr shtk_cli_info 3 ,
-.Xr shtk_cli_log_level 3 ,
-.Xr shtk_cli_progname 3 ,
-.Xr shtk_cli_set_log_level 3 ,
-.Xr shtk_cli_usage_error 3 ,
-.Xr shtk_cli_warning 3
+.Xr shtk_cli 3
 .Sh HISTORY
 .Nm
 first appeared in
 .Nm shtk
-1.0.
+1.7.

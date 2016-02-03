@@ -35,6 +35,10 @@ _Shtk_Cli_DirName="$(dirname "${0}")"
 _Shtk_Cli_ProgName="${0##*/}"
 
 
+# Maximum level of the logging messages to send to stderr.
+_Shtk_Cli_LogLevel=info
+
+
 shtk_cli_dirname() {
     echo "${_Shtk_Cli_DirName}"
 }
@@ -45,23 +49,95 @@ shtk_cli_progname() {
 }
 
 
+shtk_cli_debug() {
+    shtk_cli_log_level debug || return 0
+    echo "${_Shtk_Cli_ProgName}: D: $*" 1>&2
+}
+
+
 shtk_cli_error() {
+    if ! shtk_cli_log_level error; then
+        # Avoid calling shtk_cli_error to not enter an infinite loop.
+        echo "${_Shtk_Cli_ProgName}: E: Internal error;" \
+            "bad _Shtk_Cli_LogLevel ${_Shtk_Cli_LogLevel}" 1>&2
+    fi
+
     echo "${_Shtk_Cli_ProgName}: E: $*" 1>&2
     exit 1
 }
 
 
 shtk_cli_info() {
+    shtk_cli_log_level info || return 0
     echo "${_Shtk_Cli_ProgName}: I: $*" 1>&2
 }
 
 
+shtk_cli_log_level() {
+    local level="${1}"; shift
+
+    case "${level}" in
+        debug)
+            case "${_Shtk_Cli_LogLevel}" in
+                debug) return 0 ;;
+                *) return 1 ;;
+            esac
+            ;;
+
+        error)
+            case "${_Shtk_Cli_LogLevel}" in
+                error|warning|info|debug) return 0 ;;
+                *) return 1 ;;
+            esac
+            ;;
+
+        info)
+            case "${_Shtk_Cli_LogLevel}" in
+                info|debug) return 0 ;;
+                *) return 1 ;;
+            esac
+            ;;
+
+        warning)
+            case "${_Shtk_Cli_LogLevel}" in
+                warning|info|debug) return 0 ;;
+                *) return 1 ;;
+            esac
+            ;;
+
+        *)
+            shtk_cli_error "Invalid log level given to shtk_cli_log_level"
+            ;;
+    esac
+}
+
+
+shtk_cli_set_log_level() {
+    local level="${1}"; shift
+
+    case "${level}" in
+        debug|error|info|warning) _Shtk_Cli_LogLevel="${level}" ;;
+        *)
+            shtk_cli_error "Invalid log level given to shtk_cli_set_log_level"
+            ;;
+    esac
+}
+
+
 shtk_cli_warning() {
+    shtk_cli_log_level warning || return 0
     echo "${_Shtk_Cli_ProgName}: W: $*" 1>&2
 }
 
 
 shtk_cli_usage_error() {
+    if ! shtk_cli_log_level error; then
+        # Avoid calling shtk_cli_error to not exit without displaying the
+        # actual error we want to show.
+        echo "${_Shtk_Cli_ProgName}: E: Internal error;" \
+            "bad _Shtk_Cli_LogLevel ${_Shtk_Cli_LogLevel}" 1>&2
+    fi
+
     echo "${_Shtk_Cli_ProgName}: E: $*" 1>&2
     echo "Type 'man ${_Shtk_Cli_ProgName}' for help" 1>&2
     exit 1

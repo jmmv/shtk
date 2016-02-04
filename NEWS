@@ -10,6 +10,9 @@ NOT YET RELEASED; STILL UNDER DEVELOPMENT.
 
 * Fixed option parsing to detect missing arguments to options.
 
+* Fixed pattern matching in shtk_list_filter so that it supports
+  alternative branches.
+
 
 Changes in version 1.6
 ======================

@@ -267,15 +267,30 @@ KYUA_TEST_CONFIG_FILE = none
 check-local: check-kyua
 PHONY_TARGETS += check-kyua
 check-kyua:
+	@failed=no; \
 	$(CHECK_ENVIRONMENT) $(TESTS_ENVIRONMENT) \
 	    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' test \
-            --kyuafile='$(top_srcdir)/Kyuafile' --build-root='$(top_builddir)'
+	    --kyuafile='$(top_srcdir)/Kyuafile' --build-root='$(top_builddir)' \
+	    || failed=yes; \
+	if [ "$${failed}" = yes ]; then \
+	    $(CHECK_ENVIRONMENT) $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' \
+	        report --results-file='$(abs_top_srcdir)' \
+	        --verbose --results-filter=broken,failed; \
+	    exit 1; \
+	fi
 
 installcheck-local: installcheck-kyua
 PHONY_TARGETS += installcheck-kyua
 installcheck-kyua:
+	@failed=no; \
 	cd $(pkgtestsdir) && $(INSTALLCHECK_ENVIRONMENT) $(TESTS_ENVIRONMENT) \
-	    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' test
+	    $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' test || failed=yes; \
+	if [ "$${failed}" = yes ]; then \
+	    cd $(pkgtestsdir) && $(INSTALLCHECK_ENVIRONMENT) \
+	        $(KYUA) --config='$(KYUA_TEST_CONFIG_FILE)' report \
+	        --verbose --results-filter=broken,failed; \
+	    exit 1; \
+	fi
 else  # HAVE_KYUA
 PHONY_TARGETS += missing-kyua
 missing-kyua:

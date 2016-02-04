@@ -11,6 +11,12 @@ shtk-based scripts are "built" by using the included shtk(1) utility,
 which adds the necessary machinery to the scripts so that they can
 trivially import and use the modular interfaces of shtk.
 
+shtk is known to be compatible with at least bash, dash, pdksh and zsh,
+and continuous integration tests on Travis CI prove this to be the case.
+It is also true that shtk runs on other shells like the native /bin/sh
+interpreter of the BSD systems but, unfortunately, no assurances are
+made in this regard by the continuous integration system.
+
 For further information on the contents of this distribution file,
 please refer to the following other documents:
 

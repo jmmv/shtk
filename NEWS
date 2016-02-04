@@ -3,6 +3,11 @@ Changes in version 1.7
 
 NOT YET RELEASED; STILL UNDER DEVELOPMENT.
 
+* This is the first release with fixes for and confirmed to work with
+  all of bash, dash, pdksh, and zsh.  We now have continuous integration
+  runs for all these interpreters to ensure that this holds true in
+  future releases.
+
 * Added the shtk_cli_debug function to log debug-level messages.
 
 * Added the shtk_cli_log_level and shtk_cli_set_log_level functions to

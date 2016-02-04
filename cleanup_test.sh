@@ -96,8 +96,12 @@ main() {
 EOF
     expect_command shtk build script.sh
 
+    # We need to ignore the stderr here because, depending on the shell,
+    # the stderr may contain a message with the termination reason after
+    # we kill ourselves.  There is no way to suppress that particular
+    # message.
     expect_command -s "signal:${lowercase_name}" \
-        -o inline:"before signal\nin the handler\n" -e empty ./script
+        -o inline:"before signal\nin the handler\n" -e ignore ./script
 }
 
 

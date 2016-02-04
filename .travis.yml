@@ -2,12 +2,8 @@ before_install:
     - ./admin/travis-install-deps.sh
 
 env:
-    - AS_ROOT=no EXTRA_PACKAGES=
-    - AS_ROOT=no EXTRA_PACKAGES=cvs
-    - AS_ROOT=yes UNPRIVILEGED_USER=no EXTRA_PACKAGES=
-    - AS_ROOT=yes UNPRIVILEGED_USER=no EXTRA_PACKAGES=cvs
-    - AS_ROOT=yes UNPRIVILEGED_USER=yes EXTRA_PACKAGES=
-    - AS_ROOT=yes UNPRIVILEGED_USER=yes EXTRA_PACKAGES=cvs
+    - EXTRA_PACKAGES=
+    - EXTRA_PACKAGES=cvs
 
 script:
     - ./admin/travis-build.sh

@@ -31,7 +31,7 @@ The latest version of shtk is 1.6 and was released on November 17th, 2014.
 
 Download: [sthk-1.6](../../releases/tag/shtk-1.6).
 
-See the [release notes](NEWS) for information about the changes in this
+See the [release notes](NEWS.md) for information about the changes in this
 and all previous releases.
 
 
@@ -48,7 +48,7 @@ wherever available:
 
 Should you want to build and install shtk from the source tree provided in
 this repository, follow the instructions in the
-[INSTALL file](INSTALL).
+[INSTALL.md file](INSTALL.md).
 
 
 Documentation

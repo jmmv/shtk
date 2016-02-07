@@ -28,9 +28,9 @@
 
 PHONY_TARGETS =
 
-doc_DATA = AUTHORS COPYING NEWS README
-noinst_DATA = INSTALL README
-EXTRA_DIST = $(doc_DATA) INSTALL README man/README
+doc_DATA = AUTHORS COPYING NEWS.md README.md
+noinst_DATA = INSTALL.md README.md
+EXTRA_DIST = $(doc_DATA) INSTALL.md README.md man/README
 
 dist_pkgdata_DATA  = base.subr
 dist_pkgdata_DATA += bool.subr
@@ -299,6 +299,19 @@ missing-kyua:
 check-local: missing-kyua
 installcheck-local: missing-kyua
 endif  # HAVE_KYUA
+
+# Replace Automake's builtin check-news functionality so that we can validate
+# the NEWS.md file instead of NEWS.
+dist-hook: check-news
+PHONY_TARGETS += check-news
+check-news:
+	@case "$$(sed 15q "$(srcdir)/NEWS.md")" in \
+	*"$(VERSION)"*) : ;; \
+	*) \
+	    echo "NEWS.md not updated; not releasing" 1>&2; \
+	    exit 1 \
+	    ;; \
+	esac
 
 PHONY_TARGETS += clean-all
 clean-all:

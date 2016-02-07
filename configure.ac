@@ -37,7 +37,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SRCDIR([shtk.sh])
 
 
-AM_INIT_AUTOMAKE([1.9 check-news foreign subdir-objects -Wall])
+AM_INIT_AUTOMAKE([1.9 foreign subdir-objects -Wall])
 
 
 AC_PROG_LN_S

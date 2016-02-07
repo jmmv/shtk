@@ -40,7 +40,7 @@ shtk_import cli
 # wrapper: Name of the calling function for error reporting purposes.
 # fail_function: Name of the function to use to report a failure.
 # spec: The expectations that the file must match.
-# path: The file to be checked.
+# file: The file to be checked.
 #
 # Returns true if the file matches the specification; false otherwise.
 #
@@ -50,19 +50,19 @@ _shtk_unittest_check_file() {
     local wrapper="${1}"; shift
     local fail_function="${1}"; shift
     local spec="${1}"; shift
-    local path="${1}"; shift
+    local file="${1}"; shift
 
-    if [ ! -e "${path}" ]; then
-        "${fail_function}" "Cannot find ${path} in call to ${wrapper}"
+    if [ ! -e "${file}" ]; then
+        "${fail_function}" "Cannot find ${file} in call to ${wrapper}"
         return 1
     fi
 
     local failed=no
     case "${spec}" in
         empty)
-            if [ -s "${path}" ]; then
-                echo "Expected ${path} to be empty; found:"
-                cat "${path}"
+            if [ -s "${file}" ]; then
+                echo "Expected ${file} to be empty; found:"
+                cat "${file}"
                 failed=yes
             fi
             ;;
@@ -74,9 +74,9 @@ _shtk_unittest_check_file() {
             local golden_file="$(echo "${spec}" | cut -d : -f 2-)"
             [ -e "${golden_file}" ] || shtk_cli_error "Cannot find golden" \
                 "file ${golden_file} given to ${wrapper}"
-            if ! cmp -s "${path}" "${golden_file}"; then
-                echo "${path} did not match golden contents:"
-                diff -u "${golden_file}" "${path}"
+            if ! cmp -s "${file}" "${golden_file}"; then
+                echo "${file} did not match golden contents:"
+                diff -u "${golden_file}" "${file}"
                 failed=yes
             fi
             ;;
@@ -87,9 +87,9 @@ _shtk_unittest_check_file() {
             # behavior when evaluating escape sequences.
             printf "$(printf "%s\n" "${spec}" | cut -d : -f 2-)" \
                 >"${golden_file}"
-            if ! cmp -s "${path}" "${golden_file}"; then
-                echo "${path} did not match golden contents:"
-                diff -u "${golden_file}" "${path}"
+            if ! cmp -s "${file}" "${golden_file}"; then
+                echo "${file} did not match golden contents:"
+                diff -u "${golden_file}" "${file}"
                 rm -f "${golden_file}"
                 failed=yes
             else
@@ -99,32 +99,32 @@ _shtk_unittest_check_file() {
 
         match:*)
             local match_regexp="$(echo "${spec}" | cut -d : -f 2-)"
-            if ! grep -E "${match_regexp}" "${path}" >/dev/null; then
-                echo "Expected regexp '${match_regexp}' not found in ${path}:"
-                cat "${path}"
+            if ! grep -E "${match_regexp}" "${file}" >/dev/null; then
+                echo "Expected regexp '${match_regexp}' not found in ${file}:"
+                cat "${file}"
                 failed=yes
             fi
             ;;
 
         not-empty)
-            if [ ! -s "${path}" ]; then
-                echo "Expected ${path} to not be empty"
+            if [ ! -s "${file}" ]; then
+                echo "Expected ${file} to not be empty"
                 failed=yes
             fi
             ;;
 
         not-match:*)
             local match_regexp="$(echo "${spec}" | cut -d : -f 2-)"
-            if grep -E "${match_regexp}" "${path}" >/dev/null; then
-                echo "Expected regexp '${match_regexp}' found in ${path}:"
-                cat "${path}"
+            if grep -E "${match_regexp}" "${file}" >/dev/null; then
+                echo "Expected regexp '${match_regexp}' found in ${file}:"
+                cat "${file}"
                 failed=yes
             fi
             ;;
 
         save:*)
             local output_file="$(echo "${spec}" | cut -d : -f 2-)"
-            cp "${path}" "${output_file}" 2>/dev/null \
+            cp "${file}" "${output_file}" 2>/dev/null \
                 || shtk_cli_error "Failed to save output to ${output_file} in" \
                 "call to ${wrapper}"
             ;;
@@ -132,9 +132,9 @@ _shtk_unittest_check_file() {
         stdin)
             local golden_file="${wrapper}.stdin"
             cat >"${golden_file}"
-            if ! cmp -s "${path}" "${golden_file}"; then
-                echo "${path} did not match golden contents from stdin:"
-                diff -u "${golden_file}" "${path}"
+            if ! cmp -s "${file}" "${golden_file}"; then
+                echo "${file} did not match golden contents from stdin:"
+                diff -u "${golden_file}" "${file}"
                 rm -f "${golden_file}"
                 failed=yes
             else
@@ -148,6 +148,6 @@ _shtk_unittest_check_file() {
             ;;
     esac
     [ "${failed}" = no ] || \
-        "${fail_function}" "Failed to validate contents of file ${path}"
+        "${fail_function}" "Failed to validate contents of file ${file}"
 }
 _shtk_unittest_register_check file

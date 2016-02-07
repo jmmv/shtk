@@ -49,11 +49,11 @@ shtk_import() {
         [ "${loaded_module}" != "${module}" ] || return 0
     done
 
-    local path="${SHTK_MODULESPATH}:${SHTK_MODULESDIR}"
+    local modules_path="${SHTK_MODULESPATH}:${SHTK_MODULESDIR}"
     local attempts=
     local oldifs="${IFS}"
     IFS=:
-    for dir in ${path}; do
+    for dir in ${modules_path}; do
         [ -n "${dir}" ] || continue
 
         local file="${dir}/${module}.subr"

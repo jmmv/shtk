@@ -34,8 +34,15 @@ if [ -d /usr/local/share/aclocal ]; then
 else
     autoreconf -isv
 fi
-./configure
+
+shell_path="$(which ${SHELL_NAME})"
+if [ ${?} -ne 0 ]; then
+    echo "Failed to resolve path to shell ${SHELL_NAME}" 1>&2
+    exit 1
+fi
+./configure SHTK_SHELL="${shell_path}"
 
 f=
 f="${f} PKG_CONFIG_PATH='/usr/local/lib/pkgconfig'"
+f="${f} SHTK_SHELL='${shell_path}'"
 make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}"

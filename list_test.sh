@@ -61,4 +61,5 @@ shtk_unittest_add_test filter__some_results
 filter__some_results_test() {
     items="abc a1 foo a2 a3 bar"
     expect_equal "a1 a2 a3" "$(shtk_list_filter 'a[0-9]*' ${items})"
+    expect_equal "foo a3" "$(shtk_list_filter 'a3|foo' ${items})"
 }

@@ -31,7 +31,8 @@ set -e -x
 
 sudo apt-get update -qq
 sudo apt-get install -y liblua5.2-0 liblua5.2-dev \
-    libsqlite3-0 libsqlite3-dev pkg-config sqlite3 ${EXTRA_PACKAGES}
+    libsqlite3-0 libsqlite3-dev pkg-config sqlite3 \
+    ${EXTRA_PACKAGES} ${SHELL_NAME}
 
 install_from_github() {
     local name="${1}"; shift

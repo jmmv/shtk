@@ -30,6 +30,33 @@ shtk_import cleanup
 shtk_import unittest
 
 
+# Ignores all signals handled by shtk_cleanup.
+#
+# We have to call this on all shell instances from the beginning of our
+# execution to any shells run within.  Some shells (pdksh) bubble these signals
+# up which causes our tests to abort when the subshell of a test sends a SIGINT
+# to itself, for example.  We seem to have no choice other than ignoring the
+# signals here.
+#
+# Note that we cannot just "ignore" the signals with 'trap "" <signal>' because
+# that prevents the subshells from redefining the signal handler: we have to set
+# them to an arbitrary command.
+#
+# See http://www.cons.org/cracauer/sigint.html for details on the craziness
+# involved.  This is all very confusing and I'm not even sure that pdksh is
+# doing the right thing here; it might be a bug.
+ignore_traps() {
+    for code in ${_Shtk_Cleanup_Traps}; do
+        trap "echo Outer shell \${$} caught signal ${code}" "${code}"
+    done
+}
+
+
+# Ignore the signals in the test program.  See the comments in ignore_traps for
+# details on why this is necessary.
+ignore_traps
+
+
 # Installs a cleanup handler and validates execution on exit.
 #
 # \param exitcode Exit code to validate.
@@ -77,6 +104,10 @@ do_register_signal_test() {
     local uppercase_name="${1}"; shift
     local lowercase_name="${1}"; shift
 
+    # Ignore the signals in the subshell started by unittest.  See the comments
+    # in ignore_traps for details on why this is necessary.
+    ignore_traps
+
     # We must create a standalone script because we need the ability to deliver
     # a signal to self and accessing ${$} from subshells does not work as
     # intended.
@@ -96,8 +127,25 @@ main() {
 EOF
     expect_command shtk build script.sh
 
+    if [ -n "${ZSH_VERSION+set}" -a "${uppercase_name}" = HUP ]; then
+        # ZSH insists on exiting with code 1 instead of propagating the signal
+        # (and thus returning 129) when it receives a SIGHUP.  I haven't found a
+        # way around this and I do not see documentation on this fact... so I'm
+        # assuming this might be a bug.  Therefore, mark the test as an expected
+        # failure in this particular case.
+        #
+        # Note that we could also change the expectation below to make the test
+        # pass... but then, we would be silently accepting two different
+        # behaviors depending on the shell on which we run, and that's worse.
+        set_expect_failure
+    fi
+
+    # We need to ignore the stderr here because, depending on the shell,
+    # the stderr may contain a message with the termination reason after
+    # we kill ourselves.  There is no way to suppress that particular
+    # message.
     expect_command -s "signal:${lowercase_name}" \
-        -o inline:"before signal\nin the handler\n" -e empty ./script
+        -o inline:"before signal\nin the handler\n" -e ignore ./script
 }
 
 

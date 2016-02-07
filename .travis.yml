@@ -2,8 +2,14 @@ before_install:
     - ./admin/travis-install-deps.sh
 
 env:
-    - EXTRA_PACKAGES=
-    - EXTRA_PACKAGES=cvs
+    - SHELL_NAME=bash EXTRA_PACKAGES=
+    - SHELL_NAME=bash EXTRA_PACKAGES=cvs
+    - SHELL_NAME=dash EXTRA_PACKAGES=
+    - SHELL_NAME=dash EXTRA_PACKAGES=cvs
+    - SHELL_NAME=pdksh EXTRA_PACKAGES=
+    - SHELL_NAME=pdksh EXTRA_PACKAGES=cvs
+    - SHELL_NAME=zsh EXTRA_PACKAGES=
+    - SHELL_NAME=zsh EXTRA_PACKAGES=cvs
 
 script:
     - ./admin/travis-build.sh

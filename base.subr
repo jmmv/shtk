@@ -37,6 +37,11 @@
 _Shtk_LoadedModules=
 
 
+if [ -n "${ZSH_VERSION+set}" ]; then
+    emulate sh >/dev/null 2>&1
+fi
+
+
 shtk_import() {
     local module="${1}"; shift
 

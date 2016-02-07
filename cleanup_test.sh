@@ -127,6 +127,19 @@ main() {
 EOF
     expect_command shtk build script.sh
 
+    if [ -n "${ZSH_VERSION+set}" -a "${uppercase_name}" = HUP ]; then
+        # ZSH insists on exiting with code 1 instead of propagating the signal
+        # (and thus returning 129) when it receives a SIGHUP.  I haven't found a
+        # way around this and I do not see documentation on this fact... so I'm
+        # assuming this might be a bug.  Therefore, mark the test as an expected
+        # failure in this particular case.
+        #
+        # Note that we could also change the expectation below to make the test
+        # pass... but then, we would be silently accepting two different
+        # behaviors depending on the shell on which we run, and that's worse.
+        set_expect_failure
+    fi
+
     # We need to ignore the stderr here because, depending on the shell,
     # the stderr may contain a message with the termination reason after
     # we kill ourselves.  There is no way to suppress that particular

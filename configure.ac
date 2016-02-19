@@ -58,6 +58,7 @@ fi
 if test "${SHTK_SHELL}" = ""; then
     AC_MSG_ERROR([No POSIX shell interpreter found; maybe set SHTK_SHELL?])
 fi
+AC_MSG_NOTICE([Using shell interpreter ${SHTK_SHELL}])
 
 
 AC_PATH_PROG([KYUA], [kyua])

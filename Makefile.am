@@ -86,6 +86,7 @@ man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
 	$(BUILD_FILE)
 
 dist_man_MANS  = man/shtk.3
+dist_man_MANS += man/shtk_abort.3
 dist_man_MANS += man/shtk_bool.3
 dist_man_MANS += man/shtk_bool_check.3
 dist_man_MANS += man/shtk_cleanup.3

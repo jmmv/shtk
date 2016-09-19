@@ -42,6 +42,57 @@ if [ -n "${ZSH_VERSION+set}" ]; then
 fi
 
 
+# Kills all subshells up to the main script, except for self.  Calls to this
+# function must be followed by a call to exit.
+_shtk_kill_subshells() {
+    # AWK script to extract the single PID printed by ps(1).
+    local awk_get_pid='/[a-zA-Z]/ {next;} {print $1;}'
+
+    local pid=
+    if [ -f /proc/curproc/status ]; then
+        # FreeBSD/NetBSD-style proc file system.
+        IFS=' 	' read unused_name pid unused_rest </proc/curproc/status
+    elif [ -f /proc/self/stat ]; then
+        # Linux-style proc file system.
+        IFS=' 	' read pid unused_rest </proc/self/stat
+    else
+        # No known proc file system available.  Obtain the PID of this subshell
+        # by using a helper script that outputs the PID of its parent (which
+        # happens to be the subshell we are interested in).
+        local script="$(mktemp "${TMPDIR:-/tmp}/shtk.XXXXXX")"
+        cat >"${script}" <<EOF
+ps -o ppid "\${$}" | awk '${awk_get_pid}'
+EOF
+        /bin/sh "${script}" >"${script}.out"
+        read pid <"${script}.out"
+        rm -f "${script}" "${script}.out"
+    fi
+
+    local top_pid="${$}"
+    local pids=
+    while [ "${pid}" != "${top_pid}" -a -n "${pid}" ]; do
+        pid="$(ps -o ppid "${pid}" | awk "${awk_get_pid}")"
+        if [ "${pid}" = 1 ]; then
+            # Search failed for some reason (probably due to a bug here).
+            # Better ignore anything we have found and leave processes around
+            # than attempt killing ~everything in the user's session.
+            pids=
+            break
+        fi
+        pids="${pid} ${pids}"
+    done
+
+    [ -z "${pids}" ] || kill ${pids}
+}
+
+
+shtk_abort() {
+    [ ${#} -eq 0 ] || echo "${0##*/}: A: ${*}" 1>&2
+    _shtk_kill_subshells
+    exit 127
+}
+
+
 shtk_import() {
     local module="${1}"; shift
 

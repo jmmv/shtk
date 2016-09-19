@@ -50,6 +50,87 @@ EOF
 }
 
 
+shtk_unittest_add_test abort__no_message
+abort__no_message_test() {
+    cat >script.sh <<EOF
+main() {
+    shtk_abort
+    echo "not seen"
+}
+EOF
+    expect_command shtk build -o script script.sh
+    expect_command -s exit:127 ./script
+}
+
+
+shtk_unittest_add_test abort__current_shell
+abort__current_shell_test() {
+    cat >script.sh <<EOF
+main() {
+    shtk_abort "This is" "a message"
+    echo "not seen"
+}
+EOF
+    expect_command shtk build -o script script.sh
+    expect_command -s exit:127 -e match:"script: A: This is a message" ./script
+}
+
+
+# Enables job control for pdksh's benefit when running abort tests.
+#
+# When shtk is built with/for pdksh, invoking kill on the parent subshells
+# causes the test program's subprocess (not only the test script we run) to
+# terminate.  Enabling job control fixes this by making pdksh not terminate
+# everything.
+#
+# I am not sure if this is a bug in how we test shtk_abort or if this is an
+# actual bug in the shtk_abort code.  For now, assume the former and workaround
+# the issue in the tests only.
+fixup_abort_subshell_tests_for_pdksh() {
+    set -o monitor 2>/dev/null
+}
+
+
+shtk_unittest_add_test abort__subshell
+abort__subshell_test() {
+    fixup_abort_subshell_tests_for_pdksh
+
+    cat >script.sh <<EOF
+main() {
+    local foo="\$(shtk_abort "Some text"; echo not seen 1)"
+    echo "\${foo}"
+    echo "not seen 2"
+}
+EOF
+    expect_command shtk build -o script script.sh
+    expect_command -s not-exit:0 -e match:"script: A: Some text" ./script
+}
+
+
+shtk_unittest_add_test abort__subshells
+abort__subshells_test() {
+    fixup_abort_subshell_tests_for_pdksh
+
+    cat >script.sh <<EOF
+main() {
+    (
+         (
+             (
+                 shtk_abort "Other" "text"
+                 echo "not seen 1"
+             )
+             echo "not seen 2"
+         )
+         echo "not seen 3"
+    )
+    echo "not seen 4"
+}
+EOF
+    expect_command shtk build -o script script.sh
+    expect_command -s not-exit:0 -e match:"script: A: Other text" ./script
+}
+
+
 shtk_unittest_add_test import__ok
 import__ok_test() {
     create_mock_module modules/mock.subr mock_value

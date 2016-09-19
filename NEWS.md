@@ -12,6 +12,9 @@ Changes in version 1.7
   for all these interpreters to ensure that this holds true in future
   releases.
 
+* Added the `shtk_abort` function to terminate a script on fatal internal
+  errors.
+
 * Added the `shtk_cli_debug` function to log debug-level messages.
 
 * Added the `shtk_cli_log_level` and `shtk_cli_set_log_level` functions to

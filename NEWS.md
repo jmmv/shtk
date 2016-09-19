@@ -20,6 +20,9 @@ Changes in version 1.7
 * Added the `shtk_cli_log_level` and `shtk_cli_set_log_level` functions to
   query and set the maximum log level.
 
+* Added the `shtk_fs` module with the `shtk_fs_join_paths` and
+  `shtk_fs_normalize_path` functions.
+
 * Fixed option parsing to detect missing arguments to options.
 
 * Fixed pattern matching in `shtk_list_filter` so that it supports

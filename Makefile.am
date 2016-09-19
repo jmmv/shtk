@@ -39,6 +39,7 @@ dist_pkgdata_DATA += cleanup.subr
 dist_pkgdata_DATA += cli.subr
 dist_pkgdata_DATA += config.subr
 dist_pkgdata_DATA += cvs.subr
+dist_pkgdata_DATA += fs.subr
 dist_pkgdata_DATA += list.subr
 dist_pkgdata_DATA += process.subr
 dist_pkgdata_DATA += unittest.subr
@@ -117,6 +118,9 @@ dist_man_MANS += man/shtk_cvs.3
 dist_man_MANS += man/shtk_cvs_checkout.3
 dist_man_MANS += man/shtk_cvs_fetch.3
 dist_man_MANS += man/shtk_cvs_update.3
+dist_man_MANS += man/shtk_fs.3
+dist_man_MANS += man/shtk_fs_join_paths.3
+dist_man_MANS += man/shtk_fs_normalize_path.3
 dist_man_MANS += man/shtk_list.3
 dist_man_MANS += man/shtk_list_contains.3
 dist_man_MANS += man/shtk_list_filter.3
@@ -198,6 +202,12 @@ CLEANFILES += cvs_test
 EXTRA_DIST += cvs_test.sh
 cvs_test: $(srcdir)/cvs_test.sh shtk
 	$(AM_V_GEN)name=cvs_test; $(BUILD_TEST)
+
+pkgtests_SCRIPTS += fs_test
+CLEANFILES += fs_test
+EXTRA_DIST += fs_test.sh
+fs_test: $(srcdir)/fs_test.sh shtk
+	$(AM_V_GEN)name=fs_test; $(BUILD_TEST)
 
 pkgtests_SCRIPTS += list_test
 CLEANFILES += list_test

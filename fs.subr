@@ -1,0 +1,63 @@
+# Copyright 2016 Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# * Neither the name of Google Inc. nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+# Sed script to normalize a path.
+#
+# This is constructed in multiple steps for documentation purposes only;
+# we could just as well provide this as a one-liner within the
+# shtk_fs_normalize_path function... but the result is unreadable.
+#
+# 1st: Strip off any trailing . component and its associated slash.
+_Shtk_Fs_Normalize="s,/\.$,,"
+# 2nd: Collapse multiple consecutive slashes.
+_Shtk_Fs_Normalize="${_Shtk_Fs_Normalize};s,/+,/,g"
+# 3rd: Collapse any intermediate . components.
+_Shtk_Fs_Normalize="${_Shtk_Fs_Normalize};s,/\./,/,g"
+# 4th: Remove trailing slashes.
+_Shtk_Fs_Normalize="${_Shtk_Fs_Normalize};/[^/]/s,/$,,"
+# 5th: If the path is relative and does not already start with ., add it.
+_Shtk_Fs_Normalize="${_Shtk_Fs_Normalize};/^[./]/!s,^,./,"
+
+
+shtk_fs_join_paths() {
+    local result="${1}"; shift
+    while [ ${#} -gt 0 ]; do
+        result="${result}/${1}"
+        shift
+    done
+    shtk_fs_normalize_path "${result}"
+}
+
+
+shtk_fs_normalize_path() {
+    local unnormalized="${1}"; shift
+    echo "${unnormalized}" | sed -E "${_Shtk_Fs_Normalize}" \
+        || shtk_abort "sed script failed in call to shtk_fs_normalize_path" \
+                      "most likely a portability bug"
+}

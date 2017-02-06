@@ -23,6 +23,8 @@ Changes in version 1.7
 * Added the `shtk_fs` module with the `shtk_fs_join_paths` and
   `shtk_fs_normalize_path` functions.
 
+* Added the `shtk_hw` module with the `shtk_hw_ncpus` function.
+
 * Fixed option parsing to detect missing arguments to options.
 
 * Fixed pattern matching in `shtk_list_filter` so that it supports

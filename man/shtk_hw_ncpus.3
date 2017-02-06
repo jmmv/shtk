@@ -1,0 +1,69 @@
+.\" Copyright 2017 Google Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\" * Neither the name of Google Inc. nor the names of its contributors
+.\"   may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd February 6, 2017
+.Dt SHTK_HW_CPUS 3
+.Os
+.Sh NAME
+.Nm shtk_hw_ncpus
+.Nd Queries the number of CPUs (threads) in the machine
+.Sh LIBRARY
+shtk_import hw
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+The
+.Nm
+function queries the number of CPU threads in the machine and prints the total
+number to stdout.
+.Pp
+If the query fails, or if the function does not know how to get the number from
+the current operating system, prints 1.
+.Sh RETURN VALUES
+.Nm
+returns 0.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+make -j"$(shtk_hw_ncpus)" all
+.Ed
+.Sh ENVIRONMENT
+.Bl -tag -width XXXX
+.It Va SHTK_HW_NCPUS
+If set to a number greater than zero, overrides the return value of
+.Nm .
+Generally useful for testing purposes, but can also be useful to inject greater
+numbers of parallelism in applications that do not expose a mechanism to tune
+such number.
+.El
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_hw 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.7.

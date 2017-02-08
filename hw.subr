@@ -39,7 +39,10 @@ shtk_hw_ncpus() {
 
     local ncpus=0
     case "$(uname -s)" in
-        Darwin|FreeBSD)
+        Darwin)
+            ncpus="$(/usr/sbin/sysctl -n hw.ncpu)" || true
+            ;;
+        FreeBSD)
             ncpus="$(/sbin/sysctl -n hw.ncpu)" || true
             ;;
         Linux)

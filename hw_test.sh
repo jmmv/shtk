@@ -39,7 +39,7 @@ ncpus__real_test() {
     fi
     for var in hw.ncpuonline hw.ncpu; do
         if [ -z "${exp_ncpus}" ]; then
-            exp_ncpus="$(/sbin/sysctl -n "${var}")" || true
+            exp_ncpus="$(sysctl -n "${var}")" || true
         fi
     done
     if [ -z "${exp_ncpus}" ]; then

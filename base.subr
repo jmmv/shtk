@@ -61,7 +61,7 @@ _shtk_kill_subshells() {
         # happens to be the subshell we are interested in).
         local script="$(mktemp "${TMPDIR:-/tmp}/shtk.XXXXXX")"
         cat >"${script}" <<EOF
-ps -o ppid "\${$}" | awk '${awk_get_pid}'
+ps -o ppid -p "\${$}" | awk '${awk_get_pid}'
 EOF
         /bin/sh "${script}" >"${script}.out"
         read pid <"${script}.out"
@@ -70,8 +70,9 @@ EOF
 
     local top_pid="${$}"
     local pids=
-    while [ "${pid}" != "${top_pid}" -a -n "${pid}" ]; do
-        pid="$(ps -o ppid "${pid}" | awk "${awk_get_pid}")"
+    local rounds=100  # Prevent infinite loops.
+    while [ "${pid}" != "${top_pid}" -a -n "${pid}" -a ${rounds} -gt 0 ]; do
+        pid="$(ps -o ppid -p "${pid}" | awk "${awk_get_pid}")"
         if [ "${pid}" = 1 ]; then
             # Search failed for some reason (probably due to a bug here).
             # Better ignore anything we have found and leave processes around
@@ -80,9 +81,16 @@ EOF
             break
         fi
         pids="${pid} ${pids}"
+        rounds="$((${rounds} - 1))"
     done
-
-    [ -z "${pids}" ] || kill ${pids}
+    if [ ${rounds} -eq 0 ]; then
+        # If we encountered an infinite loop or too many processes for some
+        # strange reason, do nothing.  This is nicer to the user and our tests
+        # should catch this condition.
+        :
+    else
+        [ -z "${pids}" ] || kill ${pids}
+    fi
 }
 
 

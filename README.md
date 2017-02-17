@@ -27,9 +27,9 @@ is not an official Google product.
 Download
 --------
 
-The latest version of shtk is 1.6 and was released on November 17th, 2014.
+The latest version of shtk is 1.7 and was released on February 17th, 2017.
 
-Download: [sthk-1.6](../../releases/tag/shtk-1.6).
+Download: [sthk-1.7](../../releases/tag/shtk-1.7).
 
 See the [release notes](NEWS.md) for information about the changes in this
 and all previous releases.

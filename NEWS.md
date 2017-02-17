@@ -5,7 +5,7 @@ Major changes between releases
 Changes in version 1.7
 ----------------------
 
-**NOT YET RELEASED; STILL UNDER DEVELOPMENT.**
+**Released on 2017-02-17.**
 
 * This is the first release with fixes for and confirmed to work with all
   of bash, dash, pdksh, and zsh.  We now have continuous integration runs

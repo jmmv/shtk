@@ -2,6 +2,14 @@ Major changes between releases
 ==============================
 
 
+Changes in version 1.8
+----------------------
+
+**STILL UNDER DEVELOPMENT; NOT RELEASED YET.**
+
+* No changes recorded.
+
+
 Changes in version 1.7
 ----------------------
 

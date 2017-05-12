@@ -444,6 +444,34 @@ EOF
     }
 
 
+    shtk_unittest_add_test one_time_teardown_on_signal
+    one_time_teardown_on_signal_test() {
+        one_time_teardown() { echo "tearing down"; rm cookie1; }
+
+        shtk_unittest_add_test first
+        first_test() { echo "first test"; touch ../cookie1; sleep 600; }
+        shtk_unittest_add_test second
+        second_test() { echo "second test that should not run"; }
+
+        ( shtk_unittest_main >out 2>err ) &
+        local pid="${!}"
+        while [ ! -e cookie1 ]; do
+            echo "Waiting for ${pid} to create cookie1"
+            sleep 1
+        done
+        kill "${pid}"
+        wait
+        [ ! -e cookie1 ] || fail "one_time_teardown did not run on signal"
+        expect_file stdin out <<EOF
+first test
+tearing down
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing first...
+EOF
+    }
+
+
     shtk_unittest_add_test usage_error_due_to_unknown_arguments
     usage_error_due_to_unknown_arguments_test() {
         ( shtk_unittest_main foo >out 2>err ) \
@@ -681,6 +709,57 @@ EOF
         expect_file stdin err <<EOF
 unittest_test: I: Testing container__always_passes...
 unittest_test: W: Testing container__always_passes... FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test teardown_on_signal
+    teardown_on_signal_test() {
+        teardown() { echo "This is the teardown"; rm -f ../cookie; }
+
+        shtk_unittest_add_test first
+        first_test() {
+            echo "This is the first test"
+            local pid
+            _shtk_subshell_pid pid
+            echo "${pid}" >../cookie
+            sleep 600
+        }
+
+        shtk_unittest_add_test second
+        second_test() {
+            echo "This is the second test"
+        }
+
+        ( _shtk_unittest_run_fixture_test container first >out 2>err ) &
+        local pid="${!}"
+        while [ ! -e cookie ]; do
+            echo "Waiting for ${pid} to create cookie"
+            sleep 1
+        done
+        local subshell_pid="$(cat cookie)"
+        echo "${subshell_pid} (child of ${pid}) created cookie"
+        kill "${subshell_pid}"
+        wait
+        [ ! -e cookie ] || fail "teardown did not run on signal"
+        expect_file match:"This is the first test" out
+        expect_file match:"This is the teardown" out
+        expect_file not-match:"This is the second test" out
+        expect_file match:"I: Testing container__first..." err
+        expect_file match:"W: Testing container__first... FAILED" err
+        expect_file not-match:"I: Testing container__second..." err
+
+        # Run a second test to ensure the handling of state to run the teardown
+        # was reset properly across tests.
+        ( _shtk_unittest_run_fixture_test container second >out 2>err ) \
+            || fail "run_fixture reported error for test that should pass"
+        expect_file stdin out <<EOF
+This is the second test
+This is the teardown
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing container__second...
+unittest_test: I: Testing container__second... PASSED
 EOF
     }
 

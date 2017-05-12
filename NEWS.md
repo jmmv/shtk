@@ -7,7 +7,8 @@ Changes in version 1.8
 
 **STILL UNDER DEVELOPMENT; NOT RELEASED YET.**
 
-* No changes recorded.
+* Made the `unittest` module run the teardown routines on signal receipt
+  so that test cases have a way to clean up after themselves.
 
 
 Changes in version 1.7

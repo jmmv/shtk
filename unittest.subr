@@ -26,6 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+shtk_import cleanup
 shtk_import cli
 shtk_import list
 
@@ -204,10 +205,20 @@ _shtk_unittest_run_fixture_test() {
     (
         _shtk_unittest_enter_test "${name}"
 
+        _SHTK_UNITTEST_DID_TEARDOWN=no
+        do_teardown() {
+            if [ "${_SHTK_UNITTEST_DID_TEARDOWN}" = no ]; then
+                teardown
+                _SHTK_UNITTEST_DID_TEARDOWN=yes
+            fi
+        }
+        # TODO: Why doesn't this cause the test to fail?
+        #shtk_cleanup_register do_teardown
+
         local failed=no
         if { setup; true; }; then
             ( "${basename}_test"; true ) || failed=yes
-            { teardown; true; } || failed=yes
+            { do_teardown; true; } || failed=yes
         else
             failed=yes
         fi
@@ -306,6 +317,17 @@ shtk_unittest_main() {
     local passed=0
     local failed=0
 
+    _SHTK_UNITTEST_DID_ONE_TIME_TEARDOWN=no
+    do_one_time_teardown() {
+        local failed=no
+        if [ "${_SHTK_UNITTEST_DID_ONE_TIME_TEARDOWN}" = no ]; then
+            one_time_teardown || failed=yes
+            _SHTK_UNITTEST_DID_ONE_TIME_TEARDOWN=yes
+        fi
+        [ "${failed}" = no ]
+    }
+    #shtk_cleanup_register do_one_time_teardown
+
     one_time_setup || shtk_cli_error "Failed to set up test program;" \
         "one_time_setup failed"
 
@@ -333,7 +355,7 @@ shtk_unittest_main() {
         done
     done
 
-    one_time_teardown || shtk_cli_error "Failed to clean up test program;" \
+    do_one_time_teardown || shtk_cli_error "Failed to clean up test program;" \
         "one_time_teardown failed"
 
     local total=$((${passed} + ${failed}))

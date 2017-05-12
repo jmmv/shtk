@@ -37,42 +37,54 @@
 _Shtk_LoadedModules=
 
 
+# AWK script to extract the single PID printed by ps(1).
+_Shtk_Awk_Get_Pid='/[a-zA-Z]/ {next;} {print $1;}'
+
+
 if [ -n "${ZSH_VERSION+set}" ]; then
     emulate sh >/dev/null 2>&1
 fi
 
 
-# Kills all subshells up to the main script, except for self.  Calls to this
-# function must be followed by a call to exit.
-_shtk_kill_subshells() {
-    # AWK script to extract the single PID printed by ps(1).
-    local awk_get_pid='/[a-zA-Z]/ {next;} {print $1;}'
-
-    local pid=
+# Gets the current PID of the subshell calling this function and stores this PID
+# in the variable given by the first argument.
+_shtk_subshell_pid() {
+    local _pid=
     if [ -f /proc/curproc/status ]; then
         # FreeBSD/NetBSD-style proc file system.
-        IFS=' 	' read unused_name pid unused_rest </proc/curproc/status
+        local unused_name unused_rest
+        IFS=' 	' read unused_name _pid unused_rest </proc/curproc/status
     elif [ -f /proc/self/stat ]; then
         # Linux-style proc file system.
-        IFS=' 	' read pid unused_rest </proc/self/stat
+        local unused_rest
+        IFS=' 	' read _pid unused_rest </proc/self/stat
     else
         # No known proc file system available.  Obtain the PID of this subshell
         # by using a helper script that outputs the PID of its parent (which
         # happens to be the subshell we are interested in).
         local script="$(mktemp "${TMPDIR:-/tmp}/shtk.XXXXXX")"
         cat >"${script}" <<EOF
-ps -o ppid -p "\${$}" | awk '${awk_get_pid}'
+ps -o ppid -p "\${$}" | awk '${_Shtk_Awk_Get_Pid}'
 EOF
         /bin/sh "${script}" >"${script}.out"
-        read pid <"${script}.out"
+        read _pid <"${script}.out"
         rm -f "${script}" "${script}.out"
     fi
+    eval "${1}=\"\${_pid}\""
+}
+
+
+# Kills all subshells up to the main script, except for self.  Calls to this
+# function must be followed by a call to exit.
+_shtk_kill_subshells() {
+    local pid
+    _shtk_subshell_pid pid
 
     local top_pid="${$}"
     local pids=
     local rounds=100  # Prevent infinite loops.
     while [ "${pid}" != "${top_pid}" -a -n "${pid}" -a ${rounds} -gt 0 ]; do
-        pid="$(ps -o ppid -p "${pid}" | awk "${awk_get_pid}")"
+        pid="$(ps -o ppid -p "${pid}" | awk "${_Shtk_Awk_Get_Pid}")"
         if [ "${pid}" = 1 ]; then
             # Search failed for some reason (probably due to a bug here).
             # Better ignore anything we have found and leave processes around

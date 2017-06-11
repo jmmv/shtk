@@ -292,11 +292,8 @@ shtk_unittest_fail() {
 
 
 shtk_unittest_main() {
-    # TODO(jmmv): Should use shtk_cli_usage_error here, but the printed
-    # reference of a manual page would be wrong.  Extend that function to
-    # allow specifying the name of the manual page, or to provide a method
-    # in shtk_cli to override the page that should be displayed.
-    [ "${#}" -eq 0 ] || shtk_cli_error "No command-line arguments allowed"
+    shtk_cli_set_help_command "man 1 shtk_unittest"
+    [ "${#}" -eq 0 ] || shtk_cli_usage_error "No command-line arguments allowed"
 
     [ -n "${_Shtk_Unittest_TestFixtures}" -o \
       -n "${_Shtk_Unittest_TestCases}" ] \

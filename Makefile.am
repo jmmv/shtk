@@ -130,6 +130,7 @@ dist_man_MANS += man/shtk_list_contains.3
 dist_man_MANS += man/shtk_list_filter.3
 dist_man_MANS += man/shtk_process.3
 dist_man_MANS += man/shtk_process_run.3
+dist_man_MANS += man/shtk_unittest.1
 dist_man_MANS += man/shtk_unittest.3
 dist_man_MANS += man/shtk_unittest_add_fixture.3
 dist_man_MANS += man/shtk_unittest_add_test.3

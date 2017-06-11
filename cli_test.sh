@@ -201,7 +201,7 @@ usage_error_test() {
     }
     cat >experr <<EOF
 cli_test: E: This is a message
-Type 'man cli_test' for help
+Type 'man 1 shtk_unittest' for help
 EOF
     expect_command -s exit:1 -e file:experr subtest
 }

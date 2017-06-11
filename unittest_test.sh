@@ -450,6 +450,7 @@ EOF
             && fail "main did not error out on syntax error"
         expect_file stdin err <<EOF
 unittest_test: E: No command-line arguments allowed
+Type 'man 1 shtk_unittest' for help
 EOF
     }
 

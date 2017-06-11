@@ -10,6 +10,10 @@ Changes in version 1.8
 * Added the `shtk_cli_set_help_command` function to allow customizing the
   help command printed by `shtk_cli_usage_error`.
 
+* Added filtering of test cases to `unittest`-based test programs.  The
+  user can now pass the names of the tests to be run on the command line
+  via the `-t` flag and the test program will only execute those tests.
+
 
 Changes in version 1.7
 ----------------------

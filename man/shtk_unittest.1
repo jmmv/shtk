@@ -33,13 +33,14 @@
 .Nd Test program implemented using shtk's unittest library
 .Sh SYNOPSIS
 .Nm test-program
+.Op Fl t Ar test-case
 .Sh DESCRIPTION
 This manual page documents the general command-line interface to test programs
 written using the
 .Xr shtk_unittest 3
 library.
 .Pp
-When a test program is invoked without arguments, the test program runs
+Unless told otherwise, the test program runs
 .Em all
 the test cases it contains in-process.
 The order in which the test cases are run is not pre-determined.
@@ -49,9 +50,32 @@ cross-test pollution if they do not clean up after themselves properly.
 It is highly recommended that you use
 .Xr kyua 1
 to orchestrate the execution of these test programs.
+.Pp
+The following options are supported:
+.Bl -tag -width XXXX
+.It Fl t Ar test-case
+Restricts the set of executed test cases to the one given in
+.Ar test-case .
+This flag can be provided multiple times to tell the test program which
+collection of test cases to run.
+.Pp
+Standalone test cases are identified by their bare name, and test cases within a
+fixture are identified by the fixture's name and the test case's name pair
+separated by two underscore characters, like in:
+.Sq fixture__test_name .
+.Pp
+Note that the test program does not currently respect the order in which you
+provided the
+.Fl t
+flags.
+.El
 .Sh EXIT STATUS
 The test program returns 0 if all executed tests passed, or 1 if there was a
 problem either in the invocation or in the execution of the tests.
+In particular, if filtering of test cases is requested with
+.Fl t
+and the given tests do not match any test case, the test program will exit with
+a 1 error code.
 .Sh SEE ALSO
 .Xr shtk_unittest 3
 .Sh HISTORY
@@ -59,3 +83,8 @@ problem either in the invocation or in the execution of the tests.
 first appeared in
 .Nm shtk
 1.6.
+The
+.Fl t
+flag appeared in
+.Nm shtk
+1.8.

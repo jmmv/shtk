@@ -583,6 +583,79 @@ EOF
 }
 
 
+filter() {
+    shtk build -m shtk_unittest_main -o program - <<EOF
+shtk_import unittest
+
+shtk_unittest_add_fixture first
+first_fixture() {
+    setup() { echo "Shared setup"; }
+    teardown() { echo "Shared teardown"; }
+    shtk_unittest_add_test first
+    first_test() { echo "First in first fixture"; }
+    shtk_unittest_add_test second
+    second_test() { echo "Second in first fixture"; fail "Leave 1"; }
+}
+
+shtk_unittest_add_fixture second
+second_fixture() {
+    shtk_unittest_add_test first
+    first_test() { echo "First in second fixture"; fail "Leave 2"; }
+    shtk_unittest_add_test second
+    second_test() { echo "Second in second fixture"; }
+}
+
+shtk_unittest_add_test standalone
+standalone_test() {
+    echo "Runs outside of the fixtures"
+}
+EOF
+
+    cat >expout <<EOF
+Runs outside of the fixtures
+EOF
+    cat >experr <<EOF
+program: I: Testing standalone...
+program: I: Testing standalone... PASSED
+program: I: Ran 1 tests; ALL PASSED
+EOF
+    check 0 expout experr ./program -t standalone || return 1
+
+    cat >expout <<EOF
+Shared setup
+Second in first fixture
+Shared teardown
+EOF
+    cat >experr <<EOF
+program: I: Testing first__second...
+program: E: Leave 1
+program: W: Testing first__second... FAILED
+program: W: Ran 1 tests; 1 FAILED
+EOF
+    check 1 expout experr ./program -t first__second || return 1
+
+    cat >expout <<EOF
+Runs outside of the fixtures
+Second in second fixture
+EOF
+    cat >experr <<EOF
+program: I: Testing standalone...
+program: I: Testing standalone... PASSED
+program: I: Testing second__second...
+program: I: Testing second__second... PASSED
+program: I: Ran 2 tests; ALL PASSED
+EOF
+    check 0 expout experr ./program -t second__second -t standalone || return 1
+
+    cat >expout <<EOF
+EOF
+    cat >experr <<EOF
+program: E: No tests were run
+EOF
+    check 1 expout experr ./program -t unknown-test || return 1
+}
+
+
 main() {
     for name in \
         one_test__always_passes \
@@ -597,7 +670,8 @@ main() {
         assert_file__ok \
         assert_file__fail \
         expect_file__ok \
-        expect_file__fail
+        expect_file__fail \
+        filter
     do
         local failed=no
         echo "Running test ${name}"

@@ -293,6 +293,27 @@ shtk_unittest_fail() {
 
 shtk_unittest_main() {
     shtk_cli_set_help_command "man 1 shtk_unittest"
+
+    local filters=
+    local OPTIND
+    while getopts :t: arg "${@}"; do
+        case "${arg}" in
+            t)  # Test filter.
+                filters="${filters} ${OPTARG}"
+                ;;
+
+            :)
+                shtk_cli_usage_error "Missing argument to option -${OPTARG}"
+                ;;
+
+            \?)
+                shtk_cli_usage_error "Unknown option -${OPTARG}"
+                ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+    OPTIND=1  # Should not be necessary due to the 'local' above.
+
     [ "${#}" -eq 0 ] || shtk_cli_usage_error "No command-line arguments allowed"
 
     [ -n "${_Shtk_Unittest_TestFixtures}" -o \
@@ -307,6 +328,9 @@ shtk_unittest_main() {
         "one_time_setup failed"
 
     for name in ${_Shtk_Unittest_TestCases}; do
+        [ -z "${filters}" ] || shtk_list_contains "${name}" ${filters} \
+            || continue
+
         if _shtk_unittest_run_standalone_test "${name}"; then
             passed=$((${passed} + 1))
         else
@@ -322,6 +346,10 @@ shtk_unittest_main() {
         eval ${fixture}_fixture
 
         for name in ${_Shtk_Unittest_TestCases}; do
+            [ -z "${filters}" ] \
+                || shtk_list_contains "${fixture}__${name}" ${filters} \
+                || continue
+
             if _shtk_unittest_run_fixture_test "${fixture}" "${name}"; then
                 passed=$((${passed} + 1))
             else
@@ -334,6 +362,7 @@ shtk_unittest_main() {
         "one_time_teardown failed"
 
     local total=$((${passed} + ${failed}))
+    [ ${total} -gt 0 ] || shtk_cli_error "No tests were run"
     if [ ${failed} -eq 0 ]; then
         shtk_cli_info "Ran ${total} tests; ALL PASSED"
         return 0

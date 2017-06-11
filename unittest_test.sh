@@ -444,6 +444,81 @@ EOF
     }
 
 
+    define_tests_for_filter() {
+        shtk_unittest_add_test standalone
+        standalone_test() { echo "standalone passes"; }
+
+        shtk_unittest_add_fixture first
+        first_fixture() {
+            shtk_unittest_add_test one
+            one_test() { echo "one within first passes"; }
+            shtk_unittest_add_test two
+            two_test() { fail "two within first fails"; echo "Not run"; }
+            shtk_unittest_add_test standalone
+            standalone_test() { echo "standalone should never be run"; }
+        }
+
+        shtk_unittest_add_fixture second
+        second_fixture() {
+            shtk_unittest_add_test one
+            one_test() { fail "one within second fails"; echo "Not run"; }
+            shtk_unittest_add_test two
+            two_test() { echo "two within second passes"; }
+        }
+    }
+
+
+    shtk_unittest_add_test filter__run_standalone
+    filter__run_standalone_test() {
+        define_tests_for_filter
+        ( shtk_unittest_main -t standalone >out 2>err ) \
+            || fail "main returned failure but all tests were supposed to pass"
+        expect_file stdin out <<EOF
+standalone passes
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing standalone...
+unittest_test: I: Testing standalone... PASSED
+unittest_test: I: Ran 1 tests; ALL PASSED
+EOF
+    }
+
+
+    shtk_unittest_add_test filter__run_fixture
+    filter__run_fixture_test() {
+        define_tests_for_filter
+        ( shtk_unittest_main -t first__two >out 2>err ) \
+            && fail "main returned success but some tests were supposed to fail"
+        expect_file stdin out <<EOF
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing first__two...
+unittest_test: E: two within first fails
+unittest_test: W: Testing first__two... FAILED
+unittest_test: W: Ran 1 tests; 1 FAILED
+EOF
+    }
+
+
+    shtk_unittest_add_test filter__run_mixture
+    filter__run_mixture_test() {
+        define_tests_for_filter
+        ( shtk_unittest_main -t first__two -t standalone >out 2>err ) \
+            && fail "main returned success but some tests were supposed to fail"
+        expect_file stdin out <<EOF
+standalone passes
+EOF
+        expect_file stdin err <<EOF
+unittest_test: I: Testing standalone...
+unittest_test: I: Testing standalone... PASSED
+unittest_test: I: Testing first__two...
+unittest_test: E: two within first fails
+unittest_test: W: Testing first__two... FAILED
+unittest_test: W: Ran 2 tests; 1 FAILED
+EOF
+    }
+
+
     shtk_unittest_add_test usage_error_due_to_unknown_arguments
     usage_error_due_to_unknown_arguments_test() {
         ( shtk_unittest_main foo >out 2>err ) \

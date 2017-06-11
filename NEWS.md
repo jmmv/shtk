@@ -7,7 +7,8 @@ Changes in version 1.8
 
 **STILL UNDER DEVELOPMENT; NOT RELEASED YET.**
 
-* No changes recorded.
+* Added the `shtk_cli_set_help_command` function to allow customizing the
+  help command printed by `shtk_cli_usage_error`.
 
 
 Changes in version 1.7

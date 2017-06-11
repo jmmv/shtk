@@ -207,6 +207,21 @@ EOF
 }
 
 
+shtk_unittest_add_test usage_error__custom_help_command
+usage_error__custom_help_command_test() {
+    subtest() {
+        shtk_cli_set_help_command "foo bar" baz
+        shtk_cli_usage_error "This is" "a message"
+        echo "not seen"
+    }
+    cat >experr <<EOF
+cli_test: E: This is a message
+Type 'foo bar baz' for help
+EOF
+    expect_command -s exit:1 -e file:experr subtest
+}
+
+
 shtk_unittest_add_test warning
 warning_test() {
     subtest() {

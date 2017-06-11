@@ -39,6 +39,10 @@ _Shtk_Cli_ProgName="${0##*/}"
 _Shtk_Cli_LogLevel=info
 
 
+# Help command to print on an usage error.
+_Shtk_Cli_Help_Command="man ${_Shtk_Cli_ProgName}"
+
+
 shtk_cli_dirname() {
     echo "${_Shtk_Cli_DirName}"
 }
@@ -112,6 +116,11 @@ shtk_cli_log_level() {
 }
 
 
+shtk_cli_set_help_command() {
+    _Shtk_Cli_Help_Command="${*}"
+}
+
+
 shtk_cli_set_log_level() {
     local level="${1}"; shift
 
@@ -139,6 +148,6 @@ shtk_cli_usage_error() {
     fi
 
     echo "${_Shtk_Cli_ProgName}: E: $*" 1>&2
-    echo "Type 'man ${_Shtk_Cli_ProgName}' for help" 1>&2
+    echo "Type '${_Shtk_Cli_Help_Command}' for help" 1>&2
     exit 1
 }

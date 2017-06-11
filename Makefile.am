@@ -100,6 +100,7 @@ dist_man_MANS += man/shtk_cli_error.3
 dist_man_MANS += man/shtk_cli_info.3
 dist_man_MANS += man/shtk_cli_log_level.3
 dist_man_MANS += man/shtk_cli_progname.3
+dist_man_MANS += man/shtk_cli_set_help_command.3
 dist_man_MANS += man/shtk_cli_set_log_level.3
 dist_man_MANS += man/shtk_cli_usage_error.3
 dist_man_MANS += man/shtk_cli_warning.3

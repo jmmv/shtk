@@ -69,6 +69,7 @@ As a quick introduction, here are the modules supplied by `shtk`:
   interfaces, including logging primitives.
 * `config`: Configuration file parser.
 * `cvs`: Utilities to interact with the CVS version control system.
+* `git`: Utilities to interact with the Git distributed version control system.
 * `list`: Utilities to manipulate lists represented as a collection of
   arguments.
 * `process`: Utilities to execute external processes.

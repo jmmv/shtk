@@ -1,0 +1,19 @@
+.Dd February 20, 2020
+.Dt SHTK_GIT_GETHASH 3
+.Os
+.Sh NAME
+.Nm shtk_git_gethash
+.Nd get the commit's hash of the last commit on the local branch
+.Sh LIBRARY
+shtk_import git
+.Sh SYNOPSIS
+.Nm
+.Ar directory
+.Sh DESCRIPTION
+The
+.Nm
+function is a call to 'git log --pretty=format:%h -n1' inside the
+.Ar directory .
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_git 3

@@ -1,6 +1,13 @@
 Major changes between releases
 ==============================
 
+Changes in version 1.7.1
+----------------------
+
+**Released on 2020-02-20.**
+
+* Added minimal support for git: pull, gethash
+  for sysbuild update.
 
 Changes in version 1.7
 ----------------------

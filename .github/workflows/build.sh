@@ -30,9 +30,10 @@
 set -e -x
 
 readonly SHELL_NAME="${1}"; shift
+readonly PREFIX="${1}"; shift
 
-if [ -d /usr/local/share/aclocal ]; then
-    autoreconf -isv -I/usr/local/share/aclocal
+if [ -d "${PREFIX}/share/aclocal" ]; then
+    autoreconf -isv -I"${PREFIX}/share/aclocal"
 else
     autoreconf -isv
 fi
@@ -45,6 +46,6 @@ fi
 ./configure SHTK_SHELL="${shell_path}"
 
 f=
-f="${f} PKG_CONFIG_PATH='/usr/local/lib/pkgconfig'"
+f="${f} PKG_CONFIG_PATH='${PREFIX}/lib/pkgconfig'"
 f="${f} SHTK_SHELL='${shell_path}'"
 make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}"

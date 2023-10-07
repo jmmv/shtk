@@ -8,61 +8,93 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install bash
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh bash
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh bash ~/kyua
 
     bash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install bash
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh bash
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh bash ~/kyua
 
     dash-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install dash
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh dash
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh dash ~/kyua
 
     dash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install dash
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh dash
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh dash ~/kyua
 
     mksh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install mksh
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh ksh
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh ksh ~/kyua
 
     mksh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install mksh
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh ksh
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh ksh ~/kyua
 
     zsh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install zsh
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh zsh
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh zsh ~/kyua
 
     zsh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install zsh
-            - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh zsh
+            - uses: actions/cache@v2
+              with:
+                path: ~/kyua
+                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
+            - run: ./.github/workflows/install-kyua.sh ~/kyua
+            - run: ./.github/workflows/build.sh zsh ~/kyua

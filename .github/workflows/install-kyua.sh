@@ -29,9 +29,7 @@
 
 set -e -x
 
-sudo apt-get update -qq
-sudo apt-get install -y liblua5.2-0 liblua5.2-dev \
-    libsqlite3-0 libsqlite3-dev pkg-config sqlite3
+readonly PREFIX="${1}"; shift
 
 install_from_github() {
     local name="${1}"; shift
@@ -47,26 +45,24 @@ install_from_github() {
     cd "${distname}"
     ./configure \
         --disable-developer \
+        --prefix="${PREFIX}" \
         --without-atf \
         --without-doxygen \
-        CPPFLAGS="-I/usr/local/include" \
-        LDFLAGS="-L/usr/local/lib -Wl,-R/usr/local/lib" \
-        PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
+        CPPFLAGS="-I${PREFIX}/include" \
+        LDFLAGS="-L${PREFIX}/lib -Wl,-R${PREFIX}/lib" \
+        PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
     make
-    sudo make install
+    make install
     cd -
 
     rm -rf "${distname}" "${distname}.tar.gz"
 }
 
-install_from_bintray() {
-    local name="20160204-usr-local-kyua-ubuntu-12-04-amd64-${CC:-gcc}.tar.gz"
-    wget "http://dl.bintray.com/jmmv/kyua/${name}" || return 1
-    sudo tar -xzvp -C / -f "${name}"
-    rm -f "${name}"
-}
+if [ ! -x "${PREFIX}/bin/kyua" ]; then
+    sudo apt-get update -qq
+    sudo apt-get install -y liblua5.2-0 liblua5.2-dev \
+        libsqlite3-0 libsqlite3-dev pkg-config sqlite3
 
-if ! install_from_bintray; then
     install_from_github atf 0.21
     install_from_github lutok 0.4
     install_from_github kyua 0.12

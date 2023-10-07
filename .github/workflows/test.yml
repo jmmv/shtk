@@ -8,53 +8,53 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install bash
-            - run: ./.github/workflows/build.sh bash
+            - run: ./.github/workflows/build.sh bash ""
 
     bash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - run: sudo apt-get install bash
-            - run: ./.github/workflows/build.sh bash
+            - run: sudo apt-get install bash cvs
+            - run: ./.github/workflows/build.sh bash "cvs"
 
     dash-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install dash
-            - run: ./.github/workflows/build.sh dash
+            - run: ./.github/workflows/build.sh dash ""
 
     dash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - run: sudo apt-get install dash
-            - run: ./.github/workflows/build.sh dash
+            - run: sudo apt-get install dash cvs
+            - run: ./.github/workflows/build.sh dash "cvs"
 
     mksh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install mksh
-            - run: ./.github/workflows/build.sh ksh
+            - run: ./.github/workflows/build.sh ksh ""
 
     mksh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - run: sudo apt-get install mksh
-            - run: ./.github/workflows/build.sh ksh
+            - run: sudo apt-get install mksh cvs
+            - run: ./.github/workflows/build.sh ksh "cvs"
 
     zsh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install zsh
-            - run: ./.github/workflows/build.sh zsh
+            - run: ./.github/workflows/build.sh zsh ""
 
     zsh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - run: sudo apt-get install zsh
-            - run: ./.github/workflows/build.sh zsh
+            - run: sudo apt-get install zsh cvs
+            - run: ./.github/workflows/build.sh zsh "cvs"

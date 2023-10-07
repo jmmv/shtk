@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shell Tookit (shtk)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">shtk</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="docs.html">Documentation</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5">
+      <div class="row">
+        <div class="col px-0">
+<h1>Reference manual</h1>
+<ul>
+<li><a href="shtk.1.html">shtk.1.html</a></li>
+<li><a href="shtk.3.html">shtk.3.html</a></li>
+<li><a href="shtk_abort.3.html">shtk_abort.3.html</a></li>
+<li><a href="shtk_bool.3.html">shtk_bool.3.html</a></li>
+<li><a href="shtk_bool_check.3.html">shtk_bool_check.3.html</a></li>
+<li><a href="shtk_cleanup.3.html">shtk_cleanup.3.html</a></li>
+<li><a href="shtk_cleanup_register.3.html">shtk_cleanup_register.3.html</a></li>
+<li><a href="shtk_cli.3.html">shtk_cli.3.html</a></li>
+<li><a href="shtk_cli_debug.3.html">shtk_cli_debug.3.html</a></li>
+<li><a href="shtk_cli_dirname.3.html">shtk_cli_dirname.3.html</a></li>
+<li><a href="shtk_cli_error.3.html">shtk_cli_error.3.html</a></li>
+<li><a href="shtk_cli_info.3.html">shtk_cli_info.3.html</a></li>
+<li><a href="shtk_cli_log_level.3.html">shtk_cli_log_level.3.html</a></li>
+<li><a href="shtk_cli_progname.3.html">shtk_cli_progname.3.html</a></li>
+<li><a href="shtk_cli_set_help_command.3.html">shtk_cli_set_help_command.3.html</a></li>
+<li><a href="shtk_cli_set_log_level.3.html">shtk_cli_set_log_level.3.html</a></li>
+<li><a href="shtk_cli_usage_error.3.html">shtk_cli_usage_error.3.html</a></li>
+<li><a href="shtk_cli_warning.3.html">shtk_cli_warning.3.html</a></li>
+<li><a href="shtk_config.3.html">shtk_config.3.html</a></li>
+<li><a href="shtk_config_get.3.html">shtk_config_get.3.html</a></li>
+<li><a href="shtk_config_get_bool.3.html">shtk_config_get_bool.3.html</a></li>
+<li><a href="shtk_config_get_default.3.html">shtk_config_get_default.3.html</a></li>
+<li><a href="shtk_config_has.3.html">shtk_config_has.3.html</a></li>
+<li><a href="shtk_config_include.3.html">shtk_config_include.3.html</a></li>
+<li><a href="shtk_config_init.3.html">shtk_config_init.3.html</a></li>
+<li><a href="shtk_config_load.3.html">shtk_config_load.3.html</a></li>
+<li><a href="shtk_config_override.3.html">shtk_config_override.3.html</a></li>
+<li><a href="shtk_config_run_hook.3.html">shtk_config_run_hook.3.html</a></li>
+<li><a href="shtk_config_set.3.html">shtk_config_set.3.html</a></li>
+<li><a href="shtk_config_unset.3.html">shtk_config_unset.3.html</a></li>
+<li><a href="shtk_cvs.3.html">shtk_cvs.3.html</a></li>
+<li><a href="shtk_cvs_checkout.3.html">shtk_cvs_checkout.3.html</a></li>
+<li><a href="shtk_cvs_fetch.3.html">shtk_cvs_fetch.3.html</a></li>
+<li><a href="shtk_cvs_update.3.html">shtk_cvs_update.3.html</a></li>
+<li><a href="shtk_fs.3.html">shtk_fs.3.html</a></li>
+<li><a href="shtk_fs_join_paths.3.html">shtk_fs_join_paths.3.html</a></li>
+<li><a href="shtk_fs_normalize_path.3.html">shtk_fs_normalize_path.3.html</a></li>
+<li><a href="shtk_hw.3.html">shtk_hw.3.html</a></li>
+<li><a href="shtk_hw_ncpus.3.html">shtk_hw_ncpus.3.html</a></li>
+<li><a href="shtk_import.3.html">shtk_import.3.html</a></li>
+<li><a href="shtk_list.3.html">shtk_list.3.html</a></li>
+<li><a href="shtk_list_contains.3.html">shtk_list_contains.3.html</a></li>
+<li><a href="shtk_list_filter.3.html">shtk_list_filter.3.html</a></li>
+<li><a href="shtk_process.3.html">shtk_process.3.html</a></li>
+<li><a href="shtk_process_run.3.html">shtk_process_run.3.html</a></li>
+<li><a href="shtk_unittest.1.html">shtk_unittest.1.html</a></li>
+<li><a href="shtk_unittest.3.html">shtk_unittest.3.html</a></li>
+<li><a href="shtk_unittest_add_fixture.3.html">shtk_unittest_add_fixture.3.html</a></li>
+<li><a href="shtk_unittest_add_test.3.html">shtk_unittest_add_test.3.html</a></li>
+<li><a href="shtk_unittest_assert_command.3.html">shtk_unittest_assert_command.3.html</a></li>
+<li><a href="shtk_unittest_assert_equal.3.html">shtk_unittest_assert_equal.3.html</a></li>
+<li><a href="shtk_unittest_assert_file.3.html">shtk_unittest_assert_file.3.html</a></li>
+<li><a href="shtk_unittest_assert_not_equal.3.html">shtk_unittest_assert_not_equal.3.html</a></li>
+<li><a href="shtk_unittest_delayed_fail.3.html">shtk_unittest_delayed_fail.3.html</a></li>
+<li><a href="shtk_unittest_expect_command.3.html">shtk_unittest_expect_command.3.html</a></li>
+<li><a href="shtk_unittest_expect_equal.3.html">shtk_unittest_expect_equal.3.html</a></li>
+<li><a href="shtk_unittest_expect_file.3.html">shtk_unittest_expect_file.3.html</a></li>
+<li><a href="shtk_unittest_expect_not_equal.3.html">shtk_unittest_expect_not_equal.3.html</a></li>
+<li><a href="shtk_unittest_fail.3.html">shtk_unittest_fail.3.html</a></li>
+<li><a href="shtk_unittest_main.3.html">shtk_unittest_main.3.html</a></li>
+<li><a href="shtk_unittest_set_expected_failure.3.html">shtk_unittest_set_expected_failure.3.html</a></li>
+<li><a href="shtk_unittest_skip.3.html">shtk_unittest_skip.3.html</a></li>
+<li><a href="shtk_version.3.html">shtk_version.3.html</a></li>
+<li><a href="shtk_version_at_least.3.html">shtk_version_at_least.3.html</a></li>
+<li><a href="shtk_version_at_most.3.html">shtk_version_at_most.3.html</a></li>
+<li><a href="shtk_version_is.3.html">shtk_version_is.3.html</a></li>
+</ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

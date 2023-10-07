@@ -8,93 +8,53 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install bash
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh bash ~/kyua
+            - run: ./.github/workflows/build.sh bash
 
     bash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install bash
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh bash ~/kyua
+            - run: ./.github/workflows/build.sh bash
 
     dash-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install dash
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh dash ~/kyua
+            - run: ./.github/workflows/build.sh dash
 
     dash-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install dash
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh dash ~/kyua
+            - run: ./.github/workflows/build.sh dash
 
     mksh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install mksh
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh ksh ~/kyua
+            - run: ./.github/workflows/build.sh ksh
 
     mksh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install mksh
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh ksh ~/kyua
+            - run: ./.github/workflows/build.sh ksh
 
     zsh-nothing:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install zsh
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh zsh ~/kyua
+            - run: ./.github/workflows/build.sh zsh
 
     zsh-cvs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - run: sudo apt-get install zsh
-            - uses: actions/cache@v2
-              with:
-                path: ~/kyua
-                key: kyua-${{ runner.os }}-${{ hashFiles('.github/workflows/install-kyua.sh') }}
-            - run: ./.github/workflows/install-kyua.sh ~/kyua
-            - run: ./.github/workflows/build.sh zsh ~/kyua
+            - run: ./.github/workflows/build.sh zsh

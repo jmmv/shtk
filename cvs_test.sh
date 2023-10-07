@@ -30,6 +30,11 @@ shtk_import cvs
 shtk_import unittest
 
 
+one_time_setup() {
+    which cvs >/dev/null 2>&1 || exit 77
+}
+
+
 # Creates a local CVS repository with a variety of modules.
 #
 # \param repository Path to the repository to create.

@@ -61,10 +61,6 @@ fi
 AC_MSG_NOTICE([Using shell interpreter ${SHTK_SHELL}])
 
 
-AC_PATH_PROG([KYUA], [kyua])
-AM_CONDITIONAL([HAVE_KYUA], [test -n "${KYUA}"])
-
-
 AC_SUBST(aclocaldir, \${datadir}/aclocal)
 AC_SUBST(pkgconfigdir, \${libdir}/pkgconfig)
 AC_SUBST(pkgtestsdir, \${testsdir}/shtk)

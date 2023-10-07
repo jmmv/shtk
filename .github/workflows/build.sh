@@ -30,13 +30,8 @@
 set -e -x
 
 readonly SHELL_NAME="${1}"; shift
-readonly PREFIX="${1}"; shift
 
-if [ -d "${PREFIX}/share/aclocal" ]; then
-    autoreconf -isv -I"${PREFIX}/share/aclocal"
-else
-    autoreconf -isv
-fi
+autoreconf -isv
 
 shell_path="$(which ${SHELL_NAME})"
 if [ ${?} -ne 0 ]; then
@@ -45,7 +40,17 @@ if [ ${?} -ne 0 ]; then
 fi
 ./configure SHTK_SHELL="${shell_path}"
 
-f=
-f="${f} PKG_CONFIG_PATH='${PREFIX}/lib/pkgconfig'"
-f="${f} SHTK_SHELL='${shell_path}'"
-make distcheck DISTCHECK_CONFIGURE_FLAGS="${f}"
+ret=0
+make distcheck DISTCHECK_CONFIGURE_FLAGS="SHTK_SHELL='${shell_path}'" \
+    || ret="${?}"
+if [ ${ret} -ne 0 ]; then
+    {
+        echo "make distcheck failed!"
+        log="$(find . -name test-suite.log)"
+        if [ -f "${log}" ]; then
+            echo "Contents of ${log}:"
+            cat "${log}"
+        fi
+    } 1>&2
+    exit ${ret}
+fi

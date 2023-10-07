@@ -314,3 +314,10 @@ clean-all:
 	GIT="$(GIT)" $(SH) $(srcdir)/admin/clean-all.sh
 
 .PHONY: $(PHONY_TARGETS)
+
+site/build: $(srcdir)/site/build.sh shtk
+	$(AM_V_GEN)$(TESTS_ENVIRONMENT) ./shtk build -o $@ $<
+
+PHONY_TARGETS += site
+site: all site/build
+	@$(TESTS_ENVIRONMENT) ./site/build -o site-out "-v$(PACKAGE_VERSION)"

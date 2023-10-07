@@ -19,5 +19,7 @@ man/shtk.1
 man/shtk_import.3
 shtk
 shtk.pc
+site/build
+site-out
 test-suite.log
 version.subr

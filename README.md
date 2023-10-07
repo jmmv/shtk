@@ -14,11 +14,7 @@ shtk is purely written in the shell scripting language so there are **no
 dependencies** to be installed.
 
 shtk is **known to be compatible with at least bash, dash, pdksh and zsh**,
-and continuous integration tests on Travis CI prove this to be the case.
-It is also true that shtk runs on other shells like the native `/bin/sh`
-interpreter of the BSD systems but, unfortunately, no assurances can be
-made in this regard by the continuous integration system due to Travis CI
-limitations
+and continuous integration tests prove this to be the case.
 
 shtk is licensed under a **[liberal BSD 3-clause license](LICENSE)**.
 
@@ -60,20 +56,9 @@ command-line utility and type `man 3 shtk` to open the introductory page to
 the API reference manual.  The `SEE ALSO` sections will guide you through
 the rest of the documentation.
 
-As a quick introduction, here are the modules supplied by `shtk`:
+You can access pre-built versions of the documentation online by visiting:
 
-* `bool`: Utilities to manipulate boolean values.
-* `cleanup`: Utilities to install "at-exit" handlers.
-* `cli`: Utilities to implement clean and consistent command-line
-  interfaces, including logging primitives.
-* `config`: Configuration file parser.
-* `cvs`: Utilities to interact with the CVS version control system.
-* `list`: Utilities to manipulate lists represented as a collection of
-  arguments.
-* `process`: Utilities to execute external processes.
-* `unittest`: Framework to implement unit- and integration-test test
-  programs.
-* `version`: Utilities to check the in-use version of `shtk`.
+> <https://shtk.jmmv.dev/>
 
 
 Support

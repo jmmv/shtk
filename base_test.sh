@@ -87,7 +87,9 @@ EOF
 # actual bug in the shtk_abort code.  For now, assume the former and workaround
 # the issue in the tests only.
 fixup_abort_subshell_tests_for_pdksh() {
-    set -o monitor 2>/dev/null
+    if [ -z "${ZSH_VERSION}" ]; then
+        set -o monitor 2>/dev/null
+    fi
 }
 
 

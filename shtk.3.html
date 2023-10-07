@@ -18,6 +18,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              <a class="nav-link" href="https://github.com/jmmv/shtk/releases/" target="_blank">Download</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="install.html">Installation</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link active" href="docs.html">Documentation</a>
             </li>
           </ul>
@@ -28,6 +34,161 @@
     <div class="container my-5">
       <div class="row">
         <div class="col px-0">
+<!DOCTYPE html>
+<html>
+<!-- This is an automatically generated file.  Do not edit.
+   Copyright 2014 Google Inc.
+   All rights reserved.
+  
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are
+   met:
+  
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+   * Neither the name of Google Inc. nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    table.head, table.foot { width: 100%; }
+    td.head-rtitle, td.foot-os { text-align: right; }
+    td.head-vol { text-align: center; }
+    .Nd, .Bf, .Op { display: inline; }
+    .Pa, .Ad { font-style: italic; }
+    .Ms { font-weight: bold; }
+    .Bl-diag > dt { font-weight: bold; }
+    code.Nm, .Fl, .Cm, .Ic, code.In, .Fd, .Fn, .Cd { font-weight: bold;
+      font-family: inherit; }
+  </style>
+  <title>SHTK(3)</title>
+</head>
+<body>
+<table class="head">
+  <tr>
+    <td class="head-ltitle">SHTK(3)</td>
+    <td class="head-vol">Library Functions Manual</td>
+    <td class="head-rtitle">SHTK(3)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<p class="Pp"><code class="Nm">shtk</code> &#x2014; <span class="Nd">Application
+    Programming Interface (API) of the Shell Toolkit</span></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<p class="Pp">The Shell Toolkit, or <code class="Nm">shtk</code> for short, is a
+    collection of modules written in <a class="Xr" href="sh.1.html">sh(1)</a>
+    that provide common functionality to simplify the implementation of complex
+    shell scripts. This page provides an introduction to writing scripts using
+    <code class="Nm">shtk</code> and serves as a reference to all the provided
+    modules by it.</p>
+<section class="Ss">
+<h2 class="Ss" id="Script_structure"><a class="permalink" href="#Script_structure">Script
+  structure</a></h2>
+<p class="Pp">Scripts using <code class="Nm">shtk</code> follow this
+  structure:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>shtk_import module1
+shtk_import moduleN
+
+# possibly define globals here
+
+some_custom_function() {
+    local arg1=&quot;${1}&quot;; shift
+    local arg2=&quot;${1}&quot;; shift
+
+    # do something
+}
+
+main() {
+    # program entry point; automatically invoked
+}</pre>
+</div>
+<p class="Pp">In particular, note: that there is no shebang line at the
+    beginning of the script; that there is no explicit call to
+    <code class="Nm">main</code>; and that there is no code outside of shell
+    functions other than for calls to
+    <a class="Xr" href="shtk_import.3.html">shtk_import(3)</a>.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="Script_compilation"><a class="permalink" href="#Script_compilation">Script
+  compilation</a></h2>
+<p class="Pp">The <a class="Xr" href="shtk.1.html">shtk(1)</a> tool offers a
+    compilation process for scripts using
+    <a class="Xr" href="shtk.3.html">shtk(3)</a>. In this context, compilation
+    just refers to the addition of initialization boilerplate code to the script
+    so that the correct modules can be located and that a well-known shell
+    interpreter is used.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="Modules"><a class="permalink" href="#Modules">Modules</a></h2>
+<p class="Pp">The <a class="Xr" href="shtk_import.3.html">shtk_import(3)</a>
+    function depicted above is used to bring the specified modules into the
+    script. For details on all existing modules, see the list of
+    cross-referenced pages in the <a class="Sx" href="#SEE_ALSO">SEE ALSO</a>
+    section below.</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<p class="Pp"><a class="Xr" href="shtk.1.html">shtk(1)</a></p>
+<section class="Ss">
+<h2 class="Ss" id="Built-in_functions"><a class="permalink" href="#Built-in_functions">Built-in
+  functions</a></h2>
+<p class="Pp"><a class="Xr" href="shtk_abort.3.html">shtk_abort(3)</a>,
+    <a class="Xr" href="shtk_import.3.html">shtk_import(3)</a></p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="Modules~2"><a class="permalink" href="#Modules~2">Modules</a></h2>
+<p class="Pp"><a class="Xr" href="shtk_bool.3.html">shtk_bool(3)</a>,
+    <a class="Xr" href="shtk_cleanup.3.html">shtk_cleanup(3)</a>,
+    <a class="Xr" href="shtk_cli.3.html">shtk_cli(3)</a>,
+    <a class="Xr" href="shtk_config.3.html">shtk_config(3)</a>,
+    <a class="Xr" href="shtk_cvs.3.html">shtk_cvs(3)</a>,
+    <a class="Xr" href="shtk_fs.3.html">shtk_fs(3)</a>,
+    <a class="Xr" href="shtk_hw.3.html">shtk_hw(3)</a>,
+    <a class="Xr" href="shtk_list.3.html">shtk_list(3)</a>,
+    <a class="Xr" href="shtk_process.3.html">shtk_process(3)</a>,
+    <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a>,
+    <a class="Xr" href="shtk_version.3.html">shtk_version(3)</a></p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="AUTHORS"><a class="permalink" href="#AUTHORS">AUTHORS</a></h1>
+<p class="Pp">The <code class="Nm">shtk</code> package was developed by
+    <span class="An">Julio Merino</span> &#x27E8;jmmv@google.com&#x27E9;.</p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">February 6, 2017</td>
+    <td class="foot-os">Debian</td>
+  </tr>
+</table>
+</body>
+</html>
         </div>
       </div>
     </div>

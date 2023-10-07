@@ -18,6 +18,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              <a class="nav-link" href="https://github.com/jmmv/shtk/releases/" target="_blank">Download</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="install.html">Installation</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link active" href="docs.html">Documentation</a>
             </li>
           </ul>
@@ -28,6 +34,200 @@
     <div class="container my-5">
       <div class="row">
         <div class="col px-0">
+<!DOCTYPE html>
+<html>
+<!-- This is an automatically generated file.  Do not edit.
+   Copyright 2014 Google Inc.
+   All rights reserved.
+  
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are
+   met:
+  
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+   * Neither the name of Google Inc. nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    table.head, table.foot { width: 100%; }
+    td.head-rtitle, td.foot-os { text-align: right; }
+    td.head-vol { text-align: center; }
+    .Nd, .Bf, .Op { display: inline; }
+    .Pa, .Ad { font-style: italic; }
+    .Ms { font-weight: bold; }
+    .Bl-diag > dt { font-weight: bold; }
+    code.Nm, .Fl, .Cm, .Ic, code.In, .Fd, .Fn, .Cd { font-weight: bold;
+      font-family: inherit; }
+  </style>
+  <title>SHTK_UNITTEST_ASSERT_COMMAND(3)</title>
+</head>
+<body>
+<table class="head">
+  <tr>
+    <td class="head-ltitle">SHTK_UNITTEST_ASSERT_COMMAND(3)</td>
+    <td class="head-vol">Library Functions Manual</td>
+    <td class="head-rtitle">SHTK_UNITTEST_ASSERT_COMMAND(3)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<p class="Pp"><code class="Nm">shtk_unittest_assert_command</code> &#x2014;
+    <span class="Nd">Runs a command and validates its exit status and
+    output</span></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="LIBRARY"><a class="permalink" href="#LIBRARY">LIBRARY</a></h1>
+<p class="Pp">shtk_import unittest</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">shtk_unittest_assert_command</code></td>
+    <td>[<code class="Fl">-e</code> <code class="Fl">-output_spec</code>]
+      [<code class="Fl">-o</code> <code class="Fl">-output_spec</code>]
+      [<code class="Fl">-s</code> <code class="Fl">-exit_code_spec</code>]
+      <var class="Ar">command</var> [arg1 .. argN]</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<p class="Pp">The <code class="Nm">shtk_unittest_assert_command</code> function
+    runs the command provided in the arguments starting at
+    <var class="Ar">command</var>, which can possibly refer to an in-process
+    shell function, and verifies both its exit status and its output to stdout
+    and stderr. If any of the checks fails, the calling test case fails as well.
+    <code class="Nm">shtk_unittest_assert_command</code> is the most versatile
+    check offered by
+    <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a> and should be
+    used to validate the majority of the executions performed by test cases.</p>
+<section class="Ss">
+<h2 class="Ss" id="Exit_checks"><a class="permalink" href="#Exit_checks">Exit
+  checks</a></h2>
+<p class="Pp">The <code class="Fl">-s</code> flag can be used to specify a check
+    on the exit status of the <var class="Ar">command</var> and can be given
+    more than one time. If this flag is not given, the default is to expect a
+    successful exit; in other words, that <var class="Ar">command</var> exits
+    zero.</p>
+<p class="Pp">The valid values for <var class="Ar">exit_code_spec</var> are of
+    the form:</p>
+<div class="Bd-indent">
+<dl class="Bl-tag">
+  <dt><var class="Ar">&lt;exit-code&gt;</var></dt>
+  <dd>The exit code of the command must match
+    <var class="Ar">exit-code</var>.</dd>
+  <dt><var class="Ar">ignore</var></dt>
+  <dd>The exit code of the command is irrelevant.</dd>
+  <dt><var class="Ar">exit:&lt;exit-code&gt;</var></dt>
+  <dd>The exit code of the command must match
+    <var class="Ar">exit-code</var>.</dd>
+  <dt><var class="Ar">not-exit:&lt;exit-code&gt;</var></dt>
+  <dd>The exit code of the command must not match
+      <var class="Ar">exit-code</var>.</dd>
+  <dt><var class="Ar">signal:&lt;signal-number&gt;</var></dt>
+  <dd>The command must have been terminated by signal
+      <var class="Ar">signal-number</var>, which can be provided both as an
+      integer or as a name.</dd>
+  <dt><var class="Ar">not-signal:&lt;signal-number&gt;</var></dt>
+  <dd>The command must have been terminated by a signal and the signal must not
+      be <var class="Ar">signal-number</var>, which can be provided both as an
+      integer or as a name.</dd>
+</dl>
+</div>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="Output_checks"><a class="permalink" href="#Output_checks">Output
+  checks</a></h2>
+<p class="Pp">The <code class="Fl">-o</code> and <code class="Fl">-e</code>
+    flags can be used to specify a check on the contents of stdout or stderr,
+    respectively, of the <var class="Ar">command</var>. Both flags can be
+    provided more than once to specify complementary checks on the output. If no
+    checks are specified, the default is to expect the outputs to be empty.</p>
+<p class="Pp">The valid values for <var class="Ar">output_spec</var> are the
+    same as the ones described in
+    <a class="Xr" href="shtk_unittest_assert_file.3.html">shtk_unittest_assert_file(3)</a>.</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXAMPLES"><a class="permalink" href="#EXAMPLES">EXAMPLES</a></h1>
+<p class="Pp">In the simplest form,
+    <code class="Nm">shtk_unittest_assert_command</code> checks for success and
+    no output so the following invocation would pass:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>assert_command true</pre>
+</div>
+<p class="Pp">However, the following invocations would fail:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>assert_command false
+assert_command echo &quot;foo&quot;</pre>
+</div>
+<p class="Pp">With flags, the expectations of the executed command can be
+    changed. For example, the following variants of the above would now
+  pass:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>assert_command -s exit:1 false
+assert_command -o inline:&quot;foo\n&quot; echo &quot;foo&quot;</pre>
+</div>
+<p class="Pp">It is OK to specify multiple checks for a single command:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>assert_command -s exit:0 -o match:foo -o match:bar -e ignore \
+    echo &quot;foo bar&quot;</pre>
+</div>
+<p class="Pp">Built-in functions are also allowed as commands:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>my_verbose_command() {
+    echo &quot;sent to stdout&quot;
+    echo &quot;sent to stderr: ${*}&quot; 1&gt;&amp;2
+    exit 42
+}
+
+echo &quot;sent to stderr: arg1 arg2&quot; &gt;experr
+assert_command -s exit:42 -o inline:&quot;sent to stdout\n&quot; \
+    -e file:experr my_verbose_command arg1 arg2</pre>
+</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<p class="Pp"><a class="Xr" href="shtk.3.html">shtk(3)</a>,
+    <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="HISTORY"><a class="permalink" href="#HISTORY">HISTORY</a></h1>
+<p class="Pp"><code class="Nm">shtk_unittest_assert_command</code> first
+    appeared in <code class="Nm">shtk</code> 1.6.</p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">November 10, 2014</td>
+    <td class="foot-os">Debian</td>
+  </tr>
+</table>
+</body>
+</html>
         </div>
       </div>
     </div>

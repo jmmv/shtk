@@ -18,6 +18,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              <a class="nav-link" href="https://github.com/jmmv/shtk/releases/" target="_blank">Download</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="install.html">Installation</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link active" href="docs.html">Documentation</a>
             </li>
           </ul>
@@ -28,6 +34,135 @@
     <div class="container my-5">
       <div class="row">
         <div class="col px-0">
+<!DOCTYPE html>
+<html>
+<!-- This is an automatically generated file.  Do not edit.
+   Copyright 2017 Google Inc.
+   All rights reserved.
+  
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are
+   met:
+  
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+   * Neither the name of Google Inc. nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    table.head, table.foot { width: 100%; }
+    td.head-rtitle, td.foot-os { text-align: right; }
+    td.head-vol { text-align: center; }
+    .Nd, .Bf, .Op { display: inline; }
+    .Pa, .Ad { font-style: italic; }
+    .Ms { font-weight: bold; }
+    .Bl-diag > dt { font-weight: bold; }
+    code.Nm, .Fl, .Cm, .Ic, code.In, .Fd, .Fn, .Cd { font-weight: bold;
+      font-family: inherit; }
+  </style>
+  <title>SHTK_UNITTEST(1)</title>
+</head>
+<body>
+<table class="head">
+  <tr>
+    <td class="head-ltitle">SHTK_UNITTEST(1)</td>
+    <td class="head-vol">General Commands Manual</td>
+    <td class="head-rtitle">SHTK_UNITTEST(1)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<p class="Pp"><code class="Nm">unittest</code> &#x2014; <span class="Nd">Test
+    program implemented using shtk's unittest library</span></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">test-program</code></td>
+    <td>[<code class="Fl">-t</code> <var class="Ar">test-case</var>]</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<p class="Pp">This manual page documents the general command-line interface to
+    test programs written using the
+    <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a> library.</p>
+<p class="Pp" id="all">Unless told otherwise, the test program runs
+    <a class="permalink" href="#all"><i class="Em">all</i></a> the test cases it
+    contains in-process. The order in which the test cases are run is not
+    pre-determined.</p>
+<p class="Pp">The tests are executed in the current directory, so they are
+    subject to cross-test pollution if they do not clean up after themselves
+    properly. It is highly recommended that you use
+    <a class="Xr" href="kyua.1.html">kyua(1)</a> to orchestrate the execution of
+    these test programs.</p>
+<p class="Pp">The following options are supported:</p>
+<dl class="Bl-tag">
+  <dt id="t"><a class="permalink" href="#t"><code class="Fl">-t</code></a>
+    <var class="Ar">test-case</var></dt>
+  <dd>Restricts the set of executed test cases to the one given in
+      <var class="Ar">test-case</var>. This flag can be provided multiple times
+      to tell the test program which collection of test cases to run.
+    <p class="Pp">Standalone test cases are identified by their bare name, and
+        test cases within a fixture are identified by the fixture's name and the
+        test case's name pair separated by two underscore characters, like in:
+        &#x2018;fixture__test_name&#x2019;.</p>
+    <p class="Pp">Note that the test program does not currently respect the
+        order in which you provided the <code class="Fl">-t</code> flags.</p>
+  </dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXIT_STATUS"><a class="permalink" href="#EXIT_STATUS">EXIT
+  STATUS</a></h1>
+<p class="Pp">The test program returns 0 if all executed tests passed, or 1 if
+    there was a problem either in the invocation or in the execution of the
+    tests. In particular, if filtering of test cases is requested with
+    <code class="Fl">-t</code> and the given tests do not match any test case,
+    the test program will exit with a 1 error code.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<p class="Pp"><a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="HISTORY"><a class="permalink" href="#HISTORY">HISTORY</a></h1>
+<p class="Pp"><code class="Nm">unittest</code> first appeared in
+    <code class="Nm">shtk</code> 1.6. The <code class="Fl">-t</code> flag
+    appeared in <code class="Nm">shtk</code> 1.8.</p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">June 11, 2017</td>
+    <td class="foot-os">Debian</td>
+  </tr>
+</table>
+</body>
+</html>
         </div>
       </div>
     </div>

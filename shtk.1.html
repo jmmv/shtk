@@ -18,6 +18,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              <a class="nav-link" href="https://github.com/jmmv/shtk/releases/" target="_blank">Download</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link " href="install.html">Installation</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link active" href="docs.html">Documentation</a>
             </li>
           </ul>
@@ -28,6 +34,193 @@
     <div class="container my-5">
       <div class="row">
         <div class="col px-0">
+<!DOCTYPE html>
+<html>
+<!-- This is an automatically generated file.  Do not edit.
+   Copyright 2012 Google Inc.
+   All rights reserved.
+  
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are
+   met:
+  
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+   * Neither the name of Google Inc. nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    table.head, table.foot { width: 100%; }
+    td.head-rtitle, td.foot-os { text-align: right; }
+    td.head-vol { text-align: center; }
+    .Nd, .Bf, .Op { display: inline; }
+    .Pa, .Ad { font-style: italic; }
+    .Ms { font-weight: bold; }
+    .Bl-diag > dt { font-weight: bold; }
+    code.Nm, .Fl, .Cm, .Ic, code.In, .Fd, .Fn, .Cd { font-weight: bold;
+      font-family: inherit; }
+  </style>
+  <title>SHTK(1)</title>
+</head>
+<body>
+<table class="head">
+  <tr>
+    <td class="head-ltitle">SHTK(1)</td>
+    <td class="head-vol">General Commands Manual</td>
+    <td class="head-rtitle">SHTK(1)</td>
+  </tr>
+</table>
+<div class="manual-text">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<p class="Pp"><code class="Nm">shtk</code> &#x2014; <span class="Nd">Interface
+    to the Shell Toolkit</span></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">shtk</code></td>
+    <td>build [<code class="Fl">-m</code> <var class="Ar">main_function</var>]
+      [<code class="Fl">-o</code> <var class="Ar">output_file</var>]
+      [<code class="Fl">-s</code> <var class="Ar">shell</var>]
+      [<var class="Ar">input_file</var>]</td>
+  </tr>
+</table>
+<br/>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">shtk</code></td>
+    <td>version</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<p class="Pp">The Shell Toolkit, or <code class="Nm">shtk</code> for short, is a
+    collection of modules written in <a class="Xr" href="sh.1.html">sh(1)</a>
+    that provide common functionality to simplify the implementation of complex
+    shell scripts.</p>
+<p class="Pp">The tool described in this page, also named
+    <code class="Nm">shtk</code>, is a program that accompanies the Shell
+    Toolkit and provides functionality that may be necessary to use the toolkit.
+    For documentation on the API, please see
+    <a class="Xr" href="shtk.3.html">shtk(3)</a>.</p>
+<p class="Pp">The interface of <code class="Nm">shtk</code> is that of a program
+    with commands as shown in the synopsis section. The following subsections
+    describe the various commands supported by the tool.</p>
+<section class="Ss">
+<h2 class="Ss" id="The_build_command"><a class="permalink" href="#The_build_command">The
+  build command</a></h2>
+<p class="Pp">The build command takes a script that uses
+    <code class="Nm">shtk</code> modules and generates an executable script with
+    the necessary boilerplate code to be able to locate said modules.</p>
+<p class="Pp">The <var class="Ar">input_file</var> argument specifies the path
+    to the file to process. This file should end with an &#x2018;.sh&#x2019;
+    extension, in which case the build command will proceed to generate a binary
+    of the same name without any extension. If the extension is not present,
+    then the name of the output file must be provided by specifying the
+    <code class="Fl">-o</code> flag. The input file can also be
+    &#x2018;-&#x2019;, in which case the code is read from the standard
+  input.</p>
+<p class="Pp">The following options are supported:</p>
+<dl class="Bl-tag">
+  <dt id="m"><a class="permalink" href="#m"><code class="Fl">-m</code></a>
+    <var class="Ar">main_function</var></dt>
+  <dd>Name of the function that implements the entry point of the program. For
+      programs using the
+      <a class="Xr" href="shkt_unittest.3.html">shkt_unittest(3)</a> module,
+      this should be passed as <code class="Fl">-m</code>
+      <var class="Ar">shtk_unittest_main</var>.
+    <p class="Pp">All scripts that use <code class="Nm">shtk</code> should
+        implement a main function and should avoid placing any code at the top
+        level of the file. The main function is automatically executed by the
+        generated script. If the value of <var class="Ar">main_function</var> is
+        empty, then no call to main is issued which may be necessary if the
+        script already has a call to main for whatever reason.</p>
+    <p class="Pp">Default: &#x2018;main&#x2019;.</p>
+  </dd>
+  <dt id="o"><a class="permalink" href="#o"><code class="Fl">-o</code></a>
+    <var class="Ar">output_file</var></dt>
+  <dd>Path to the output file to generate.
+    <p class="Pp">Default: if <var class="Ar">input_file</var> ends in
+        &#x2018;.sh&#x2019;, the output file has the same name as the input file
+        but without the extension. Otherwise this flag must be specified.</p>
+  </dd>
+  <dt id="s"><a class="permalink" href="#s"><code class="Fl">-s</code></a>
+    <var class="Ar">shell</var></dt>
+  <dd>Path to the shell interpreter to write in the shebang line of the file.
+    <p class="Pp">Default: <span class="Pa">/usr/bin/bash</span>.</p>
+  </dd>
+</dl>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="The_version_command"><a class="permalink" href="#The_version_command">The
+  version command</a></h2>
+<p class="Pp">The version command prints the name of the package and its version
+    to the standard output. This command always exits successfully.</p>
+</section>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="ENVIRONMENT"><a class="permalink" href="#ENVIRONMENT">ENVIRONMENT</a></h1>
+<dl class="Bl-tag">
+  <dt id="SHTK_MODULESDIR"><var class="Va">SHTK_MODULESDIR</var></dt>
+  <dd>Overrides the built-in location of the modules.</dd>
+  <dt id="SHTK_MODULESPATH"><var class="Va">SHTK_MODULESPATH</var></dt>
+  <dd>Colon-separated list of directories in which to look for modules.
+      <var class="Va">SHTK_MODULESDIR</var> is always implied at the end of the
+      path. The user can define this variable to point to other directories.
+      This is especially handy in packages that install custom modules and want
+      to use such modules before installing them.</dd>
+  <dt id="SHTK_SHELL"><var class="Va">SHTK_SHELL</var></dt>
+  <dd>Overrides the built-in location of the default shell interpreter.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="FILES"><a class="permalink" href="#FILES">FILES</a></h1>
+<dl class="Bl-tag">
+  <dt><span class="Pa">/usr/local/share/shtk/</span></dt>
+  <dd>Location of the <code class="Nm">shtk</code> modules.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<p class="Pp"><a class="Xr" href="shtk.3.html">shtk(3)</a></p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="AUTHORS"><a class="permalink" href="#AUTHORS">AUTHORS</a></h1>
+<p class="Pp">The <code class="Nm">shtk</code> package was developed by
+    <span class="An">Julio Merino</span> &#x27E8;jmmv@google.com&#x27E9;.</p>
+</section>
+</div>
+<table class="foot">
+  <tr>
+    <td class="foot-date">November 8, 2014</td>
+    <td class="foot-os">Debian</td>
+  </tr>
+</table>
+</body>
+</html>
         </div>
       </div>
     </div>

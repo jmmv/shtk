@@ -13,7 +13,7 @@ jobs:
             - run: sudo apt-get install -y mandoc pandoc
             - run: autoreconf -isv
             - run: ./configure
-            - run: make site
+            - run: make site SITE_ID=238881e4-4c6d-4bcf-87df-d0fd12afd2ce
             - uses: JamesIves/github-pages-deploy-action@4.1.4
               with:
                 folder: site-out

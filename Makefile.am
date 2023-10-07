@@ -319,5 +319,7 @@ site/build: $(srcdir)/site/build.sh shtk
 	$(AM_V_GEN)$(TESTS_ENVIRONMENT) ./shtk build -o $@ $<
 
 PHONY_TARGETS += site
+SITE_ID = 00000000-0000-0000-0000-000000000000
 site: all site/build
-	@$(TESTS_ENVIRONMENT) ./site/build -o site-out "-v$(PACKAGE_VERSION)"
+	@$(TESTS_ENVIRONMENT) ./site/build \
+	    -o site-out "-s$(SITE_ID)" "-v$(PACKAGE_VERSION)"

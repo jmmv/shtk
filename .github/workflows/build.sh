@@ -29,6 +29,8 @@
 
 set -e -x
 
+readonly SHELL_NAME="${1}"; shift
+
 if [ -d /usr/local/share/aclocal ]; then
     autoreconf -isv -I/usr/local/share/aclocal
 else

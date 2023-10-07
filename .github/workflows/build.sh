@@ -30,6 +30,24 @@
 set -e -x
 
 readonly SHELL_NAME="${1}"; shift
+readonly REQUIRED_TOOLS="${1}"; shift
+
+required_cvs=false
+for tool in ${REQUIRED_TOOLS}; do
+    if ! which "${tool}" >/dev/null 2>&1; then
+        echo "Expected tool ${tool} is not installed" 1>&2
+        exit 1
+    fi
+    case "${tool}" in
+        cvs) required_cvs=true ;;
+    esac
+done
+if [ "${required_cvs}" = false ]; then
+    if which "${tool}" >/dev/null 2>&1; then
+        echo "Unexpected tool ${tool} is installed" 1>&2
+        exit 1
+    fi
+fi
 
 autoreconf -isv
 

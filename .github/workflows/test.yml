@@ -43,21 +43,21 @@ jobs:
             - run: ./.github/workflows/install-deps.sh
             - run: ./.github/workflows/build.sh
 
-    pdksh-nothing:
+    mksh-nothing:
         runs-on: ubuntu-latest
         env:
             EXTRA_PACKAGES:
-            SHELL_NAME: pdksh
+            SHELL_NAME: mksh
         steps:
             - uses: actions/checkout@v2
             - run: ./.github/workflows/install-deps.sh
             - run: ./.github/workflows/build.sh
 
-    pdksh-cvs:
+    mksh-cvs:
         runs-on: ubuntu-latest
         env:
             EXTRA_PACKAGES: cvs
-            SHELL_NAME: pdksh
+            SHELL_NAME: mksh
         steps:
             - uses: actions/checkout@v2
             - run: ./.github/workflows/install-deps.sh

@@ -54,6 +54,7 @@ build_docs() {
 build_fragments() {
     local outdir="${1}"; shift
     local version="${1}"; shift
+    local site_id="${1}"; shift
 
     shtk_cli_info "Processing fragments..."
     for src in "${outdir}"/*.frag; do
@@ -66,21 +67,33 @@ build_fragments() {
             */install.html*) install_active="active" ;;
             *) docs_active="active" ;;
         esac
+
+        local name="${dest#${outdir}/}"
+        local page_id="$(echo "https://shtk.jmmv.dev/${name}" | base64 -w0)"
+
         cat site/header.html.in "${src}" site/footer.html.in \
             | sed -e "s,@DOCS_ACTIVE@,${docs_active},g" \
                   -e "s,@INSTALL_ACTIVE@,${install_active},g" >"${dest}" \
-                  -e "s,@SHTK_VERSION@,${version},g" >"${dest}"
+                  -e "s,@SHTK_VERSION@,${version},g" \
+                  -e "s,@SITE_ID@,${site_id},g" \
+                  -e "s,@PAGE_ID@,${page_id},g" \
+                  >"${dest}"
     done
 }
 
 main() {
+    local site_id=
     local outdir=site-out
     local version=0.0
 
-    while getopts ':o:v:' arg "${@}"; do
+    while getopts ':o:s:v:' arg "${@}"; do
         case "${arg}" in
             o)  # Output directory.
                 outdir="${OPTARG}"
+                ;;
+
+            s)  # Site id for analytics.
+                site_id="${OPTARG}"
                 ;;
 
             v)  # Version to embed in the documentation.
@@ -111,7 +124,7 @@ main() {
 
     build_docs "${outdir}"
 
-    build_fragments "${outdir}" "${version}"
+    build_fragments "${outdir}" "${version}" "${site_id}"
 
     rm "${outdir}"/*.frag
 }

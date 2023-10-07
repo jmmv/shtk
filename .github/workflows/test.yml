@@ -5,80 +5,64 @@ on: [push, pull_request]
 jobs:
     bash-nothing:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES:
-            SHELL_NAME: bash
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install bash
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh bash
 
     bash-cvs:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES: cvs
-            SHELL_NAME: bash
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install bash
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh bash
 
     dash-nothing:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES:
-            SHELL_NAME: dash
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install dash
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh dash
 
     dash-cvs:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES: cvs
-            SHELL_NAME: dash
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install dash
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh dash
 
     mksh-nothing:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES:
-            SHELL_NAME: mksh
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install mksh
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh ksh
 
     mksh-cvs:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES: cvs
-            SHELL_NAME: mksh
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install mksh
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh ksh
 
     zsh-nothing:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES:
-            SHELL_NAME: zsh
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install zsh
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh zsh
 
     zsh-cvs:
         runs-on: ubuntu-latest
-        env:
-            EXTRA_PACKAGES: cvs
-            SHELL_NAME: zsh
         steps:
             - uses: actions/checkout@v2
+            - run: sudo apt-get install zsh
             - run: ./.github/workflows/install-deps.sh
-            - run: ./.github/workflows/build.sh
+            - run: ./.github/workflows/build.sh zsh

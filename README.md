@@ -20,8 +20,7 @@ interpreter of the BSD systems but, unfortunately, no assurances can be
 made in this regard by the continuous integration system due to Travis CI
 limitations
 
-shtk is licensed under a **[liberal BSD 3-clause license](LICENSE)**.  This
-is not an official Google product.
+shtk is licensed under a **[liberal BSD 3-clause license](LICENSE)**.
 
 
 Download

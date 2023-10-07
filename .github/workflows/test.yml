@@ -1,0 +1,84 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+    bash-nothing:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES:
+            SHELL_NAME: bash
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    bash-cvs:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES: cvs
+            SHELL_NAME: bash
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    dash-nothing:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES:
+            SHELL_NAME: dash
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    dash-cvs:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES: cvs
+            SHELL_NAME: dash
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    pdksh-nothing:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES:
+            SHELL_NAME: pdksh
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    pdksh-cvs:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES: cvs
+            SHELL_NAME: pdksh
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    zsh-nothing:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES:
+            SHELL_NAME: zsh
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh
+
+    zsh-cvs:
+        runs-on: ubuntu-latest
+        env:
+            EXTRA_PACKAGES: cvs
+            SHELL_NAME: zsh
+        steps:
+            - uses: actions/checkout@v2
+            - run: ./.github/workflows/install-deps.sh
+            - run: ./.github/workflows/build.sh

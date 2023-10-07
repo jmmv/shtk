@@ -28,15 +28,10 @@ Or alternatively, install as a regular user into your home directory:
 Dependencies
 ------------
 
-To build and use shtk successfully you need:
+To build, use and test shtk successfully you need:
 
 * A POSIX-compliant shell.  Any of bash, dash, pdksh and zsh are known to
   be supported.  Old and broken shells are explicitly not supported.
-
-Optionally, if you want to build and run the tests (recommended), you need:
-
-* pkg-config.
-* Kyua 0.6 or greater.
 
 If you are building shtk from the code on the repository, you will also
 need the following tools:
@@ -70,15 +65,13 @@ To build and install the source package, you must follow these steps:
    installation prefix.  More details on this procedure are given on a
    later section.
 
-2. Build the sources to generate the binaries and scripts.  Simply run
-   `make` on the sources' top directory after configuring them.  No
-   problems should arise.
+2. Build the sources to generate the binaries and scripts.  Run `make` on
+   the sources' top directory after configuring them.
+   
+3. Check that the library works before installation by running `make check`.
 
-3. Install the library by running `make install'` You may need to become
-   root to issue this step.
-
-4. Issue any manual installation steps that may be required.  These are
-   described later in their own section.
+4. Install the library by running `make install'`. You may need to become
+   root to issue this step depending on the installation prefix you chose.
 
 5. Check that the installed library works by running `make installcheck`.
    You do not need to be root to do this.
@@ -111,16 +104,11 @@ script:
   Specifies the absolute path to the shell interpreter to be used by shtk.
 
 
-Run the tests!
+Reporting bugs
 --------------
 
-Lastly, after a successful installation (and assuming you have Kyua
-installed in your system), you should periodically run the tests from the
-final location to ensure things remain stable.  Do so as follows:
-
-    $ kyua test -k /usr/local/tests/shtk/Kyuafile
-
-And if you see any tests fail, do not hesitate to report them in:
+If you have any problem during installation, please do not hesitate to
+report it at:
 
     https://github.com/jmmv/shtk/issues/
 

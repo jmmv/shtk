@@ -1,10 +1,15 @@
 *_inttest
+*_inttest.log
+*_inttest.trs
 *_test
+*_test.log
+*_test.trs
 Makefile
 Makefile.in
 aclocal.m4
 admin/install-sh
 admin/missing
+admin/test-driver
 autom4te.cache
 config.log
 config.status
@@ -13,4 +18,5 @@ man/shtk.1
 man/shtk_import.3
 shtk
 shtk.pc
+test-suite.log
 version.subr

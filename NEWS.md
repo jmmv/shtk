@@ -14,6 +14,8 @@ Changes in version 1.8
   user can now pass the names of the tests to be run on the command line
   via the `-t` flag and the test program will only execute those tests.
 
+* Migrated to using Automake to run shtk's own test suite instead of Kyua.
+
 
 Changes in version 1.7
 ----------------------

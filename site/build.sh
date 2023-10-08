@@ -42,10 +42,11 @@ build_docs() {
     shtk_cli_info "Converting mandoc to HTML..."
     echo "<ul>" >>"${outdir}/docs.html.frag"
     for src in man/*.[0-9]; do
-        dest="${src#man/}.html"
+        local page="$(echo ${src#man/} | sed -e 's,\.,(,;s,$,),')"
+        local dest="${src#man/}.html"
         mandoc -Thtml -Ofragment -Oman=%N.%S.html "${src}" \
             >"${outdir}/${dest}.frag"
-        echo "<li><a href=\"${dest}\">${dest}</a></li>" \
+        echo "<li><a href=\"${dest}\">${page}</a></li>" \
             >>"${outdir}/docs.html.frag"
     done
     echo "</ul>" >>"${outdir}/docs.html.frag"

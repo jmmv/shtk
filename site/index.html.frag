@@ -22,7 +22,7 @@ brought to you by <a href="https://jmmv.dev/" target="_blank">Julio
 Merino</a>.</p>
 
 <a href="https://github.com/jmmv/shtk/releases/"
-   class="btn btn-primary">Download shtk</a>
-<a href="docs.html" class="btn btn-primary">Read the shtk docs</a>
-<a href="https://github.com/jmmv/shtk" class="btn btn-secondary">View on
+   class="btn btn-primary m-2">Download shtk</a>
+<a href="docs.html" class="btn btn-primary m-2">Read the shtk docs</a>
+<a href="https://github.com/jmmv/shtk" class="btn btn-secondary m-2">View on
 GitHub</a>

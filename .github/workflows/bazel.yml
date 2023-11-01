@@ -1,0 +1,27 @@
+name: Bazel integration
+
+on: [push, pull_request]
+
+jobs:
+    build-rules:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v3
+              with:
+                  path: ~/.cache/bazelisk
+                  key: ${{ runner.os }}--${{ hashFiles('**/.bazelversion') }}
+            - uses: bazelbuild/setup-bazelisk@v2
+            - run: cd bazel_rules && bazel build //...
+
+    test-examples:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v3
+              with:
+                  path: ~/.cache/bazelisk
+                  key: ${{ runner.os }}--${{ hashFiles('**/.bazelversion') }}
+            - uses: bazelbuild/setup-bazelisk@v2
+            - run: ./.github/workflows/install.sh
+            - run: make -C bazel_examples

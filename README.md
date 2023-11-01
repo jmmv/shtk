@@ -46,6 +46,18 @@ this repository, follow the instructions in the
 [INSTALL.md file](INSTALL.md).
 
 
+Bazel integration
+-----------------
+
+The `bazel_rules` directory provides the implementation of `rules_shtk`, a
+collection of build rules for the [Bazel build system](https://bazel.build/)
+to build and run `shtk` scripts.  See their [`README.md`](bazel_rules/README.md)
+for more details on usage.
+
+The `bazel_examples` directory provides sample usage of the rules.  See their
+[`README.md`](bazel_examples/README.md) for more details about them.
+
+
 Documentation
 -------------
 

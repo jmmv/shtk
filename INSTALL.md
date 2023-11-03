@@ -67,7 +67,7 @@ To build and install the source package, you must follow these steps:
 
 2. Build the sources to generate the binaries and scripts.  Run `make` on
    the sources' top directory after configuring them.
-   
+
 3. Check that the library works before installation by running `make check`.
 
 4. Install the library by running `make install'`. You may need to become

@@ -13,7 +13,7 @@ the <a href="shtk.1.html"><tt>shtk(1)</tt> utility</a>.</p>
 <p class="fs-5">shtk is purely written in the shell scripting language so there
 are <b>no dependencies</b> to be installed.</p>
 
-<p class="fs-5">shtk is <b>known to be compatible with at least bash, dash,
+<p class="fs-5">shtk is <b>known to be compatible with at least bourne shell, bash, dash,
 pdksh and zsh</b>, and continuous integration tests prove this to be the
 case.</p>
 

@@ -45,6 +45,19 @@ jobs:
             - run: sudo apt-get install mksh cvs
             - run: ./.github/workflows/build.sh ksh "cvs"
 
+    sh-nothing:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - run: ./.github/workflows/build.sh sh ""
+
+    sh-cvs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - run: sudo apt-get install cvs
+            - run: ./.github/workflows/build.sh sh "cvs"
+
     zsh-nothing:
         runs-on: ubuntu-latest
         steps:

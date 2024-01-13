@@ -13,7 +13,7 @@ utility.
 shtk is purely written in the shell scripting language so there are **no
 dependencies** to be installed.
 
-shtk is **known to be compatible with at least bash, dash, pdksh and zsh**,
+shtk is **known to be compatible with at least bourne shell, bash, dash, pdksh and zsh**,
 and continuous integration tests prove this to be the case.
 
 shtk is licensed under a **[liberal BSD 3-clause license](LICENSE)**.

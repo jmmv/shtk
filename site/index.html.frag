@@ -1,4 +1,4 @@
-<h1>Shell Tookit (shtk)</h1>
+<h1>Shell Toolkit (shtk)</h1>
 
 <p class="fs-5">The Shell Toolkit, or shtk for short, is an <b>application
 toolkit</b> for programmers writing POSIX-compliant shell scripts.</p>

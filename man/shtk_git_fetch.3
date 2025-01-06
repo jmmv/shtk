@@ -1,0 +1,75 @@
+.\" Copyright 2025 Julio Merino
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd January 6, 2025
+.Dt SHTK_GIT_FETCH 3
+.Os
+.Sh NAME
+.Nm shtk_git_fetch
+.Nd Checks out or updates a Git working copy
+.Sh LIBRARY
+shtk_import git
+.Sh SYNOPSIS
+.Nm
+.Ar repo
+.Ar branch
+.Ar directory
+.Sh DESCRIPTION
+The
+.Nm
+function is a simple wrapper over the lower-level
+.Xr shtk_git_checkout 3
+and
+.Xr shtk_git_update 3
+functions, using one or the other depending on the status of the local
+working copy.
+.Pp
+More specifically: if
+.Ar directory
+does not yet exist or it is empty, the
+.Nm
+function checks out a new working copy of the repository
+.Ar repo
+into it using the given
+.Ar branch .
+If
+.Ar directory
+does exist and contains a
+.Pa Git
+control directory, then the
+.Nm
+function performs a working copy update of the repository using the given
+.Ar branch .
+.Sh EXAMPLES
+.Bd -literal -offset indent
+shtk_git_fetch https://example.com/repo.git master /usr/src
+.Ed
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_git 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.8.

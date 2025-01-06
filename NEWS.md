@@ -20,6 +20,8 @@ Changes in version 1.8
 
 * Migrated to using Automake to run shtk's own test suite instead of Kyua.
 
+* Added support for git.
+
 
 Changes in version 1.7
 ----------------------

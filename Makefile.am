@@ -40,6 +40,7 @@ dist_pkgdata_DATA += cli.subr
 dist_pkgdata_DATA += config.subr
 dist_pkgdata_DATA += cvs.subr
 dist_pkgdata_DATA += fs.subr
+dist_pkgdata_DATA += git.subr
 dist_pkgdata_DATA += hw.subr
 dist_pkgdata_DATA += list.subr
 dist_pkgdata_DATA += process.subr
@@ -123,6 +124,10 @@ dist_man_MANS += man/shtk_cvs_update.3
 dist_man_MANS += man/shtk_fs.3
 dist_man_MANS += man/shtk_fs_join_paths.3
 dist_man_MANS += man/shtk_fs_normalize_path.3
+dist_man_MANS += man/shtk_git.3
+dist_man_MANS += man/shtk_git_clone.3
+dist_man_MANS += man/shtk_git_fetch.3
+dist_man_MANS += man/shtk_git_update.3
 dist_man_MANS += man/shtk_hw.3
 dist_man_MANS += man/shtk_hw_ncpus.3
 dist_man_MANS += man/shtk_list.3
@@ -215,6 +220,13 @@ CLEANFILES += fs_test
 EXTRA_DIST += fs_test.sh
 fs_test: $(srcdir)/fs_test.sh shtk
 	$(AM_V_GEN)name=fs_test; $(BUILD_TEST)
+
+TESTS += git_test
+check_SCRIPTS += git_test
+CLEANFILES += git_test
+EXTRA_DIST += git_test.sh
+git_test: $(srcdir)/git_test.sh shtk
+	$(AM_V_GEN)name=git_test; $(BUILD_TEST)
 
 TESTS += hw_test
 check_SCRIPTS += hw_test

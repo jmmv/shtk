@@ -53,16 +53,24 @@ _shtk_unittest_check_command_do_run() {
     local actual_stderr="${1}"; shift
 
     local OPTIND
-    while getopts ':e:o:s:' arg "${@}"; do
+    local workdir=.
+    while getopts ':e:o:s:w:' arg "${@}"; do
         case "${arg}" in
             e)  ;;
             o)  ;;
             s)  ;;
+            w)  workdir="${OPTARG}" ;;
             \?) shtk_cli_error "getopts list out of sync; internal error" ;;
         esac
     done
     shift $((${OPTIND} - 1))
     OPTIND=1  # Should not be necessary due to the 'local' above.
+
+    if [ "${workdir}" != . ]; then
+        actual_stdout="$(pwd)/${actual_stdout}"
+        actual_stderr="$(pwd)/${actual_stderr}"
+        cd "${workdir}"
+    fi
 
     echo "Running checked command: ${*}"
 
@@ -91,12 +99,13 @@ _shtk_unittest_check_command() {
 
     # First pass through the options: make sure they are valid.
     local OPTIND
-    while getopts ':e:o:s:' arg "${@}"; do
+    while getopts ':e:o:s:w:' arg "${@}"; do
         case "${arg}" in
             # TODO(jmmv): Might be nice to validate argument values early.
             e)  ;;
             o)  ;;
             s)  ;;
+            w)  ;;
             \?) shtk_cli_error "Invalid option -${OPTARG} to ${wrapper}" ;;
         esac
     done
@@ -114,7 +123,7 @@ _shtk_unittest_check_command() {
 
     # Second pass through the options: execute any given -s checks.
     local exit_code_done=no
-    while getopts ':e:o:s:' arg "${@}"; do
+    while getopts ':e:o:s:w:' arg "${@}"; do
         case "${arg}" in
             e)  ;;
             o)  ;;
@@ -123,6 +132,7 @@ _shtk_unittest_check_command() {
                     "${actual_exit_code}" || failed=yes
                 exit_code_done=yes
                 ;;
+            w)  ;;
             \?) shtk_cli_error "getopts list out of sync; internal error" ;;
         esac
     done
@@ -142,7 +152,7 @@ _shtk_unittest_check_command() {
         local stdout_done=no stderr_done=no
 
         # Third pass through the options: execute any given -o and -e checks.
-        while getopts ':e:o:s:' arg "${@}"; do
+        while getopts ':e:o:s:w:' arg "${@}"; do
             case "${arg}" in
                 e)  # Expected stderr behavior.
                     _shtk_unittest_check_file "${wrapper}" false "${OPTARG}" \
@@ -155,6 +165,7 @@ _shtk_unittest_check_command() {
                     stdout_done=yes
                     ;;
                 s)  ;;
+                w)  ;;
             \?) shtk_cli_error "getopts list out of sync; internal error" ;;
             esac
         done

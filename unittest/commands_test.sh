@@ -298,6 +298,18 @@ EOF
     }
 
 
+    shtk_unittest_add_test change_workdir
+    change_workdir_test() {
+        mkdir tmp
+        echo "expected contents" >tmp/data1
+        echo "expected contents" >tmp/data2
+        ( shtk_unittest_assert_command -w tmp -o file:tmp/data2 cat data1 \
+            >out 2>err ) || fail "Failed to validate successful command"
+        expect_file inline:"Running checked command: cat data1\n" out
+        expect_file empty err
+    }
+
+
     shtk_unittest_add_test unknown_flag
     unknown_flag_test() {
         ( shtk_unittest_assert_command -Z foo >out 2>err ) \

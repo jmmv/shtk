@@ -72,6 +72,28 @@ EOF
 }
 
 
+shtk_unittest_add_test run__workdir__ok
+run__workdir__ok_test() {
+    mkdir tmp
+    cat >tmp/helper.sh <<EOF
+#! /bin/sh
+echo "This exits cleanly:" "\${@}"
+exit 0
+EOF
+    chmod +x tmp/helper.sh
+
+    cat >expout <<EOF
+This exits cleanly: one two three
+EOF
+    cat >experr <<EOF
+process_test: I: Running './helper.sh one two three' in $(pwd)/tmp
+process_test: I: Command finished successfully
+EOF
+    expect_command -o file:expout -e file:experr -w tmp \
+        shtk_process_run ./helper.sh one two three
+}
+
+
 shtk_unittest_add_test run__timeout__ok
 run__timeout__ok_test() {
     cat >helper.sh <<EOF
@@ -89,6 +111,28 @@ process_test: I: Running './helper.sh one two three' in $(pwd)
 process_test: I: Command finished successfully
 EOF
     expect_command -o file:expout -e file:experr \
+        shtk_process_run -t 10 ./helper.sh one two three
+}
+
+
+shtk_unittest_add_test run__timeout__workdir__ok
+run__timeout__workdir__ok_test() {
+    mkdir tmp
+    cat >tmp/helper.sh <<EOF
+#! /bin/sh
+echo "This exits quickly:" "\${@}"
+exit 0
+EOF
+    chmod +x tmp/helper.sh
+
+    cat >expout <<EOF
+This exits quickly: one two three
+EOF
+    cat >experr <<EOF
+process_test: I: Running './helper.sh one two three' in $(pwd)/tmp
+process_test: I: Command finished successfully
+EOF
+    expect_command -o file:expout -e file:experr -w tmp \
         shtk_process_run -t 10 ./helper.sh one two three
 }
 

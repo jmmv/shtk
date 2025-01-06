@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 10, 2014
+.Dd January 6, 2025
 .Dt SHTK_UNITTEST_ASSERT_COMMAND 3
 .Os
 .Sh NAME
@@ -38,6 +38,7 @@ shtk_import unittest
 .Op Fl e output_spec
 .Op Fl o output_spec
 .Op Fl s exit_code_spec
+.Op Fl w work_dir
 .Ar command Op arg1 .. argN
 .Sh DESCRIPTION
 The
@@ -52,6 +53,13 @@ is the most versatile check offered by
 .Xr shtk_unittest 3
 and should be used to validate the majority of the executions performed
 by test cases.
+.Pp
+The command given to
+.Nm
+is executed in the current directory unless a different directory is specified
+via the
+.Fl w Ar work_dir
+flag.
 .Ss Exit checks
 The
 .Fl s
@@ -152,3 +160,9 @@ assert_command -s exit:42 -o inline:"sent to stdout\\n" \\
 first appeared in
 .Nm shtk
 1.6.
+.Pp
+The
+.Fl w Ar work_dir
+flag was added in
+.Nm shtk
+1.8.

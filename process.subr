@@ -32,12 +32,17 @@ shtk_import cli
 
 shtk_process_run() {
     local timeout=
+    local workdir=
 
     local OPTIND
-    while getopts ':t:' arg "${@}"; do
+    while getopts ':t:w:' arg "${@}"; do
         case "${arg}" in
             t)  # Timeout.
                 timeout="${OPTARG}"
+                ;;
+
+            w)  # Work directory.
+                workdir="${OPTARG}"
                 ;;
 
             :)
@@ -58,7 +63,11 @@ shtk_process_run() {
     local ret=
     if [ -z "${timeout}" ]; then
         ret=0
-        "${@}" || ret="${?}"
+        if [ "${workdir}" = . ]; then
+            "${@}" || ret="${?}"
+        else
+            ( cd "${workdir}" && "${@}" ) || ret="${?}"
+        fi
     else
         # Spawning a process with a timeout is tricky because we have to spawn
         # two subprocesses: one to run the actual process and one to act as a
@@ -98,7 +107,11 @@ shtk_process_run() {
 
         (
             local ret=0
-            "${@}" || ret="${?}"
+            if [ "${workdir}" = . ]; then
+                "${@}" || ret="${?}"
+            else
+                ( cd "${workdir}" && "${@}" ) || ret="${?}"
+            fi
             kill -9 "${watchdog}"
             while [ -z "$(cat "${cookie}")" ]; do
                 # Race protection: the parent has not yet written the cookie.

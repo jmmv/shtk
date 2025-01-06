@@ -14,6 +14,10 @@ Changes in version 1.8
   user can now pass the names of the tests to be run on the command line
   via the `-t` flag and the test program will only execute those tests.
 
+* Added the `-w` option to `shtk_process_run` and
+  `shtk_unittest_assert_command` to allow running commands under different
+  directories than the current one.
+
 * Migrated to using Automake to run shtk's own test suite instead of Kyua.
 
 

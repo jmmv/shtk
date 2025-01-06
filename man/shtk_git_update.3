@@ -1,0 +1,64 @@
+.\" Copyright 2025 Julio Merino
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\" * Redistributions of source code must retain the above copyright
+.\"   notice, this list of conditions and the following disclaimer.
+.\" * Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.Dd January 6, 2025
+.Dt SHTK_GIT_UPDATE 3
+.Os
+.Sh NAME
+.Nm shtk_git_update
+.Nd Updates an existing working copy of a Git repository
+.Sh LIBRARY
+shtk_import git
+.Sh SYNOPSIS
+.Nm
+.Ar branch
+.Ar directory
+.Sh DESCRIPTION
+The
+.Nm
+function updates the existing working copy in
+.Ar directory
+to
+.Ar branch .
+.Pp
+In general, you should resort to using the higher-level
+.Xr shtk_git_fetch 3
+wrapper as it properly handles the case of missing working copies.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+shtk_git_update master /usr/src
+.Ed
+.Sh ERRORS
+.Nm
+aborts execution with an error if the given
+.Ar directory
+does not yet exist or if the Git update operation fails.
+.Sh SEE ALSO
+.Xr shtk 3 ,
+.Xr shtk_git 3
+.Sh HISTORY
+.Nm
+first appeared in
+.Nm shtk
+1.8.

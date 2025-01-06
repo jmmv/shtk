@@ -1,0 +1,69 @@
+# Copyright 2025 Julio Merino
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+shtk_import bool
+shtk_import cli
+shtk_import process
+
+
+shtk_git_fetch() {
+    local repo="${1}"; shift
+    local branch="${1}"; shift
+    local directory="${1}"; shift
+
+    if [ -d "${directory}" ]; then
+        shtk_git_update "${branch}" "${directory}"
+    else
+        shtk_git_clone "${repo}" "${branch}" "${directory}"
+    fi
+}
+
+
+shtk_git_clone() {
+    local repo="${1}"; shift
+    local branch="${1}"; shift
+    local directory="${1}"; shift
+
+    [ ! -d "${directory}" ] || shtk_cli_error "Cannot clone into" \
+        "${directory}; directory already exists"
+    shtk_process_run git clone -b "${branch}" "${repo}" \
+        "${directory}" || shtk_cli_error "git clone failed"
+}
+
+
+shtk_git_update() {
+    local branch="${1}"; shift
+    local directory="${1}"; shift
+
+    [ -d "${directory}" ] || shtk_cli_error "Cannot update ${directory};" \
+        "directory does not exist"
+
+    shtk_process_run -w "${directory}" git fetch origin "${branch}" \
+        || shtk_cli_error "git update failed"
+    shtk_process_run -w "${directory}" git checkout "${branch}" \
+        || shtk_cli_error "git update failed"
+    shtk_process_run -w "${directory}" git merge --ff-only "origin/${branch}" \
+        || shtk_cli_error "git update failed"
+}

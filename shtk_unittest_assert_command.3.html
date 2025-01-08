@@ -108,6 +108,7 @@
     <td>[<code class="Fl">-e</code> <code class="Fl">-output_spec</code>]
       [<code class="Fl">-o</code> <code class="Fl">-output_spec</code>]
       [<code class="Fl">-s</code> <code class="Fl">-exit_code_spec</code>]
+      [<code class="Fl">-w</code> <code class="Fl">-work_dir</code>]
       <var class="Ar">command</var> [arg1 .. argN]</td>
   </tr>
 </table>
@@ -123,6 +124,10 @@
     check offered by
     <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a> and should be
     used to validate the majority of the executions performed by test cases.</p>
+<p class="Pp">The command given to
+    <code class="Nm">shtk_unittest_assert_command</code> is executed in the
+    current directory unless a different directory is specified via the
+    <code class="Fl">-w</code> <var class="Ar">work_dir</var> flag.</p>
 <section class="Ss">
 <h2 class="Ss" id="Exit_checks"><a class="permalink" href="#Exit_checks">Exit
   checks</a></h2>
@@ -218,11 +223,13 @@ assert_command -s exit:42 -o inline:&quot;sent to stdout\n&quot; \
 <h1 class="Sh" id="HISTORY"><a class="permalink" href="#HISTORY">HISTORY</a></h1>
 <p class="Pp"><code class="Nm">shtk_unittest_assert_command</code> first
     appeared in <code class="Nm">shtk</code> 1.6.</p>
+<p class="Pp">The <code class="Fl">-w</code> <var class="Ar">work_dir</var> flag
+    was added in <code class="Nm">shtk</code> 1.8.</p>
 </section>
 </div>
 <table class="foot">
   <tr>
-    <td class="foot-date">November 10, 2014</td>
+    <td class="foot-date">January 6, 2025</td>
     <td class="foot-os">Debian</td>
   </tr>
 </table>

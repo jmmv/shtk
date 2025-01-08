@@ -105,6 +105,7 @@
   <tr>
     <td><code class="Nm">shtk_process_run</code></td>
     <td>[<code class="Fl">-t</code> <var class="Ar">seconds</var>]
+      [<code class="Fl">-w</code> <var class="Ar">work_dir</var>]
       <var class="Ar">command</var> [<var class="Ar">arg1 .. argN</var>]</td>
   </tr>
 </table>
@@ -116,6 +117,10 @@
     <var class="Ar">command</var> and logs, using the logging functions offered
     by <a class="Xr" href="shtk_cli.3.html">shtk_cli(3)</a>, the invocation of
     the command and its termination status.</p>
+<p class="Pp">The command given to <code class="Nm">shtk_process_run</code> is
+    executed in the current directory, unless the <code class="Fl">-w</code>
+    <var class="Ar">work_dir</var> flag is used to specify a different work
+    directory.</p>
 <p class="Pp">Optionally, <code class="Nm">shtk_process_run</code> can enforce a
     maximum run time for the executed command. If the <code class="Fl">-t</code>
     is provided, then the executed command will be forcibly terminated with a
@@ -141,11 +146,13 @@
     <code class="Nm">shtk</code> 1.0.</p>
 <p class="Pp">The <code class="Fl">-t</code> flag appeared in
     <code class="Nm">shtk</code> 1.5.</p>
+<p class="Pp">The <code class="Fl">-w</code> flag appeared in
+    <code class="Nm">shtk</code> 1.8.</p>
 </section>
 </div>
 <table class="foot">
   <tr>
-    <td class="foot-date">November 7, 2014</td>
+    <td class="foot-date">January 6, 2025</td>
     <td class="foot-os">Debian</td>
   </tr>
 </table>

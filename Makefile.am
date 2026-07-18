@@ -54,7 +54,7 @@ dist_unittest_pkgdata_DATA += unittest/operators.subr
 pkgdata_DATA = version.subr
 CLEANFILES = version.subr
 EXTRA_DIST += version.subr.in
-version.subr: $(srcdir)/version.subr.in
+version.subr: $(srcdir)/version.subr.in Makefile
 	$(AM_V_GEN)source=version.subr.in target=version.subr; $(BUILD_FILE)
 
 BUILD_FILE = \
@@ -72,19 +72,19 @@ BUILD_SCRIPT = \
 bin_SCRIPTS = shtk
 CLEANFILES += shtk
 EXTRA_DIST += shtk.sh
-shtk: $(srcdir)/shtk.sh
+shtk: $(srcdir)/shtk.sh Makefile
 	$(AM_V_GEN)source=shtk.sh target=shtk; $(BUILD_SCRIPT)
 
 man_MANS = man/shtk.1
 CLEANFILES += man/shtk.1
 EXTRA_DIST += man/shtk.1.in
-man/shtk.1: $(srcdir)/man/shtk.1.in
+man/shtk.1: $(srcdir)/man/shtk.1.in Makefile
 	$(AM_V_GEN)target=man/shtk.1; source=$${target}.in; $(BUILD_FILE)
 
 man_MANS += man/shtk_import.3
 CLEANFILES += man/shtk_import.3
 EXTRA_DIST += man/shtk_import.3.in
-man/shtk_import.3: $(srcdir)/man/shtk_import.3.in
+man/shtk_import.3: $(srcdir)/man/shtk_import.3.in Makefile
 	$(AM_V_GEN)target=man/shtk_import.3; source=$${target}.in; \
 	$(BUILD_FILE)
 
@@ -260,7 +260,7 @@ TESTS += unittest_inttest
 check_SCRIPTS += unittest_inttest
 CLEANFILES += unittest_inttest
 EXTRA_DIST += unittest_inttest.sh
-unittest_inttest: $(srcdir)/unittest_inttest.sh
+unittest_inttest: $(srcdir)/unittest_inttest.sh Makefile
 	$(AM_V_GEN)source=unittest_inttest.sh; target=unittest_inttest; \
 	    $(BUILD_SCRIPT)
 

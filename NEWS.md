@@ -10,6 +10,9 @@ Changes in version 1.8
 * Added the `shtk run` command to execute an shtk script without first
   building a persistent executable.
 
+* Added the `shtk test` command to build and execute one or more test
+  programs using the `unittest` module.
+
 * Added the `shtk_cli_set_help_command` function to allow customizing the
   help command printed by `shtk_cli_usage_error`.
 

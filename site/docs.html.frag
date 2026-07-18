@@ -32,10 +32,10 @@ hello_prints_hello_world_to_stderr_test() {
 }
 </pre>
 
-<p>You can run the test just like the original program, but specifying a different entry point:</p>
+<p>You can run one or more test programs directly:</p>
 
 <pre>
-$ shtk run -m shtk_unittest_main hello_test.sh
+$ shtk test hello_test.sh
 hello_test: I: Testing hello_prints_hello_world_to_stderr...
 Running checked command: ../hello
 hello_test: I: Testing hello_prints_hello_world_to_stderr... PASSED

@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 16, 2014
+.Dd July 18, 2026
 .Dt SHTK_UNITTEST 3
 .Os
 .Sh NAME
@@ -52,15 +52,22 @@ Test programs implemented using
 must use the
 .Xr shtk_unittest_main 3
 function as their entry point.
-There are two mechanisms to achieve this.
+There are several mechanisms to achieve this.
 .Pp
-The first is to end the test program with the following definition of
+During development, use
+.Xr shtk 1
+to run the test program directly:
+.Bd -literal -offset indent
+$ shtk test module_test.sh
+.Ed
+.Pp
+Alternatively, end the test program with the following definition of
 .Nm main :
 .Bd -literal -offset indent
 main() { shtk_unittest_main "${@}"; }
 .Ed
 .Pp
-The second is to tell
+To generate a persistent executable, tell
 .Xr shtk 1
 at build time to use
 .Xr shtk_unittest_main 3
@@ -69,7 +76,9 @@ as the program's entry point:
 $ shtk build -m shtk_unittest_main module_test.sh
 .Ed
 .Pp
-In general, prefer the latter mechanism.
+In general, prefer selecting the entry point with
+.Xr shtk 1
+instead of defining a wrapper function.
 .Ss Asserts vs. expects
 The
 .Nm

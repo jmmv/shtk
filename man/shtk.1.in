@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd July 17, 2026
+.Dd July 18, 2026
 .Dt SHTK 1
 .Os
 .Sh NAME
@@ -44,6 +44,11 @@ run
 .Op Fl s Ar shell
 .Ar input_file
 .Op Ar argument ...
+.Nm
+test
+.Op Fl m Ar main_function
+.Op Fl s Ar shell
+.Ar input_file ...
 .Nm
 version
 .Sh DESCRIPTION
@@ -155,6 +160,40 @@ Default:
 .El
 .Pp
 The run command exits with the exit status returned by the executed script.
+.Ss The test command
+The test command takes one or more scripts that use the
+.Xr shtk_unittest 3
+module, builds them into temporary directories, and executes the generated
+test programs.
+The temporary files are removed after execution.
+.Pp
+The
+.Ar input_file
+arguments specify the paths to the test programs to run.
+All input files are validated before any test program is executed.
+The test programs run sequentially in command-line order and execution
+continues if any of them fails.
+Unlike the build command, the input files cannot be
+.Sq -
+because the standard input is left available to the test programs.
+.Pp
+The following options are supported:
+.Bl -tag -width XXXX
+.It Fl m Ar main_function
+Name of the function that implements the entry point of the test programs.
+.Pp
+Default:
+.Sq shtk_unittest_main .
+.It Fl s Ar shell
+Path to the shell interpreter to write in the shebang line of the temporary
+test programs.
+.Pp
+Default:
+.Pa __SHTK_SHELL__ .
+.El
+.Pp
+The test command exits successfully only if all test programs exit
+successfully.
 .Ss The version command
 The version command prints the name of the package and its version to the
 standard output.

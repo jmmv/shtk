@@ -6,7 +6,7 @@ jobs:
     bash-nothing:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install bash
             - run: sudo apt-get remove git
             - run: ./.github/workflows/build.sh bash ""
@@ -14,14 +14,14 @@ jobs:
     bash-everything:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install bash cvs git
             - run: ./.github/workflows/build.sh bash "cvs git"
 
     dash-nothing:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install dash
             - run: sudo apt-get remove git
             - run: ./.github/workflows/build.sh dash ""
@@ -29,14 +29,14 @@ jobs:
     dash-everything:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install dash cvs git
             - run: ./.github/workflows/build.sh dash "cvs git"
 
     mksh-nothing:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install mksh
             - run: sudo apt-get remove git
             - run: ./.github/workflows/build.sh ksh ""
@@ -44,14 +44,14 @@ jobs:
     mksh-everything:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install mksh cvs git
             - run: ./.github/workflows/build.sh ksh "cvs git"
 
     zsh-nothing:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install zsh
             - run: sudo apt-get remove git
             - run: ./.github/workflows/build.sh zsh ""
@@ -59,6 +59,6 @@ jobs:
     zsh-everything:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - run: sudo apt-get install zsh cvs git
             - run: ./.github/workflows/build.sh zsh "cvs git"

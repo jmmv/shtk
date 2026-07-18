@@ -30,6 +30,22 @@ shtk_import cleanup
 shtk_import cli
 
 
+_shtk_process_kill_tree() {
+    local root="${1}"; shift
+
+    local pid ppid
+    local children="$(ps -e -o pid= -o ppid= 2>/dev/null)"
+    while read pid ppid; do
+        if [ "${ppid}" = "${root}" ]; then
+            _shtk_process_kill_tree "${pid}"
+        fi
+    done <<EOF
+${children}
+EOF
+    kill -9 "${root}" >/dev/null 2>&1 || true
+}
+
+
 shtk_process_run() {
     local timeout=
     local workdir=.
@@ -100,7 +116,7 @@ shtk_process_run() {
             done
             local pid="$(cat "${cookie}")"
             shtk_cli_warning "Timer expired; killing ${pid}"
-            kill -9 "${pid}"
+            _shtk_process_kill_tree "${pid}"
             echo "TIMEOUT" >"${cookie}"
         ) &
         local watchdog="${!}"
@@ -112,7 +128,7 @@ shtk_process_run() {
             else
                 ( cd "${workdir}" && "${@}" ) || ret="${?}"
             fi
-            kill -9 "${watchdog}"
+            _shtk_process_kill_tree "${watchdog}"
             while [ -z "$(cat "${cookie}")" ]; do
                 # Race protection: the parent has not yet written the cookie.
                 sleep 1

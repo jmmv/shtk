@@ -137,6 +137,36 @@ EOF
 }
 
 
+shtk_unittest_add_test run__timeout__cleans_watchdog
+run__timeout__cleans_watchdog_test() {
+    local real_sleep="$(command -v sleep)"
+    mkdir bin
+    cat >bin/sleep <<EOF
+#! /bin/sh
+echo "\$\$" >watchdog.pid
+exec "${real_sleep}" "\${@}"
+EOF
+    chmod +x bin/sleep
+    PATH="$(pwd)/bin:${PATH}"; export PATH
+
+    cat >helper.sh <<EOF
+#! /bin/sh
+while [ ! -f watchdog.pid ]; do :; done
+exit 0
+EOF
+    chmod +x helper.sh
+
+    cat >experr <<EOF
+process_test: I: Running './helper.sh' in $(pwd)
+process_test: I: Command finished successfully
+EOF
+    expect_command -s exit:0 -e file:experr \
+        shtk_process_run -t 10 ./helper.sh
+    ! kill -0 "$(cat watchdog.pid)" 2>/dev/null \
+        || fail "The completed command left its watchdog running"
+}
+
+
 shtk_unittest_add_test run__timeout__fail
 run__timeout__fail_test() {
     cat >helper.sh <<EOF
@@ -178,7 +208,9 @@ run__timeout__expired_test() {
 #! /bin/sh
 echo "This does not exit on time:" "\${@}"
 exec >/dev/null  # Force flush.
-sleep 100
+sleep 100 &
+echo "\${!}" >sleep.pid
+wait
 exit 0
 EOF
     chmod +x helper.sh
@@ -188,6 +220,8 @@ This does not exit on time: one two three
 EOF
     expect_command -s not-exit:0 -o file:expout -e match:"Timer expired" \
         shtk_process_run -t 1 ./helper.sh one two three
+    ! kill -0 "$(cat sleep.pid)" 2>/dev/null \
+        || fail "The timed-out command left a child process running"
 }
 
 

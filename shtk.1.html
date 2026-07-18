@@ -110,6 +110,24 @@
 <table class="Nm">
   <tr>
     <td><code class="Nm">shtk</code></td>
+    <td>run [<code class="Fl">-m</code> <var class="Ar">main_function</var>]
+      [<code class="Fl">-s</code> <var class="Ar">shell</var>]
+      <var class="Ar">input_file</var> [<var class="Ar">argument ...</var>]</td>
+  </tr>
+</table>
+<br/>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">shtk</code></td>
+    <td>test [<code class="Fl">-m</code> <var class="Ar">main_function</var>]
+      [<code class="Fl">-s</code> <var class="Ar">shell</var>]
+      <var class="Ar">input_file ...</var></td>
+  </tr>
+</table>
+<br/>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">shtk</code></td>
     <td>version</td>
   </tr>
 </table>
@@ -148,7 +166,7 @@
     <var class="Ar">main_function</var></dt>
   <dd>Name of the function that implements the entry point of the program. For
       programs using the
-      <a class="Xr" href="shkt_unittest.3.html">shkt_unittest(3)</a> module,
+      <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a> module,
       this should be passed as <code class="Fl">-m</code>
       <var class="Ar">shtk_unittest_main</var>.
     <p class="Pp">All scripts that use <code class="Nm">shtk</code> should
@@ -172,6 +190,66 @@
     <p class="Pp">Default: <span class="Pa">/usr/bin/bash</span>.</p>
   </dd>
 </dl>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="The_run_command"><a class="permalink" href="#The_run_command">The
+  run command</a></h2>
+<p class="Pp">The run command takes a script that uses
+    <code class="Nm">shtk</code> modules, builds it into a temporary directory,
+    and executes the generated script. The temporary files are removed after
+    execution. This command is intended to simplify running scripts during
+    development; use the build command to generate a persistent executable.</p>
+<p class="Pp">The <var class="Ar">input_file</var> argument specifies the path
+    to the file to run. Unlike the build command, this argument cannot be
+    &#x2018;-&#x2019; because the standard input is left available to the
+    executed script. Any arguments after the input file are passed unchanged to
+    the script.</p>
+<p class="Pp">The following options are supported:</p>
+<dl class="Bl-tag">
+  <dt id="m~2"><a class="permalink" href="#m~2"><code class="Fl">-m</code></a>
+    <var class="Ar">main_function</var></dt>
+  <dd>Name of the function that implements the entry point of the program.
+    <p class="Pp">Default: &#x2018;main&#x2019;.</p>
+  </dd>
+  <dt id="s~2"><a class="permalink" href="#s~2"><code class="Fl">-s</code></a>
+    <var class="Ar">shell</var></dt>
+  <dd>Path to the shell interpreter to write in the shebang line of the
+      temporary script.
+    <p class="Pp">Default: <span class="Pa">/usr/bin/bash</span>.</p>
+  </dd>
+</dl>
+<p class="Pp">The run command exits with the exit status returned by the
+    executed script.</p>
+</section>
+<section class="Ss">
+<h2 class="Ss" id="The_test_command"><a class="permalink" href="#The_test_command">The
+  test command</a></h2>
+<p class="Pp">The test command takes one or more scripts that use the
+    <a class="Xr" href="shtk_unittest.3.html">shtk_unittest(3)</a> module,
+    builds them into temporary directories, and executes the generated test
+    programs. The temporary files are removed after execution.</p>
+<p class="Pp">The <var class="Ar">input_file</var> arguments specify the paths
+    to the test programs to run. All input files are validated before any test
+    program is executed. The test programs run sequentially in command-line
+    order and execution continues if any of them fails. Unlike the build
+    command, the input files cannot be &#x2018;-&#x2019; because the standard
+    input is left available to the test programs.</p>
+<p class="Pp">The following options are supported:</p>
+<dl class="Bl-tag">
+  <dt id="m~3"><a class="permalink" href="#m~3"><code class="Fl">-m</code></a>
+    <var class="Ar">main_function</var></dt>
+  <dd>Name of the function that implements the entry point of the test programs.
+    <p class="Pp">Default: &#x2018;shtk_unittest_main&#x2019;.</p>
+  </dd>
+  <dt id="s~3"><a class="permalink" href="#s~3"><code class="Fl">-s</code></a>
+    <var class="Ar">shell</var></dt>
+  <dd>Path to the shell interpreter to write in the shebang line of the
+      temporary test programs.
+    <p class="Pp">Default: <span class="Pa">/usr/bin/bash</span>.</p>
+  </dd>
+</dl>
+<p class="Pp">The test command exits successfully only if all test programs exit
+    successfully.</p>
 </section>
 <section class="Ss">
 <h2 class="Ss" id="The_version_command"><a class="permalink" href="#The_version_command">The
@@ -210,12 +288,12 @@
 <section class="Sh">
 <h1 class="Sh" id="AUTHORS"><a class="permalink" href="#AUTHORS">AUTHORS</a></h1>
 <p class="Pp">The <code class="Nm">shtk</code> package was developed by
-    <span class="An">Julio Merino</span> &#x27E8;jmmv@google.com&#x27E9;.</p>
+    <span class="An">Julio Merino</span> &#x27E8;julio@meroh.net&#x27E9;.</p>
 </section>
 </div>
 <table class="foot">
   <tr>
-    <td class="foot-date">November 8, 2014</td>
+    <td class="foot-date">July 18, 2026</td>
     <td class="foot-os">Debian</td>
   </tr>
 </table>

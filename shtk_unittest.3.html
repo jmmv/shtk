@@ -115,20 +115,29 @@
 <p class="Pp">Test programs implemented using <code class="Nm">unittest</code>
     must use the
     <a class="Xr" href="shtk_unittest_main.3.html">shtk_unittest_main(3)</a>
-    function as their entry point. There are two mechanisms to achieve this.</p>
-<p class="Pp">The first is to end the test program with the following definition
+    function as their entry point. There are several mechanisms to achieve
+  this.</p>
+<p class="Pp">During development, use
+    <a class="Xr" href="shtk.1.html">shtk(1)</a> to run the test program
+    directly:</p>
+<div class="Bd Pp Bd-indent Li">
+<pre>$ shtk test module_test.sh</pre>
+</div>
+<p class="Pp">Alternatively, end the test program with the following definition
     of <code class="Nm">main</code>:</p>
 <div class="Bd Pp Bd-indent Li">
 <pre>main() { shtk_unittest_main &quot;${@}&quot;; }</pre>
 </div>
-<p class="Pp">The second is to tell <a class="Xr" href="shtk.1.html">shtk(1)</a>
-    at build time to use
+<p class="Pp">To generate a persistent executable, tell
+    <a class="Xr" href="shtk.1.html">shtk(1)</a> at build time to use
     <a class="Xr" href="shtk_unittest_main.3.html">shtk_unittest_main(3)</a> as
     the program's entry point:</p>
 <div class="Bd Pp Bd-indent Li">
 <pre>$ shtk build -m shtk_unittest_main module_test.sh</pre>
 </div>
-<p class="Pp">In general, prefer the latter mechanism.</p>
+<p class="Pp">In general, prefer selecting the entry point with
+    <a class="Xr" href="shtk.1.html">shtk(1)</a> instead of defining a wrapper
+    function.</p>
 </section>
 <section class="Ss">
 <h2 class="Ss" id="Asserts_vs._expects"><a class="permalink" href="#Asserts_vs._expects">Asserts
@@ -394,7 +403,7 @@ main() { shtk_unittest_main &quot;${@}&quot;; }</pre>
 </div>
 <table class="foot">
   <tr>
-    <td class="foot-date">November 16, 2014</td>
+    <td class="foot-date">July 18, 2026</td>
     <td class="foot-os">Debian</td>
   </tr>
 </table>

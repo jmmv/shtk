@@ -12,13 +12,14 @@ main() {
 }
 </pre>
 
-<p>Now, build and run it:</p>
+<p>During development, you can run it directly:</p>
 
 <pre>
-$ shtk build hello.sh
-$ ./hello
+$ shtk run hello.sh
 hello: I: Hello, world!
 </pre>
+
+<p>Once the script is ready, use <tt>shtk build hello.sh</tt> to create the persistent <tt>hello</tt> executable.</p>
 
 <p>You can also write test programs with shtk. A simple integration test for our <tt>hello.sh</tt> sample program, which we store as <tt>hello_test.sh</tt>, would look like this:</p>
 
@@ -31,7 +32,17 @@ hello_prints_hello_world_to_stderr_test() {
 }
 </pre>
 
-<p>You can build and run the test just like the original program, but specifying a different entry point:</p>
+<p>You can run the test just like the original program, but specifying a different entry point:</p>
+
+<pre>
+$ shtk run -m shtk_unittest_main hello_test.sh
+hello_test: I: Testing hello_prints_hello_world_to_stderr...
+Running checked command: ../hello
+hello_test: I: Testing hello_prints_hello_world_to_stderr... PASSED
+hello_test: I: Ran 1 tests; ALL PASSED
+</pre>
+
+<p>Or you can also build it:</p>
 
 <pre>
 $ shtk build -m shtk_unittest_main hello_test.sh

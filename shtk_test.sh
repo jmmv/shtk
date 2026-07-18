@@ -183,6 +183,165 @@ EOF
 }
 
 
+shtk_unittest_add_test run__defaults
+run__defaults_test() {
+    cat >script.sh <<EOF
+shtk_import cli
+
+main() {
+    shtk_cli_info "It works"
+}
+EOF
+
+    expect_command -e inline:'script: I: It works\n' shtk run script.sh
+    expect_command test ! -e script
+}
+
+
+shtk_unittest_add_test run__mflag
+run__mflag_test() {
+    cat >script.sh <<EOF
+my_main() {
+    echo "Print this"
+}
+
+main() {
+    echo "Don't print this"
+}
+EOF
+
+    expect_command -o inline:'Print this\n' shtk run -m my_main script.sh
+}
+
+
+shtk_unittest_add_test run__sflag
+run__sflag_test() {
+    cat >interpreter <<EOF
+#! /bin/sh
+echo "Using custom interpreter"
+exec /bin/sh "\${@}"
+EOF
+    chmod +x interpreter
+
+    cat >script.sh <<EOF
+main() {
+    echo "Running script"
+}
+EOF
+
+    cat >expout <<EOF
+Using custom interpreter
+Running script
+EOF
+    expect_command -o file:expout shtk run -s "$(pwd)/interpreter" script.sh
+}
+
+
+shtk_unittest_add_test run__arguments
+run__arguments_test() {
+    cat >script.sh <<EOF
+main() {
+    for arg in "\${@}"; do
+        echo "<\${arg}>"
+    done
+}
+EOF
+
+    cat >expout <<EOF
+<one>
+<two words>
+<*>
+EOF
+    expect_command -o file:expout shtk run script.sh one 'two words' '*'
+}
+
+
+shtk_unittest_add_test run__stdin
+run__stdin_test() {
+    cat >script.sh <<EOF
+main() {
+    read line
+    echo "Read: \${line}"
+}
+EOF
+
+    echo 'from stdin' \
+        | expect_command -o inline:'Read: from stdin\n' shtk run script.sh
+}
+
+
+shtk_unittest_add_test run__exit_code
+run__exit_code_test() {
+    cat >script.sh <<EOF
+main() {
+    return 42
+}
+EOF
+
+    expect_command -s exit:42 shtk run script.sh
+}
+
+
+shtk_unittest_add_test run__cleanup
+run__cleanup_test() {
+    cat >script.sh <<EOF
+main() {
+    return 1
+}
+EOF
+
+    expect_command -s exit:1 shtk run script.sh
+    expect_command sh -c 'set -- shtk.*; test "${1}" = "shtk.*"'
+}
+
+
+shtk_unittest_add_test run__no_args
+run__no_args_test() {
+    cat >experr <<EOF
+shtk: E: run requires an input file
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk run
+}
+
+
+shtk_unittest_add_test run__stdin_input
+run__stdin_input_test() {
+    cat >experr <<EOF
+shtk: E: run does not accept standard input
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk run -
+}
+
+
+shtk_unittest_add_test run__missing_input
+run__missing_input_test() {
+    expect_command -s exit:1 -e inline:'shtk: E: Cannot open missing.sh\n' \
+        shtk run missing.sh
+}
+
+
+shtk_unittest_add_test run__unknown_option
+run__unknown_option_test() {
+    cat >experr <<EOF
+shtk: E: Unknown option -Z in run
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk run -Z
+}
+
+
+shtk_unittest_add_test run__missing_argument
+run__missing_argument_test() {
+    cat >experr <<EOF
+shtk: E: Missing argument to option -m in run
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk run -m
+}
+
+
 shtk_unittest_add_test version__ok
 version__ok_test() {
     expect_command -s exit:0 -o match:"shtk [0-9]+\.[0-9]+.*" shtk version

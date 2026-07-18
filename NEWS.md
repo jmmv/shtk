@@ -7,6 +7,9 @@ Changes in version 1.8
 
 **STILL UNDER DEVELOPMENT; NOT RELEASED YET.**
 
+* Added the `shtk run` command to execute an shtk script without first
+  building a persistent executable.
+
 * Added the `shtk_cli_set_help_command` function to allow customizing the
   help command printed by `shtk_cli_usage_error`.
 

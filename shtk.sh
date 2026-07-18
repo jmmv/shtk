@@ -142,6 +142,63 @@ shtk_build() {
 }
 
 
+# Command to run a script that uses shtk libraries.
+#
+# \params ... Options and arguments to the command.
+shtk_run() {
+    local main=main
+    local shell="${SHTK_SHELL}"
+
+    while getopts ':m:s:' arg "${@}"; do
+        case "${arg}" in
+            m)  # Main function name.
+                main="${OPTARG}"
+                ;;
+
+            s)  # Shell to use.
+                shell="${OPTARG}"
+                ;;
+
+            :)
+                usage_error "Missing argument to option -${OPTARG} in run"
+                ;;
+
+            \?)
+                usage_error "Unknown option -${OPTARG} in run"
+                ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+
+    [ ${#} -ge 1 ] || usage_error "run requires an input file"
+
+    local input="${1}"; shift
+    [ "${input}" != - ] || usage_error "run does not accept standard input"
+    [ -e "${input}" ] || error "Cannot open ${input}"
+
+    local pattern="${TMPDIR:-/tmp}/shtk.XXXXXX"
+    local tempdir
+    tempdir="$(mktemp -d "${pattern}" 2>/dev/null)"
+    [ -d "${tempdir}" ] || error "Failed to create temporary directory"
+    trap "rm -rf '${tempdir}'" EXIT HUP INT TERM
+
+    local name="${input##*/}"
+    local output="${tempdir}/${name%.sh}"
+
+    OPTIND=1
+    shtk_build -m "${main}" -o "${output}" -s "${shell}" "${input}" \
+        || error "Failed to build script"
+
+    local exit_code=0
+    "${output}" "${@}" || exit_code="${?}"
+
+    rm -rf "${tempdir}"
+    trap - EXIT HUP INT TERM
+
+    return "${exit_code}"
+}
+
+
 # Gets version information about shtk.
 shtk_version() {
     [ ${#} -eq 0 ] || usage_error "version does not take any arguments"
@@ -162,7 +219,7 @@ shtk_main() {
 
     local command="${1}"; shift
     case "${command}" in
-        build|version)
+        build|run|version)
             "shtk_${command}" "${@}" || exit_code="${?}"
             ;;
 

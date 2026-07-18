@@ -25,7 +25,7 @@
 .\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 .\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.Dd November 8, 2014
+.Dd July 18, 2026
 .Dt SHTK_UNITTEST_MAIN 3
 .Os
 .Sh NAME
@@ -61,11 +61,19 @@ name:
 $ shtk build -m shtk_unittest_main module_test.sh
 .Ed
 .Pp
-In general, prefer the latter mechanism.
+During development, the test program can instead be run directly with:
+.Bd -literal -offset indent
+$ shtk test module_test.sh
+.Ed
+.Pp
+In general, prefer selecting the entry point with
+.Xr shtk 1
+instead of defining a wrapper function.
 .Sh RETURN VALUES
 Returns 0 (true) if all executed test cases pass, or 1 (false) if any
 test fails.
 .Sh SEE ALSO
+.Xr shtk 1 ,
 .Xr shtk 3 ,
 .Xr shtk_unittest 3
 .Sh HISTORY

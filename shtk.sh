@@ -79,6 +79,7 @@ shtk_build() {
     local main=main
     local output=
     local shell="${SHTK_SHELL}"
+    local OPTIND=1
 
     while getopts ':m:o:s:' arg "${@}"; do
         case "${arg}" in
@@ -131,7 +132,7 @@ shtk_build() {
     if [ "${input}" = - ]; then
         cat >>"${output}.tmp"
     else
-        cat "${input}" >>"${output}.tmp"
+        cat -- "${input}" >>"${output}.tmp"
     fi
     [ -z "${main}" ] || echo "${main} \"\${@}\"" >>"${output}.tmp"
     chmod +x "${output}.tmp"
@@ -142,12 +143,46 @@ shtk_build() {
 }
 
 
+# Builds and executes a source script.
+#
+# \param main Name of the function that implements the entry point.
+# \param shell Path to the shell interpreter to use.
+# \param input Path to the source script.
+# \params ... Arguments to pass to the script.
+_shtk_execute() {
+    local main="${1}"; shift
+    local shell="${1}"; shift
+    local input="${1}"; shift
+
+    local pattern="${TMPDIR:-/tmp}/shtk.XXXXXX"
+    local tempdir
+    tempdir="$(mktemp -d "${pattern}" 2>/dev/null)"
+    [ -d "${tempdir}" ] || error "Failed to create temporary directory"
+    trap "rm -rf '${tempdir}'" EXIT HUP INT TERM
+
+    local name="${input##*/}"
+    local output="${tempdir}/${name%.sh}"
+
+    shtk_build -m "${main}" -o "${output}" -s "${shell}" -- "${input}" \
+        || error "Failed to build script"
+
+    local exit_code=0
+    "${output}" "${@}" || exit_code="${?}"
+
+    rm -rf "${tempdir}"
+    trap - EXIT HUP INT TERM
+
+    return "${exit_code}"
+}
+
+
 # Command to run a script that uses shtk libraries.
 #
 # \params ... Options and arguments to the command.
 shtk_run() {
     local main=main
     local shell="${SHTK_SHELL}"
+    local OPTIND=1
 
     while getopts ':m:s:' arg "${@}"; do
         case "${arg}" in
@@ -174,27 +209,54 @@ shtk_run() {
 
     local input="${1}"; shift
     [ "${input}" != - ] || usage_error "run does not accept standard input"
-    [ -e "${input}" ] || error "Cannot open ${input}"
+    [ -f "${input}" -a -r "${input}" ] || error "Cannot open ${input}"
 
-    local pattern="${TMPDIR:-/tmp}/shtk.XXXXXX"
-    local tempdir
-    tempdir="$(mktemp -d "${pattern}" 2>/dev/null)"
-    [ -d "${tempdir}" ] || error "Failed to create temporary directory"
-    trap "rm -rf '${tempdir}'" EXIT HUP INT TERM
+    _shtk_execute "${main}" "${shell}" "${input}" "${@}"
+}
 
-    local name="${input##*/}"
-    local output="${tempdir}/${name%.sh}"
 
-    OPTIND=1
-    shtk_build -m "${main}" -o "${output}" -s "${shell}" "${input}" \
-        || error "Failed to build script"
+# Command to run scripts that use the shtk unittest library.
+#
+# \params ... Options and arguments to the command.
+shtk_test() {
+    local main=shtk_unittest_main
+    local shell="${SHTK_SHELL}"
+    local OPTIND=1
+
+    while getopts ':m:s:' arg "${@}"; do
+        case "${arg}" in
+            m)  # Main function name.
+                main="${OPTARG}"
+                ;;
+
+            s)  # Shell to use.
+                shell="${OPTARG}"
+                ;;
+
+            :)
+                usage_error "Missing argument to option -${OPTARG} in test"
+                ;;
+
+            \?)
+                usage_error "Unknown option -${OPTARG} in test"
+                ;;
+        esac
+    done
+    shift $((${OPTIND} - 1))
+
+    [ ${#} -ge 1 ] || usage_error "test requires at least one input file"
+
+    local input
+    for input in "${@}"; do
+        [ "${input}" != - ] \
+            || usage_error "test does not accept standard input"
+        [ -f "${input}" -a -r "${input}" ] || error "Cannot open ${input}"
+    done
 
     local exit_code=0
-    "${output}" "${@}" || exit_code="${?}"
-
-    rm -rf "${tempdir}"
-    trap - EXIT HUP INT TERM
-
+    for input in "${@}"; do
+        _shtk_execute "${main}" "${shell}" "${input}" || exit_code=1
+    done
     return "${exit_code}"
 }
 
@@ -219,7 +281,7 @@ shtk_main() {
 
     local command="${1}"; shift
     case "${command}" in
-        build|run|version)
+        build|run|test|version)
             "shtk_${command}" "${@}" || exit_code="${?}"
             ;;
 

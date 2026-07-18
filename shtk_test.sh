@@ -342,6 +342,197 @@ EOF
 }
 
 
+shtk_unittest_add_test test__defaults
+test__defaults_test() {
+    cat >script.sh <<EOF
+shtk_import unittest
+
+shtk_unittest_add_test ok
+ok_test() {
+    :
+}
+EOF
+
+    cat >experr <<EOF
+script: I: Testing ok...
+script: I: Testing ok... PASSED
+script: I: Ran 1 tests; ALL PASSED
+EOF
+    expect_command -e file:experr shtk test script.sh
+}
+
+
+shtk_unittest_add_test test__multiple
+test__multiple_test() {
+    cat >first.sh <<EOF
+shtk_import unittest
+shtk_cli_set_log_level error
+
+shtk_unittest_add_test first
+first_test() {
+    echo first
+}
+EOF
+    cat >second.sh <<EOF
+shtk_import unittest
+shtk_cli_set_log_level error
+
+shtk_unittest_add_test second
+second_test() {
+    echo second
+}
+EOF
+
+    expect_command -o inline:'first\nsecond\n' shtk test first.sh second.sh
+}
+
+
+shtk_unittest_add_test test__continues_after_failure
+test__continues_after_failure_test() {
+    cat >first.sh <<EOF
+shtk_unittest_main() {
+    echo first
+    return 1
+}
+EOF
+    cat >second.sh <<EOF
+shtk_unittest_main() {
+    echo second
+}
+EOF
+
+    expect_command -s exit:1 -o inline:'first\nsecond\n' \
+        shtk test first.sh second.sh
+}
+
+
+shtk_unittest_add_test test__mflag
+test__mflag_test() {
+    cat >script.sh <<EOF
+custom_main() {
+    echo custom
+}
+EOF
+
+    expect_command -o inline:'custom\n' shtk test -m custom_main script.sh
+}
+
+
+shtk_unittest_add_test test__sflag
+test__sflag_test() {
+    cat >interpreter <<EOF
+#! /bin/sh
+echo "Using custom interpreter"
+exec /bin/sh "\${@}"
+EOF
+    chmod +x interpreter
+
+    cat >script.sh <<EOF
+custom_main() {
+    echo "Running test"
+}
+EOF
+
+    cat >expout <<EOF
+Using custom interpreter
+Running test
+EOF
+    expect_command -o file:expout shtk test -m custom_main \
+        -s "$(pwd)/interpreter" script.sh
+}
+
+
+shtk_unittest_add_test test__preflight
+test__preflight_test() {
+    cat >script.sh <<EOF
+echo ran >ran
+
+custom_main() {
+    :
+}
+EOF
+    mkdir directory
+
+    expect_command -s exit:1 -e inline:'shtk: E: Cannot open missing.sh\n' \
+        shtk test -m custom_main script.sh missing.sh
+    expect_command test ! -e ran
+    expect_command -s exit:1 -e inline:'shtk: E: Cannot open directory\n' \
+        shtk test -m custom_main script.sh directory
+    expect_command test ! -e ran
+}
+
+
+shtk_unittest_add_test test__double_dash
+test__double_dash_test() {
+    cat >-script.sh <<EOF
+custom_main() {
+    echo passed
+}
+EOF
+
+    expect_command -o inline:'passed\n' \
+        shtk test -m custom_main -- -script.sh
+}
+
+
+shtk_unittest_add_test test__cleanup
+test__cleanup_test() {
+    cat >first.sh <<EOF
+custom_main() {
+    return 1
+}
+EOF
+    cat >second.sh <<EOF
+custom_main() {
+    :
+}
+EOF
+
+    expect_command -s exit:1 shtk test -m custom_main first.sh second.sh
+    expect_command sh -c 'set -- shtk.*; test "${1}" = "shtk.*"'
+}
+
+
+shtk_unittest_add_test test__no_args
+test__no_args_test() {
+    cat >experr <<EOF
+shtk: E: test requires at least one input file
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk test
+}
+
+
+shtk_unittest_add_test test__stdin_input
+test__stdin_input_test() {
+    cat >experr <<EOF
+shtk: E: test does not accept standard input
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk test -
+}
+
+
+shtk_unittest_add_test test__unknown_option
+test__unknown_option_test() {
+    cat >experr <<EOF
+shtk: E: Unknown option -Z in test
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk test -Z
+}
+
+
+shtk_unittest_add_test test__missing_argument
+test__missing_argument_test() {
+    cat >experr <<EOF
+shtk: E: Missing argument to option -m in test
+Type 'man shtk' for help
+EOF
+    expect_command -s exit:1 -e file:experr shtk test -m
+}
+
+
 shtk_unittest_add_test version__ok
 version__ok_test() {
     expect_command -s exit:0 -o match:"shtk [0-9]+\.[0-9]+.*" shtk version

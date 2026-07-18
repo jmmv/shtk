@@ -28,6 +28,9 @@ Changes in version 1.8
 
 * Added support for git.
 
+* Fixed `shtk_process_run` timeouts to terminate full process trees and avoid
+  leaving processes behind.
+
 
 Changes in version 1.7
 ----------------------

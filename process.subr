@@ -32,7 +32,7 @@ shtk_import cli
 
 shtk_process_run() {
     local timeout=
-    local workdir=
+    local workdir=.
 
     local OPTIND
     while getopts ':t:w:' arg "${@}"; do

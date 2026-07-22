@@ -72,6 +72,21 @@ usage_error() {
 }
 
 
+# Validates that a shell path is suitable for use in a shebang.
+#
+# \param shell The interpreter path to validate.
+_shtk_validate_shell() {
+    local shell="${1}"; shift
+
+    [ -f "${shell}" -a -r "${shell}" ] || error "Cannot open ${shell}"
+    [ -x "${shell}" ] || error "Cannot execute ${shell}"
+
+    local magic="$(dd if="${shell}" bs=2 count=1 2>/dev/null || true)"
+    [ "${magic}" != '#!' ] \
+        || error "Cannot use ${shell} as an interpreter because it is a script"
+}
+
+
 # Command to build a script that uses shtk libraries.
 #
 # \params ... Options and arguments to the command.
@@ -107,6 +122,8 @@ shtk_build() {
     shift $((${OPTIND} - 1))
 
     [ ${#} -eq 1 ] || usage_error "build takes one argument only"
+
+    _shtk_validate_shell "${shell}"
 
     local input="${1}"; shift
     case "${input}" in
@@ -207,6 +224,8 @@ shtk_run() {
 
     [ ${#} -ge 1 ] || usage_error "run requires an input file"
 
+    _shtk_validate_shell "${shell}"
+
     local input="${1}"; shift
     [ "${input}" != - ] || usage_error "run does not accept standard input"
     [ -f "${input}" -a -r "${input}" ] || error "Cannot open ${input}"
@@ -245,6 +264,8 @@ shtk_test() {
     shift $((${OPTIND} - 1))
 
     [ ${#} -ge 1 ] || usage_error "test requires at least one input file"
+
+    _shtk_validate_shell "${shell}"
 
     local input
     for input in "${@}"; do

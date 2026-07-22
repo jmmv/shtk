@@ -29,6 +29,42 @@
 shtk_import unittest
 
 
+build_binary_interpreter() {
+    local output="${1}"; shift
+
+    [ -n "${TEST_CC}" ] || skip "No C compiler available"
+
+    cat >"${output}.c" <<'EOF'
+#include <stdlib.h>
+#include <unistd.h>
+
+int
+main(int argc, char* argv[])
+{
+    static const char message[] = "Using custom interpreter\n";
+    write(STDOUT_FILENO, message, sizeof(message) - 1);
+    execv("/bin/sh", argv);
+    return EXIT_FAILURE;
+}
+EOF
+
+    "${TEST_CC}" -o "${output}" "${output}.c" \
+        || fail "Failed to build test interpreter"
+}
+
+
+build_script_interpreter() {
+    local output="${1}"; shift
+
+    cat >"${output}" <<'EOF'
+#! /bin/sh
+echo "Using custom interpreter"
+exec /bin/sh "${@}"
+EOF
+    chmod +x "${output}"
+}
+
+
 shtk_unittest_add_test build__defaults
 build__defaults_test() {
     cat >script.sh <<EOF
@@ -138,8 +174,22 @@ build__sflag_test() {
     cat >script.sh <<EOF
 We won't run this anyway.
 EOF
-    expect_command shtk build -s '/custom/interpreter' script.sh
-    expect_command -o inline:'#! /custom/interpreter\n' head -n1 script
+    expect_command shtk build -s /bin/sh script.sh
+    expect_command -o inline:'#! /bin/sh\n' head -n1 script
+}
+
+
+shtk_unittest_add_test build__sflag__script_is_invalid
+build__sflag__script_is_invalid_test() {
+    build_script_interpreter ./interpreter
+
+    cat >script.sh <<EOF
+We won't run this anyway.
+EOF
+
+    expect_command -s exit:1 \
+        -e inline:"shtk: E: Cannot use $(pwd)/interpreter as an interpreter because it is a script\n" \
+        shtk build -s "$(pwd)/interpreter" script.sh
 }
 
 
@@ -216,12 +266,7 @@ EOF
 
 shtk_unittest_add_test run__sflag
 run__sflag_test() {
-    cat >interpreter <<EOF
-#! /bin/sh
-echo "Using custom interpreter"
-exec /bin/sh "\${@}"
-EOF
-    chmod +x interpreter
+    build_binary_interpreter ./interpreter
 
     cat >script.sh <<EOF
 main() {
@@ -234,6 +279,22 @@ Using custom interpreter
 Running script
 EOF
     expect_command -o file:expout shtk run -s "$(pwd)/interpreter" script.sh
+}
+
+
+shtk_unittest_add_test run__sflag__script_is_invalid
+run__sflag__script_is_invalid_test() {
+    build_script_interpreter ./interpreter
+
+    cat >script.sh <<EOF
+main() {
+    echo "Running script"
+}
+EOF
+
+    expect_command -s exit:1 \
+        -e inline:"shtk: E: Cannot use $(pwd)/interpreter as an interpreter because it is a script\n" \
+        shtk run -s "$(pwd)/interpreter" script.sh
 }
 
 
@@ -420,12 +481,7 @@ EOF
 
 shtk_unittest_add_test test__sflag
 test__sflag_test() {
-    cat >interpreter <<EOF
-#! /bin/sh
-echo "Using custom interpreter"
-exec /bin/sh "\${@}"
-EOF
-    chmod +x interpreter
+    build_binary_interpreter ./interpreter
 
     cat >script.sh <<EOF
 custom_main() {
@@ -439,6 +495,22 @@ Running test
 EOF
     expect_command -o file:expout shtk test -m custom_main \
         -s "$(pwd)/interpreter" script.sh
+}
+
+
+shtk_unittest_add_test test__sflag__script_is_invalid
+test__sflag__script_is_invalid_test() {
+    build_script_interpreter ./interpreter
+
+    cat >script.sh <<EOF
+custom_main() {
+    echo "Running test"
+}
+EOF
+
+    expect_command -s exit:1 \
+        -e inline:"shtk: E: Cannot use $(pwd)/interpreter as an interpreter because it is a script\n" \
+        shtk test -m custom_main -s "$(pwd)/interpreter" script.sh
 }
 
 

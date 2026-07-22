@@ -60,6 +60,8 @@ if test "${SHTK_SHELL}" = ""; then
 fi
 AC_MSG_NOTICE([Using shell interpreter ${SHTK_SHELL}])
 
+AC_PATH_PROG(TEST_CC, [cc], [])
+AC_SUBST(TEST_CC)
 
 AC_SUBST(aclocaldir, \${datadir}/aclocal)
 AC_SUBST(pkgconfigdir, \${libdir}/pkgconfig)
